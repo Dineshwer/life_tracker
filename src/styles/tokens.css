@@ -1,0 +1,181 @@
+/* ============================================================================
+   THEME CONTRACT
+   Every skin (src/styles/skins/<id>.css) overrides these tokens for BOTH modes using
+     [data-skin='<id>'][data-theme='dark'] { ... }   and   [data-skin='<id>'][data-theme='light'] { ... }
+   The defaults below are the Canopy dark skin, so anything unset falls back safely.
+   Fonts are loaded per skin by src/themes.ts, never with @import here.
+   ========================================================================== */
+
+:root {
+  /* --- color ---------------------------------------------------------- */
+  --bg: #08100d;
+  --bg-2: #0c1713;
+  --surface: #101c17;
+  --raised: #16251f;
+  --card: linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.012)), #112019;
+  --line: rgba(226, 236, 214, 0.08);
+  --line-strong: rgba(226, 236, 214, 0.17);
+  --edge: rgba(255, 255, 255, 0.07);
+  --text: #eef0e2;
+  --muted: #9aab9f;
+  --faint: #62746a;
+  --accent: #9ccf9e;
+  --accent-2: #e8b877;
+  --accent-ink: #0a140f;
+  --glow: rgba(156, 207, 158, 0.16);
+  --glow-2: rgba(232, 184, 119, 0.09);
+  --danger: #d48577;
+  --body: #de9a72;
+  --mind: #8fb4cc;
+  --skill: #dcc16f;
+  --discipline: #b79bd0;
+  --scrim: rgba(3, 8, 6, 0.66);
+
+  /* --- shape ---------------------------------------------------------- */
+  --r-control: 10px;          /* buttons, inputs */
+  --r-card: 18px;             /* cards, panels */
+  --r-sheet: 20px;            /* sheets, modals */
+  --r-pill: 99px;             /* chips, bars, tags */
+  --card-bw: 1px;             /* card border width */
+  --card-border: var(--line); /* card border color */
+  --card-clip: none;          /* optional clip-path for angular skins */
+  --shadow: 0 1px 0 var(--edge) inset, 0 24px 48px -28px rgba(0,0,0,.75), 0 2px 6px -2px rgba(0,0,0,.5);
+  --btn-bg: linear-gradient(180deg, color-mix(in srgb, var(--accent) 92%, white), var(--accent));
+  --btn-ink: var(--accent-ink);
+  --btn-border: transparent;
+  --btn-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 10px 24px -12px var(--accent);
+  --bar-glow: 0 0 12px -1px currentColor;  /* glow on progress fills; use none for flat skins */
+  --ring-glow: 0 0 0 4px color-mix(in srgb, var(--c, var(--accent)) 18%, transparent);
+
+  /* --- type ----------------------------------------------------------- */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-ui: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --display-weight: 380;
+  --display-style: normal;
+  --display-var: 'SOFT' 60, 'WONK' 0;
+  --display-transform: none;
+  --display-tracking: -0.015em;
+  --em-style: italic;                 /* style used for emphasised words inside .display */
+  --label-transform: uppercase;
+  --label-tracking: 0.1em;
+  --label-weight: 600;
+  --label-size: 0.7rem;
+
+  /* --- atmosphere ----------------------------------------------------- */
+  --atmosphere:
+    radial-gradient(900px 520px at 8% -8%, var(--glow), transparent 62%),
+    radial-gradient(760px 480px at 100% 108%, var(--glow-2), transparent 60%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  --atmosphere-size: auto;
+  --grain: .06;
+
+  /* --- layout (constant across skins) -------------------------------- */
+  --gutter: 16px;
+  --maxw: 1180px;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  color-scheme: dark;
+}
+
+@media (min-width: 860px) {
+  :root { --gutter: 36px; }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  background-image: var(--atmosphere);
+  background-size: var(--atmosphere-size);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
+}
+
+/* film grain: a tactile, printed feel; skins set --grain to 0 to disable */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 100;
+  opacity: var(--grain);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+h1, h2, h3, p { margin: 0; }
+button { font: inherit; color: inherit; cursor: pointer; }
+input, textarea, select { font: inherit; color: inherit; }
+
+.label {
+  font-size: var(--label-size);
+  text-transform: var(--label-transform);
+  letter-spacing: var(--label-tracking);
+  color: var(--muted);
+  font-weight: var(--label-weight);
+}
+.display {
+  font-family: var(--font-display);
+  font-weight: var(--display-weight);
+  font-style: var(--display-style);
+  letter-spacing: var(--display-tracking);
+  text-transform: var(--display-transform);
+  font-variation-settings: var(--display-var);
+  font-optical-sizing: auto;
+}
+.display em { font-style: var(--em-style); }
+.display.italic { font-style: italic; }
+.mono { font-family: var(--font-mono); }
+
+/* surfaces: the one primary container for every skin */
+.card {
+  background: var(--card);
+  border: var(--card-bw) solid var(--card-border);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow);
+  clip-path: var(--card-clip);
+}
+
+:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 2px; }
+
+::selection { background: var(--glow); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---- Canopy: the reference skin (also the fallback) ---------------------- */
+[data-skin='canopy'][data-theme='dark'] { color-scheme: dark; }
+
+[data-skin='canopy'][data-theme='light'] {
+  --bg: #f3efe3;
+  --bg-2: #ece7d6;
+  --surface: #f8f5ec;
+  --raised: #fbf9f2;
+  --card: linear-gradient(180deg, #fffdf6, #f7f3e7);
+  --line: rgba(30, 44, 34, 0.1);
+  --line-strong: rgba(30, 44, 34, 0.22);
+  --edge: rgba(255, 255, 255, 0.9);
+  --text: #17231b;
+  --muted: #5b6b5f;
+  --faint: #8d9a8f;
+  --accent: #35653f;
+  --accent-2: #b9782a;
+  --accent-ink: #f7f4ea;
+  --glow: rgba(70, 130, 85, 0.14);
+  --glow-2: rgba(210, 150, 70, 0.12);
+  --danger: #a4493d;
+  --body: #a8643e;
+  --mind: #4a7088;
+  --skill: #8a7220;
+  --discipline: #71568a;
+  --scrim: rgba(23, 35, 27, 0.35);
+  --shadow: 0 1px 0 var(--edge) inset, 0 18px 36px -24px rgba(40,50,30,.35), 0 1px 3px rgba(40,50,30,.1);
+  --grain: .05;
+  color-scheme: light;
+}

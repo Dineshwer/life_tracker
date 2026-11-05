@@ -1,0 +1,107 @@
+/* skin: rings — clean fitness-app clarity, zinc neutrals, four vivid ring colours. See THEME CONTRACT in ../tokens.css. */
+[data-skin='rings'][data-theme='dark'], [data-skin='rings'][data-theme='light'] {
+  --font-display: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-ui: 'Barlow', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --display-weight: 800;
+  --display-style: normal;
+  --display-var: normal;
+  --display-transform: none;
+  --display-tracking: -0.02em;
+  --em-style: normal;
+  --label-transform: uppercase;
+  --label-tracking: 0.16em;
+  --label-weight: 600;
+  --label-size: 0.72rem;
+  --r-control: 12px;
+  --r-card: 16px;
+  --r-sheet: 22px;
+  --r-pill: 99px;
+  --card-bw: 1px;
+  --bar-glow: none;
+  --atmosphere-size: auto;
+}
+
+[data-skin='rings'][data-theme='dark'] {
+  --bg: #09090b;
+  --bg-2: #0d0d10;
+  --surface: #121215;
+  --raised: #1f1f23;
+  --card: #18181b;
+  --line: #27272a;
+  --line-strong: #3f3f46;
+  --edge: rgba(255, 255, 255, 0.04);
+  --text: #f4f4f5;
+  --muted: #a1a1aa;
+  --faint: #71717a;
+  --accent: #a3e635;
+  --accent-2: #5cc8ff;
+  --accent-ink: #09090b;
+  --glow: rgba(163, 230, 53, 0.1);
+  --glow-2: rgba(92, 200, 255, 0.06);
+  --danger: #f87171;
+  --body: #ff9a62;
+  --mind: #5cc8ff;
+  --skill: #f5cf4a;
+  --discipline: #c98bff;
+  --scrim: rgba(0, 0, 0, 0.66);
+  --grain: 0;
+  --card-border: var(--line);
+  --shadow: 0 1px 0 rgba(255,255,255,.03) inset;
+  --btn-bg: #f4f4f5;
+  --btn-ink: #09090b;
+  --btn-shadow: none;
+  --ring-glow: 0 0 0 4px color-mix(in srgb, var(--c, var(--accent)) 16%, transparent);
+  --atmosphere: radial-gradient(700px 420px at 50% -10%, rgba(255,255,255,.035), transparent 70%), #09090b;
+  color-scheme: dark;
+}
+
+[data-skin='rings'][data-theme='light'] {
+  --bg: #f4f4f5;
+  --bg-2: #eeeef0;
+  --surface: #fafafa;
+  --raised: #ffffff;
+  --card: #ffffff;
+  --line: #e4e4e7;
+  --line-strong: #c9c9d0;
+  --edge: rgba(255, 255, 255, 0.9);
+  --text: #18181b;
+  --muted: #52525b;
+  --faint: #8e8e98;
+  --accent: #3f7d0a;
+  --accent-2: #0a7fc0;
+  --accent-ink: #ffffff;
+  --glow: rgba(63, 125, 10, 0.1);
+  --glow-2: rgba(10, 127, 192, 0.06);
+  --danger: #dc2626;
+  --body: #d65a14;
+  --mind: #0a7fc0;
+  --skill: #a77c00;
+  --discipline: #8f45d8;
+  --scrim: rgba(24, 24, 27, 0.4);
+  --grain: 0;
+  --card-border: var(--line);
+  --shadow: 0 1px 2px rgba(24,24,27,.05), 0 12px 28px -18px rgba(24,24,27,.18);
+  --btn-bg: #18181b;
+  --btn-ink: #fafafa;
+  --btn-shadow: none;
+  --ring-glow: 0 0 0 4px color-mix(in srgb, var(--c, var(--accent)) 14%, transparent);
+  --atmosphere: linear-gradient(180deg, #f9f9fa, #f4f4f5);
+  color-scheme: light;
+}
+
+/* ---- structure (shared classes only) ---- */
+[data-skin='rings'] .btn { font-weight: 700; letter-spacing: 0.01em; }
+[data-skin='rings'] .btn-ghost { background: transparent; }
+[data-skin='rings'] .bar { height: 8px; background: color-mix(in srgb, var(--text) 9%, transparent); }
+[data-skin='rings'] .ring { border-width: 2px; }
+[data-skin='rings'] .ring-full { box-shadow: var(--ring-glow); }
+[data-skin='rings'] .section-rule { background: var(--line); }
+[data-skin='rings'] .page-title { font-size: clamp(2.2rem, 5.5vw, 3.4rem); letter-spacing: -0.025em; }
+[data-skin='rings'] .brand { font-size: 1.9rem; font-style: normal; font-weight: 800; }
+[data-skin='rings'] .tabbar { left: 0; right: 0; bottom: 0; margin-bottom: 0; border-width: 1px 0 0; border-radius: 0; background: color-mix(in srgb, var(--bg) 94%, transparent); box-shadow: none; padding-bottom: calc(6px + env(safe-area-inset-bottom)); }
+[data-skin='rings'] .tab { text-transform: none; letter-spacing: 0; font-size: 0.72rem; font-weight: 600; }
+[data-skin='rings'] .tab.on { background: transparent; color: var(--text); }
+[data-skin='rings'] .rail-link { font-weight: 600; }
+[data-skin='rings'] .rail-link.on { background: var(--raised); box-shadow: none; }
+[data-skin='rings'] .rail-link.on::before { display: none; }

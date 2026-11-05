@@ -1,0 +1,132 @@
+/* skin: riso — two-ink risograph print: fluorescent pink + blue overprint, halftone, hard offset shadows. */
+[data-skin='riso'] {
+  --font-display: 'Archivo Black', Impact, 'Arial Black', sans-serif;
+  --font-ui: 'Space Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-mono: 'Space Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --display-weight: 400;
+  --display-style: normal;
+  --display-var: normal;
+  --display-transform: uppercase;
+  --display-tracking: -0.03em;
+  --em-style: normal;
+  --label-transform: uppercase;
+  --label-tracking: 0.14em;
+  --label-weight: 700;
+  --label-size: 0.7rem;
+  --r-control: 0px;
+  --r-card: 2px;
+  --r-sheet: 0px;
+  --r-pill: 0px;
+  --card-bw: 2.5px;
+  --card-border: var(--text);
+  --bar-glow: none;
+  --ring-glow: none;
+  --btn-border: var(--text);
+  --btn-ink: var(--accent-ink);
+  --atmosphere-size: 14px 14px, 14px 14px, auto, auto, auto;
+}
+
+[data-skin='riso'][data-theme='light'] {
+  --bg: #f3eddf;
+  --bg-2: #ece4d0;
+  --surface: #f8f3e6;
+  --raised: #fbf7ea;
+  --card: #fbf7ea;
+  --line: rgba(19, 32, 58, 0.22);
+  --line-strong: #13203a;
+  --edge: rgba(255, 255, 255, 0.6);
+  --text: #13203a;
+  --muted: #4a5672;
+  --faint: #7b849b;
+  --accent: #ff48b0;
+  --accent-2: #0078bf;
+  --accent-ink: #13203a;
+  --glow: rgba(255, 72, 176, 0.18);
+  --glow-2: rgba(0, 120, 191, 0.16);
+  --danger: #c4261d;
+  --body: #c4106f;
+  --mind: #0067a8;
+  --skill: #8a5a00;
+  --discipline: #6a3fb0;
+  --scrim: rgba(19, 32, 58, 0.45);
+  --shadow: 4px 4px 0 #0078bf;
+  --btn-bg: #ff48b0;
+  --btn-shadow: 4px 4px 0 #0078bf;
+  --grain: .12;
+  --atmosphere:
+    radial-gradient(rgba(255, 72, 176, .38) 1.5px, transparent 1.9px) 0 0,
+    radial-gradient(rgba(0, 120, 191, .3) 1.5px, transparent 1.9px) 7px 7px,
+    radial-gradient(420px 420px at 100% 0%, rgba(255, 72, 176, .16), transparent 70%),
+    radial-gradient(360px 360px at 85% 12%, rgba(0, 120, 191, .12), transparent 70%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  color-scheme: light;
+}
+
+[data-skin='riso'][data-theme='dark'] {
+  --bg: #0e1a33;
+  --bg-2: #0a1428;
+  --surface: #121f3d;
+  --raised: #1a2b52;
+  --card: #16264a;
+  --line: rgba(243, 237, 223, 0.2);
+  --line-strong: #f3eddf;
+  --card-border: rgba(243, 237, 223, 0.72);
+  --edge: rgba(255, 255, 255, 0.05);
+  --text: #f3eddf;
+  --muted: #a9b4cf;
+  --faint: #7380a0;
+  --accent: #ff48b0;
+  --accent-2: #2e8fe0;
+  --accent-ink: #0e1a33;
+  --glow: rgba(255, 72, 176, 0.2);
+  --glow-2: rgba(46, 143, 224, 0.2);
+  --danger: #ff7a6b;
+  --body: #ff6fc0;
+  --mind: #4aa8f0;
+  --skill: #f0c040;
+  --discipline: #b49cff;
+  --scrim: rgba(4, 8, 20, 0.7);
+  --shadow: 4px 4px 0 #2e8fe0;
+  --btn-bg: #ff48b0;
+  --btn-shadow: 4px 4px 0 #2e8fe0;
+  --grain: .07;
+  --atmosphere:
+    radial-gradient(rgba(255, 72, 176, .3) 1.5px, transparent 1.9px) 0 0,
+    radial-gradient(rgba(46, 143, 224, .3) 1.5px, transparent 1.9px) 7px 7px,
+    radial-gradient(420px 420px at 100% 0%, rgba(255, 72, 176, .16), transparent 70%),
+    radial-gradient(360px 360px at 85% 12%, rgba(46, 143, 224, .16), transparent 70%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  color-scheme: dark;
+}
+
+/* ---- structure ---- */
+[data-skin='riso'] .btn { border-width: 2.5px; font-family: var(--font-display); text-transform: uppercase; letter-spacing: .02em; font-weight: 400; font-size: .95rem; }
+[data-skin='riso'] .btn-solid { border-color: var(--text); }
+[data-skin='riso'] .btn-solid:hover { filter: none; transform: translate(-1px, -1px); }
+[data-skin='riso'] .btn-solid:active { transform: translate(3px, 3px); box-shadow: 1px 1px 0 var(--accent-2); }
+[data-skin='riso'] .btn-ghost { background: transparent; border-color: var(--text); border-width: 2.5px; }
+[data-skin='riso'] .btn-ghost:hover { background: var(--accent); color: var(--accent-ink); border-color: var(--text); }
+[data-skin='riso'] .btn-text { font-family: var(--font-ui); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
+[data-skin='riso'] .ring { border-radius: 0; border: 2.5px solid var(--text); background: transparent; }
+[data-skin='riso'] .ring:hover { box-shadow: 2px 2px 0 var(--accent-2); border-color: var(--text); }
+[data-skin='riso'] .ring-full { background: var(--accent-2); border-color: var(--text); box-shadow: none; color: #f3eddf; }
+[data-skin='riso'] .ring-min { background: linear-gradient(135deg, var(--accent-2) 50%, transparent 50%); border-color: var(--text); }
+[data-skin='riso'] .ring-half { display: none; }
+[data-skin='riso'] .bar { border: 2px solid var(--text); background: transparent; border-radius: 0; height: auto; }
+[data-skin='riso'] .bar-fill { border-radius: 0; background-image: radial-gradient(rgba(243,237,223,.5) 1px, transparent 1.3px); background-size: 5px 5px; }
+[data-skin='riso'] .section-header { margin-top: 36px; }
+[data-skin='riso'] .section-rule { height: 3px; background: var(--text); }
+[data-skin='riso'] .page-title, [data-skin='riso'] .brand { text-shadow: 3px 3px 0 var(--accent); }
+[data-skin='riso'] .brand span { color: var(--accent); }
+[data-skin='riso'] .tabbar { background: var(--bg); backdrop-filter: none; border-width: 3px 0 0; border-color: var(--text); border-radius: 0; left: 0; right: 0; bottom: 0; box-shadow: none; padding-bottom: 8px; }
+[data-skin='riso'] .tab { border-radius: 0; font-weight: 700; letter-spacing: .12em; }
+[data-skin='riso'] .tab.on { background: transparent; color: var(--text); text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 3px; text-underline-offset: 5px; }
+[data-skin='riso'] .tab.on svg { color: var(--text); }
+[data-skin='riso'] .rail { border-right: 3px solid var(--text); background: transparent; }
+[data-skin='riso'] .rail-link { border-radius: 0; font-weight: 700; }
+[data-skin='riso'] .rail-link.on { background: var(--accent); color: var(--accent-ink); box-shadow: 3px 3px 0 var(--accent-2); }
+[data-skin='riso'] .rail-link.on svg { color: var(--accent-ink); }
+[data-skin='riso'] .rail-link.on::before { display: none; }
+[data-skin='riso'] .sheet { border-width: 3px; border-color: var(--text); }
+[data-skin='riso'] .field input, [data-skin='riso'] .field textarea, [data-skin='riso'] .field select { background: var(--card); border: 2.5px solid var(--text); box-shadow: none; }
+[data-skin='riso'] .field input:focus, [data-skin='riso'] .field textarea:focus, [data-skin='riso'] .field select:focus { box-shadow: 3px 3px 0 var(--accent); }

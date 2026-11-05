@@ -1,0 +1,13 @@
+/* All skins. Canopy lives in tokens.css (reference + fallback). */
+@import './paper.css';
+@import './grimoire.css';
+@import './pop.css';
+@import './arcade.css';
+@import './sumi.css';
+@import './bauhaus.css';
+@import './riso.css';
+@import './blueprint.css';
+@import './swiss.css';
+@import './collage.css';
+@import './rings.css';
+@import './cyberpunk.css';

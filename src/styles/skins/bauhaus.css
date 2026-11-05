@@ -1,0 +1,84 @@
+/* skin: bauhaus — primary shapes, heavy rules, no softness. Light-first on cream; dark is black with cream rules. */
+[data-skin='bauhaus'][data-theme='light'] {
+  --bg: #efe7d4; --bg-2: #e8dfc8; --surface: #f7f0de; --raised: #fbf6e8;
+  --card: #f7f0de;
+  --line: rgba(20,20,20,.28); --line-strong: #141414; --edge: transparent;
+  --text: #141414; --muted: #4a463d; --faint: #8a8372;
+  --accent: #c92d1b; --accent-2: #1f4fd8; --accent-ink: #f7f0de;
+  --glow: rgba(230,58,39,.18); --glow-2: rgba(31,79,216,.14);
+  --danger: #c92d1b; --body: #c92d1b; --mind: #1f4fd8; --skill: #8f6a00; --discipline: #1f7a4d;
+  --scrim: rgba(20,20,20,.55);
+  --card-border: #141414; --shadow: none;
+  --btn-bg: #141414; --btn-ink: #efe7d4; --btn-border: #141414;
+  --atmosphere:
+    radial-gradient(circle at 100% 0, rgba(230,58,39,.16) 0 70px, transparent 71px),
+    linear-gradient(#efe7d4, #efe7d4);
+  color-scheme: light;
+}
+[data-skin='bauhaus'][data-theme='dark'] {
+  --bg: #121212; --bg-2: #0b0b0b; --surface: #1c1c1c; --raised: #262626;
+  --card: #1c1c1c;
+  --line: rgba(239,231,212,.25); --line-strong: #efe7d4; --edge: transparent;
+  --text: #efe7d4; --muted: #b3ab98; --faint: #7d7766;
+  --accent: #ff4a36; --accent-2: #f6c21a; --accent-ink: #141414;
+  --glow: rgba(255,74,54,.2); --glow-2: rgba(246,194,26,.12);
+  --danger: #ff6a58; --body: #ff5a44; --mind: #6a90ff; --skill: #f6c21a; --discipline: #4fc08d;
+  --scrim: rgba(0,0,0,.72);
+  --card-border: #efe7d4; --shadow: none;
+  --btn-bg: #efe7d4; --btn-ink: #141414; --btn-border: #efe7d4;
+  --atmosphere:
+    radial-gradient(circle at 100% 0, rgba(255,74,54,.2) 0 70px, transparent 71px),
+    linear-gradient(#121212, #121212);
+  color-scheme: dark;
+}
+[data-skin='bauhaus'] {
+  --font-display: 'Jost', 'Futura', 'Century Gothic', sans-serif;
+  --font-ui: 'Jost', 'Futura', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, Menlo, monospace;
+  --display-weight: 800; --display-style: normal; --display-var: normal;
+  --display-transform: none; --display-tracking: -0.03em; --em-style: normal;
+  --label-transform: uppercase; --label-tracking: 0.2em; --label-weight: 700; --label-size: 0.7rem;
+  --r-control: 0px; --r-card: 0px; --r-sheet: 0px; --r-pill: 0px;
+  --card-bw: 3px; --atmosphere-size: auto; --grain: 0;
+  --btn-shadow: none; --bar-glow: none; --ring-glow: none;
+}
+[data-skin='bauhaus'] body, body[data-skin='bauhaus'] { font-size: 17px; }
+/* a red/blue/yellow trio of squares marks each card's corner */
+[data-skin='bauhaus'] .card { position: relative; }
+[data-skin='bauhaus'] .card::after { content: ''; position: absolute; top: -3px; right: 12px; width: 28px; height: 8px; pointer-events: none;
+  background: linear-gradient(90deg, #e63a27 0 33.3%, #1f4fd8 33.3% 66.6%, #f6c21a 66.6%); border: 0; }
+[data-skin='bauhaus'] .btn { font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; font-size: 0.8rem; border-width: 3px; padding: 12px 20px; }
+[data-skin='bauhaus'] .btn-solid:hover { filter: none; background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+[data-skin='bauhaus'] .btn-ghost { background: transparent; border-color: var(--line-strong); }
+[data-skin='bauhaus'] .btn-ghost:hover { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+[data-skin='bauhaus'] .btn-text { letter-spacing: 0.14em; text-transform: uppercase; font-size: 0.74rem; font-weight: 700; }
+[data-skin='bauhaus'] .ring { border: 3px solid var(--line-strong); background: transparent; width: 30px; height: 30px; box-shadow: none; }
+[data-skin='bauhaus'] .ring:hover { box-shadow: none; background: color-mix(in srgb, var(--c) 25%, transparent); border-color: var(--line-strong); }
+[data-skin='bauhaus'] .ring-full { background: var(--c); border-color: var(--c); box-shadow: none; }
+[data-skin='bauhaus'] .ring-min { border-color: var(--line-strong); }
+[data-skin='bauhaus'] .ring-half { border-radius: 0; background: var(--c); width: 12px; height: 12px; }
+[data-skin='bauhaus'] .bar { border-radius: 0; background: transparent; border: 3px solid var(--line-strong); box-sizing: content-box; }
+[data-skin='bauhaus'] .bar-fill { border-radius: 0; }
+[data-skin='bauhaus'] .section-header { margin-top: 36px; gap: 16px; }
+[data-skin='bauhaus'] .section-header .label { color: var(--text); font-weight: 800; letter-spacing: 0.22em; }
+[data-skin='bauhaus'] .section-rule { height: 4px; background: var(--line-strong); }
+[data-skin='bauhaus'] .page-title { font-weight: 800; letter-spacing: -0.04em; text-transform: none; }
+[data-skin='bauhaus'] .brand { font-style: normal; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; }
+[data-skin='bauhaus'] .brand span { color: var(--accent); }
+[data-skin='bauhaus'] .tabbar { left: 0; right: 0; bottom: 0; margin: 0; padding: 0; background: #141414; border: 0; border-top: 4px solid #141414; border-radius: 0; box-shadow: none; backdrop-filter: none; }
+[data-skin='bauhaus'][data-theme='dark'] .tabbar { background: #0b0b0b; border-top-color: #efe7d4; }
+[data-skin='bauhaus'] .tab { color: #efe7d4; font-weight: 700; letter-spacing: 0.14em; font-size: 0.62rem; border-radius: 0; padding: 12px 0 10px; border: 0; background: transparent; }
+[data-skin='bauhaus'] .tab.on { background: #f6c21a; color: #141414; }
+[data-skin='bauhaus'] .tab.on svg { color: #141414; }
+[data-skin='bauhaus'] .rail { border-right: 4px solid var(--line-strong); background: transparent; }
+[data-skin='bauhaus'] .rail-link { border-radius: 0; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.82rem; }
+[data-skin='bauhaus'] .rail-link:hover { background: transparent; box-shadow: inset 4px 0 0 var(--accent-2); }
+[data-skin='bauhaus'] .rail-link.on { background: #f6c21a; color: #141414; box-shadow: none; }
+[data-skin='bauhaus'] .rail-link.on svg { color: #141414; }
+[data-skin='bauhaus'] .rail-link.on::before { display: none; }
+[data-skin='bauhaus'] .sheet { border-width: 4px; border-color: var(--line-strong); }
+[data-skin='bauhaus'] .sheet-scrim { backdrop-filter: none; }
+[data-skin='bauhaus'] .field input, [data-skin='bauhaus'] .field textarea, [data-skin='bauhaus'] .field select { background: transparent; border: 3px solid var(--line-strong); box-shadow: none; }
+[data-skin='bauhaus'] .field input:focus, [data-skin='bauhaus'] .field textarea:focus, [data-skin='bauhaus'] .field select:focus { box-shadow: none; border-color: var(--accent-2); }
+[data-skin='bauhaus'] :focus-visible { outline: 3px solid var(--accent-2); outline-offset: 2px; }
+[data-skin='bauhaus'][data-theme='dark'] :focus-visible { outline-color: var(--accent-2); }

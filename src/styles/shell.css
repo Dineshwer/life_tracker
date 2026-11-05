@@ -1,0 +1,37 @@
+.shell { min-height: 100%; display: grid; grid-template-columns: 1fr; }
+.rail { display: none; }
+.main { padding: 0 var(--gutter) 96px; max-width: var(--maxw); width: 100%; margin: 0 auto; }
+
+.tabbar { position: fixed; bottom: 10px; left: 10px; right: 10px; display: grid; grid-template-columns: repeat(5, 1fr); background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(14px); border: 1px solid var(--line-strong); border-radius: var(--r-card); border-width: var(--card-bw); box-shadow: var(--shadow); padding: 6px 4px; margin-bottom: env(safe-area-inset-bottom); z-index: 20; }
+.tab { display: grid; justify-items: center; gap: 3px; padding: 7px 0; border-radius: var(--r-control); color: var(--faint); text-decoration: none; font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; transition: color .18s var(--ease), background .18s var(--ease); }
+.tab.on { color: var(--text); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.tab.on svg { color: var(--accent); }
+
+.brand { font-family: var(--font-display); font-weight: var(--display-weight); font-style: var(--em-style); font-variation-settings: var(--display-var); text-transform: var(--display-transform); letter-spacing: var(--display-tracking); }
+.brand span { color: var(--accent-2); }
+
+@media (min-width: 860px) {
+  .shell { grid-template-columns: 244px 1fr; }
+  .tabbar { display: none; }
+  .main { padding-bottom: 48px; }
+  .rail { display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; padding: 36px 18px 24px; border-right: 1px solid var(--line); background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 70%, transparent), transparent); }
+  .brand { font-size: 2.2rem; margin: 0 10px 40px; }
+  .rail nav { display: grid; gap: 3px; }
+  .rail-link { position: relative; display: flex; align-items: center; gap: 13px; padding: 10px 12px; border-radius: var(--r-control); color: var(--muted); text-decoration: none; font-size: 0.94rem; font-weight: 500; transition: color .18s var(--ease), background .18s var(--ease); }
+  .rail-link:hover { color: var(--text); background: color-mix(in srgb, var(--text) 4%, transparent); }
+  .rail-link.on { color: var(--text); background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 16%, transparent), transparent 90%); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent) inset; }
+  .rail-link.on svg { color: var(--accent); }
+  .rail-link.on::before { content: ''; position: absolute; left: -18px; top: 50%; width: 3px; height: 18px; margin-top: -9px; border-radius: 0 3px 3px 0; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+  .theme-toggle { margin-top: auto; display: flex; align-items: center; gap: 10px; background: color-mix(in srgb, var(--text) 3%, transparent); border: 1px solid var(--line); border-radius: var(--r-control); padding: 10px 12px; color: var(--muted); font-size: 0.82rem; font-weight: 500; }
+  .theme-toggle:hover { color: var(--text); border-color: var(--line-strong); }
+}
+
+/* "More" sheet on phones: the screens that do not fit in the tab bar */
+.more-list { display: grid; gap: 6px; }
+.more-link { display: flex; align-items: center; gap: 14px; padding: 14px 14px; border-radius: var(--r-control); border: 1px solid var(--line); background: color-mix(in srgb, var(--text) 3%, transparent); color: var(--text); text-decoration: none; font-weight: 600; font-size: 1rem; text-align: left; }
+.more-link svg { color: var(--muted); flex: none; }
+.more-link.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.more-link.on svg { color: var(--accent); }
+
+/* the More tab is a <button>: strip default button chrome so it matches the link tabs */
+button.tab { border: 0; background: transparent; font-family: inherit; cursor: pointer; width: 100%; }

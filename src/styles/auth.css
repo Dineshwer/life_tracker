@@ -1,0 +1,17 @@
+.auth { min-height: 100%; display: grid; place-items: center; padding: 32px var(--gutter); position: relative; overflow: hidden; }
+.auth::before { content: ''; position: absolute; left: 50%; top: 18%; width: 720px; height: 720px; transform: translate(-50%, -30%); background: radial-gradient(closest-side, var(--glow), transparent 70%), radial-gradient(closest-side at 70% 70%, var(--glow-2), transparent 70%); pointer-events: none; }
+.auth-col { position: relative; width: 100%; max-width: 400px; display: grid; justify-items: center; text-align: center; }
+.auth-tree { -webkit-mask-image: radial-gradient(closest-side, black 62%, transparent 100%); mask-image: radial-gradient(closest-side, black 62%, transparent 100%); margin-bottom: -8px; animation: authrise .9s var(--ease) both; }
+.auth-brand { font-size: clamp(3.6rem, 14vw, 5rem); line-height: 1; font-style: var(--em-style); font-variation-settings: 'SOFT' 100, 'WONK' 1; font-weight: var(--display-weight); letter-spacing: -0.03em; animation: authrise .8s var(--ease) .1s both; }
+.auth-brand span { color: var(--accent-2); text-shadow: 0 0 24px var(--glow-2); }
+.auth-line { font-size: 1.1rem; color: var(--muted); margin: 8px 0 32px; animation: authrise .8s var(--ease) .2s both; }
+.auth-card { width: 100%; padding: 24px; text-align: left; animation: authrise .8s var(--ease) .3s both; }
+.auth-card .field input { min-height: 48px; font-size: 1rem; }
+.auth-submit { width: 100%; min-height: 48px; margin-top: 8px; font-size: 0.95rem; }
+.auth-switch { background: none; border: 0; color: var(--muted); font-size: 0.875rem; margin-top: 24px; padding: 8px; min-height: 44px; animation: authrise .8s var(--ease) .4s both; }
+.auth-switch:hover { color: var(--text); }
+.auth-msg { font-size: 0.85rem; margin: 0 0 16px; padding: 12px 14px; border-radius: var(--r-control); border: 1px solid; line-height: 1.4; }
+.auth-msg.err { color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+.auth-msg.ok { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+@keyframes authrise { from { opacity: 0; transform: translateY(12px); } }
+@media (prefers-reduced-motion: reduce) { .auth-tree, .auth-brand, .auth-line, .auth-card, .auth-switch { animation: none; } }

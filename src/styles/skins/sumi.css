@@ -1,0 +1,127 @@
+/* skin: sumi — ink wash on washi, mincho type, one vermilion seal */
+[data-skin='sumi'][data-theme='light'] {
+  --bg: #eee8da;
+  --bg-2: #e6dfce;
+  --surface: #f2ecdf;
+  --raised: #f7f2e7;
+  --card: rgba(250, 246, 236, 0.72);
+  --line: rgba(28, 27, 25, 0.16);
+  --line-strong: rgba(28, 27, 25, 0.38);
+  --edge: rgba(255, 255, 255, 0.6);
+  --text: #1c1b19;
+  --muted: #655f54;
+  --faint: #8d877a;
+  --accent: #bf3228;
+  --accent-2: #3a3833;
+  --accent-ink: #fbf0e6;
+  --glow: rgba(255, 255, 255, 0.55);
+  --glow-2: rgba(190, 170, 130, 0.2);
+  --danger: #a4281f;
+  --body: #a8502f;
+  --mind: #3c5f78;
+  --skill: #7a6a1c;
+  --discipline: #6a4a78;
+  --scrim: rgba(28, 27, 25, 0.42);
+  --shadow: 0 1px 0 var(--edge) inset, 0 14px 30px -22px rgba(28, 27, 25, 0.35);
+  --grain: 0;
+  --mtn-a: rgba(28, 27, 25, 0.3);
+  --mtn-b: rgba(28, 27, 25, 0.14);
+  --mtn-blend: multiply;
+  color-scheme: light;
+}
+[data-skin='sumi'][data-theme='dark'] {
+  --bg: #121211;
+  --bg-2: #0d0d0c;
+  --surface: #181816;
+  --raised: #20201d;
+  --card: rgba(30, 29, 26, 0.7);
+  --line: rgba(236, 230, 216, 0.12);
+  --line-strong: rgba(236, 230, 216, 0.3);
+  --edge: rgba(255, 255, 255, 0.04);
+  --text: #ece6d8;
+  --muted: #a29b8c;
+  --faint: #6f6a5e;
+  --accent: #d13c32;
+  --accent-2: #cfc8b8;
+  --accent-ink: #fff6ee;
+  --glow: rgba(236, 230, 216, 0.07);
+  --glow-2: rgba(200, 55, 45, 0.07);
+  --danger: #e2685e;
+  --body: #d98a64;
+  --mind: #7fa4c0;
+  --skill: #d0b968;
+  --discipline: #a98cc0;
+  --scrim: rgba(0, 0, 0, 0.65);
+  --shadow: 0 1px 0 var(--edge) inset, 0 18px 36px -24px rgba(0, 0, 0, 0.9);
+  --grain: 0;
+  --mtn-a: rgba(236, 230, 216, 0.1);
+  --mtn-b: rgba(236, 230, 216, 0.05);
+  --mtn-blend: screen;
+  color-scheme: dark;
+}
+[data-skin='sumi'] {
+  --atmosphere:
+    radial-gradient(500px 320px at 20% 0%, var(--glow), transparent 60%),
+    radial-gradient(400px 300px at 100% 60%, var(--glow-2), transparent 65%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  --atmosphere-size: auto;
+  --r-control: 2px;
+  --r-card: 4px;
+  --r-sheet: 6px;
+  --r-pill: 99px;
+  --card-bw: 0px;
+  --card-border: transparent;
+  --btn-bg: transparent;
+  --btn-ink: var(--text);
+  --btn-border: transparent;
+  --btn-shadow: none;
+  --bar-glow: none;
+  --ring-glow: none;
+  --font-display: 'Shippori Mincho', 'Hiragino Mincho ProN', Georgia, serif;
+  --font-ui: 'Shippori Mincho', 'Hiragino Mincho ProN', Georgia, serif;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --display-weight: 700;
+  --display-style: normal;
+  --display-var: normal;
+  --display-tracking: -0.01em;
+  --em-style: normal;
+  --label-transform: uppercase;
+  --label-tracking: 0.3em;
+  --label-weight: 500;
+  --label-size: 0.7rem;
+}
+
+/* distant ink mountains: a soft wash pinned to the foot of the page */
+[data-skin='sumi'] body::before {
+  opacity: 1; mix-blend-mode: normal; z-index: -1;
+  background-repeat: no-repeat; background-position: bottom center; background-size: 100% min(46vh, 330px);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 330' preserveAspectRatio='none'><defs><linearGradient id='a' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='black' stop-opacity='1'/><stop offset='1' stop-color='black' stop-opacity='0'/></linearGradient></defs><path d='M0 210 L40 150 L70 185 L120 110 L170 190 L215 140 L260 200 L310 120 L390 215 L390 330 L0 330Z' fill='url(%23a)' opacity='.45'/><path d='M0 260 L55 205 L95 240 L150 170 L205 250 L255 195 L320 255 L390 215 L390 330 L0 330Z' fill='url(%23a)'/></svg>");
+}
+[data-skin='sumi'][data-theme='light'] body::before { filter: opacity(.38); }
+[data-skin='sumi'][data-theme='dark'] body::before { filter: invert(1) opacity(.13); }
+
+[data-skin='sumi'] .card { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line-strong); backdrop-filter: blur(2px); }
+[data-skin='sumi'] .page-title { font-weight: 700; letter-spacing: 0; line-height: 1.1; }
+[data-skin='sumi'] .brand { font-style: normal; letter-spacing: 0.12em; }
+[data-skin='sumi'] .brand span { color: var(--accent); }
+[data-skin='sumi'] .btn { border-radius: 2px; font-weight: 700; letter-spacing: 0.06em; }
+[data-skin='sumi'] .btn-solid { background: transparent; color: var(--text); border: 0; border-bottom: 2px solid var(--text); border-radius: 0; padding-left: 4px; padding-right: 4px; }
+[data-skin='sumi'] .btn-solid::after { content: ' \25CF'; color: var(--accent); font-size: .8em; }
+[data-skin='sumi'] .btn-solid:hover { filter: none; border-bottom-color: var(--accent); }
+[data-skin='sumi'] .btn-ghost { background: transparent; border: 1px solid var(--line-strong); }
+[data-skin='sumi'] .ring { background: transparent; border: 1.5px solid var(--faint); }
+[data-skin='sumi'] .ring:hover { box-shadow: none; border-color: var(--accent); }
+[data-skin='sumi'] .ring-full { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+[data-skin='sumi'] .ring-min { border-color: var(--accent); }
+[data-skin='sumi'] .bar { height: 5px; background: color-mix(in srgb, var(--text) 10%, transparent); }
+[data-skin='sumi'] .bar-fill { background: var(--text) !important; opacity: .85; border-radius: 99px 2px 2px 99px; }
+[data-skin='sumi'] .section-rule { height: 1px; background: var(--line-strong); }
+[data-skin='sumi'] .tabbar, [data-skin='sumi'] .rail { background: transparent; backdrop-filter: none; border: 0; box-shadow: none; }
+[data-skin='sumi'] .tabbar { left: 0; right: 0; bottom: 0; margin-bottom: 0; border-radius: 0; background: color-mix(in srgb, var(--bg) 84%, transparent); backdrop-filter: blur(8px); border-top: 1px solid var(--line); }
+[data-skin='sumi'] .tab, [data-skin='sumi'] .rail-link { letter-spacing: 0.24em; font-weight: 500; border-radius: 0; }
+[data-skin='sumi'] .tab.on { background: transparent; color: var(--text); box-shadow: 0 -2px 0 var(--accent) inset; }
+[data-skin='sumi'] .tab.on svg { color: var(--accent); }
+[data-skin='sumi'] .sheet { border: 0; border-top: 1px solid var(--line-strong); background: var(--surface); }
+[data-skin='sumi'] .field input, [data-skin='sumi'] .field textarea, [data-skin='sumi'] .field select {
+  background: transparent; border: 0; border-bottom: 1px solid var(--line-strong); border-radius: 0; box-shadow: none;
+}

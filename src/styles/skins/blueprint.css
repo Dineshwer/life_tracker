@@ -1,0 +1,141 @@
+/* skin: blueprint — technical drawing on a drafting grid. Dark = blueprint, light = whiteprint. */
+[data-skin='blueprint'] {
+  --font-display: 'IBM Plex Sans Condensed', 'Arial Narrow', sans-serif;
+  --font-ui: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --display-weight: 700;
+  --display-style: normal;
+  --display-var: normal;
+  --display-transform: uppercase;
+  --display-tracking: 0.02em;
+  --em-style: normal;
+  --label-transform: uppercase;
+  --label-tracking: 0.14em;
+  --label-weight: 500;
+  --label-size: 0.68rem;
+  --r-control: 0px;
+  --r-card: 0px;
+  --r-sheet: 0px;
+  --r-pill: 0px;
+  --card-bw: 1.5px;
+  --card-border: var(--line-strong);
+  --bar-glow: none;
+  --ring-glow: none;
+  --btn-border: transparent;
+  --btn-ink: var(--accent-ink);
+  --btn-bg: var(--accent);
+  --btn-shadow: none;
+  --atmosphere-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px, auto;
+}
+
+[data-skin='blueprint'][data-theme='dark'] {
+  --bg: #0c2747;
+  --bg-2: #0a2140;
+  --surface: #0f2f55;
+  --raised: #143a66;
+  --card: #0f2f55;
+  --line: rgba(143, 208, 255, 0.28);
+  --line-strong: #8fd0ff;
+  --edge: rgba(143, 208, 255, 0.1);
+  --text: #cfeaff;
+  --muted: #8fb6d6;
+  --faint: #5e86a8;
+  --accent: #ffd36b;
+  --accent-2: #8fd0ff;
+  --accent-ink: #0c2747;
+  --glow: rgba(143, 208, 255, 0.14);
+  --glow-2: rgba(255, 211, 107, 0.08);
+  --danger: #ff8a7a;
+  --body: #ff9d6b;
+  --mind: #8fd0ff;
+  --skill: #7be0a4;
+  --discipline: #c7a6ff;
+  --scrim: rgba(4, 16, 32, 0.7);
+  --shadow: 0 0 0 3px var(--bg), 0 0 0 4px rgba(143, 208, 255, .35);
+  --grain: .03;
+  --atmosphere:
+    linear-gradient(rgba(143,208,255,.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(143,208,255,.10) 1px, transparent 1px),
+    linear-gradient(rgba(143,208,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(143,208,255,.05) 1px, transparent 1px),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  color-scheme: dark;
+}
+
+[data-skin='blueprint'][data-theme='light'] {
+  --bg: #eef5fb;
+  --bg-2: #e6eff8;
+  --surface: #f5f9fd;
+  --raised: #ffffff;
+  --card: #fbfdff;
+  --line: rgba(12, 39, 71, 0.2);
+  --line-strong: #1d4a7a;
+  --edge: rgba(255, 255, 255, 0.9);
+  --text: #0c2747;
+  --muted: #44627f;
+  --faint: #7f9ab4;
+  --accent: #c88200;
+  --accent-2: #1d5fb0;
+  --accent-ink: #0c2747;
+  --glow: rgba(29, 95, 176, 0.1);
+  --glow-2: rgba(200, 130, 0, 0.12);
+  --danger: #c23a2b;
+  --body: #b83c0a;
+  --mind: #1d5fb0;
+  --skill: #0d7a3d;
+  --discipline: #7a35d6;
+  --scrim: rgba(12, 39, 71, 0.4);
+  --shadow: 0 0 0 3px var(--bg), 0 0 0 4px rgba(29, 74, 122, .3);
+  --grain: .03;
+  --atmosphere:
+    linear-gradient(rgba(29,74,122,.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29,74,122,.12) 1px, transparent 1px),
+    linear-gradient(rgba(29,74,122,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29,74,122,.06) 1px, transparent 1px),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  color-scheme: light;
+}
+
+/* ---- structure ---- */
+[data-skin='blueprint'] .card { position: relative; }
+/* drafting registration ticks in the four corners */
+[data-skin='blueprint'] .card::before {
+  content: ''; position: absolute; inset: -5px; pointer-events: none;
+  --t: var(--line-strong);
+  background:
+    linear-gradient(var(--t), var(--t)) 0 0 / 9px 1.5px no-repeat,
+    linear-gradient(var(--t), var(--t)) 0 0 / 1.5px 9px no-repeat,
+    linear-gradient(var(--t), var(--t)) 100% 0 / 9px 1.5px no-repeat,
+    linear-gradient(var(--t), var(--t)) 100% 0 / 1.5px 9px no-repeat,
+    linear-gradient(var(--t), var(--t)) 0 100% / 9px 1.5px no-repeat,
+    linear-gradient(var(--t), var(--t)) 0 100% / 1.5px 9px no-repeat,
+    linear-gradient(var(--t), var(--t)) 100% 100% / 9px 1.5px no-repeat,
+    linear-gradient(var(--t), var(--t)) 100% 100% / 1.5px 9px no-repeat;
+}
+[data-skin='blueprint'] .btn { font-family: var(--font-ui); text-transform: uppercase; letter-spacing: .12em; font-weight: 600; font-size: .78rem; }
+[data-skin='blueprint'] .btn-solid:hover { filter: brightness(1.08); }
+[data-skin='blueprint'] .btn-ghost { background: transparent; border-color: var(--line-strong); }
+[data-skin='blueprint'] .btn-ghost:hover { background: color-mix(in srgb, var(--accent-2) 14%, transparent); border-color: var(--accent-2); }
+[data-skin='blueprint'] .ring { border-width: 1.3px; border-color: var(--line-strong); background: transparent; }
+[data-skin='blueprint'] .ring-full { background: var(--c); border-color: var(--c); box-shadow: none; }
+[data-skin='blueprint'] .ring-min { border-color: var(--c); }
+[data-skin='blueprint'] .bar { background: transparent; border: 1px solid var(--line-strong); height: auto; }
+[data-skin='blueprint'] .bar-fill { position: relative; }
+[data-skin='blueprint'] .bar-fill::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(0,0,0,.22) 0 1.5px, transparent 1.5px 6px); }
+[data-skin='blueprint'] .section-header { margin-top: 36px; }
+[data-skin='blueprint'] .section-rule { height: 0; background: none; border-top: 1px dashed var(--line-strong); }
+[data-skin='blueprint'] .page-title { letter-spacing: .02em; }
+[data-skin='blueprint'] .page-title::after { content: ''; display: block; width: 64px; height: 3px; margin-top: 10px; background: var(--accent); }
+[data-skin='blueprint'] .brand span { color: var(--accent); }
+[data-skin='blueprint'] .tabbar { left: 0; right: 0; bottom: 0; background: var(--bg); backdrop-filter: none; border-width: 1.5px 0 0; border-color: var(--line-strong); box-shadow: none; padding: 0; }
+[data-skin='blueprint'] .tab { padding: 10px 0; border-right: 1px solid var(--line); font-weight: 500; letter-spacing: .12em; }
+[data-skin='blueprint'] .tab:last-child { border-right: 0; }
+[data-skin='blueprint'] .tab.on { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+[data-skin='blueprint'] .tab.on svg { color: var(--accent-ink); }
+[data-skin='blueprint'] .rail { border-right: 1.5px solid var(--line-strong); background: color-mix(in srgb, var(--bg) 85%, transparent); }
+[data-skin='blueprint'] .rail-link { letter-spacing: .06em; text-transform: uppercase; font-size: .8rem; }
+[data-skin='blueprint'] .rail-link.on { background: var(--accent); color: var(--accent-ink); box-shadow: none; }
+[data-skin='blueprint'] .rail-link.on svg { color: var(--accent-ink); }
+[data-skin='blueprint'] .rail-link.on::before { box-shadow: none; }
+[data-skin='blueprint'] .sheet { border-width: 1.5px; border-color: var(--line-strong); }
+[data-skin='blueprint'] .field input, [data-skin='blueprint'] .field textarea, [data-skin='blueprint'] .field select { background: transparent; border: 1px solid var(--line-strong); box-shadow: none; }

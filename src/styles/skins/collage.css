@@ -1,0 +1,135 @@
+/* skin: collage — cut paper on kraft board: tape, soft paper shadows, marker + typewriter. */
+[data-skin='collage'] {
+  --font-display: 'Permanent Marker', 'Marker Felt', cursive;
+  --font-ui: 'Special Elite', 'Courier New', ui-monospace, monospace;
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --display-weight: 400;
+  --display-style: normal;
+  --display-var: normal;
+  --display-transform: none;
+  --display-tracking: 0;
+  --em-style: normal;
+  --label-transform: uppercase;
+  --label-tracking: 0.1em;
+  --label-weight: 400;
+  --label-size: 0.72rem;
+  --r-control: 3px;
+  --r-card: 3px;
+  --r-sheet: 4px;
+  --r-pill: 3px;
+  --card-bw: 0px;
+  --card-border: transparent;
+  --bar-glow: none;
+  --ring-glow: none;
+  --btn-border: transparent;
+  --atmosphere-size: 9px 9px, 13px 13px, auto;
+}
+
+[data-skin='collage'][data-theme='light'] {
+  --bg: #d6c3a0;
+  --bg-2: #cdb892;
+  --surface: #e6d8bb;
+  --raised: #f2e8d0;
+  --card: #f7efdc;
+  --line: rgba(32, 26, 20, 0.28);
+  --line-strong: rgba(32, 26, 20, 0.7);
+  --edge: rgba(255, 255, 255, 0.5);
+  --text: #201a14;
+  --muted: #5a4b3a;
+  --faint: #8a7a64;
+  --accent: #e2553d;
+  --accent-2: #1f7a72;
+  --accent-ink: #201a14;
+  --glow: rgba(226, 85, 61, 0.2);
+  --glow-2: rgba(255, 216, 74, 0.3);
+  --danger: #b3261e;
+  --body: #c0361f;
+  --mind: #1f7a72;
+  --skill: #7d5f00;
+  --discipline: #6b4a9a;
+  --scrim: rgba(32, 26, 20, 0.5);
+  --shadow: 0 1px 1px rgba(60, 40, 15, .3), 3px 6px 14px -4px rgba(60, 40, 15, .38);
+  --btn-bg: #201a14;
+  --btn-ink: #f7efdc;
+  --btn-shadow: 3px 3px 0 #e2553d;
+  --grain: .09;
+  --atmosphere:
+    radial-gradient(rgba(80, 55, 20, .16) 1px, transparent 1.2px),
+    radial-gradient(rgba(255, 255, 255, .18) 1px, transparent 1.2px),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  color-scheme: light;
+}
+
+[data-skin='collage'][data-theme='dark'] {
+  --bg: #2a211a;
+  --bg-2: #221a14;
+  --surface: #33281f;
+  --raised: #41352a;
+  --card: #3b2f25;
+  --line: rgba(247, 239, 220, 0.2);
+  --line-strong: rgba(247, 239, 220, 0.55);
+  --edge: rgba(255, 240, 210, 0.08);
+  --text: #f7efdc;
+  --muted: #c4b497;
+  --faint: #8f8168;
+  --accent: #ee6a52;
+  --accent-2: #4cc0b4;
+  --accent-ink: #1c1510;
+  --glow: rgba(238, 106, 82, 0.18);
+  --glow-2: rgba(255, 216, 74, 0.1);
+  --danger: #ff7a68;
+  --body: #f08060;
+  --mind: #4cc0b4;
+  --skill: #ffd84a;
+  --discipline: #c4a0e8;
+  --scrim: rgba(10, 6, 3, 0.65);
+  --shadow: 0 1px 1px rgba(0, 0, 0, .5), 3px 7px 16px -4px rgba(0, 0, 0, .6);
+  --btn-bg: #f7efdc;
+  --btn-ink: #201a14;
+  --btn-shadow: 3px 3px 0 #ee6a52;
+  --grain: .07;
+  --atmosphere:
+    radial-gradient(rgba(255, 220, 170, .09) 1px, transparent 1.2px),
+    radial-gradient(rgba(0, 0, 0, .25) 1px, transparent 1.2px),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  color-scheme: dark;
+}
+
+/* ---- structure ---- */
+[data-skin='collage'] .card { position: relative; border-left: 0; }
+/* masking tape strip (decorative only, real content never rotated) */
+[data-skin='collage'] .card::before {
+  content: ''; position: absolute; top: -9px; left: 22%; width: 62px; height: 18px; pointer-events: none;
+  background: rgba(255, 216, 74, .72); transform: rotate(-3deg);
+  box-shadow: 0 1px 2px rgba(0,0,0,.18);
+  clip-path: polygon(0 10%, 4% 0, 8% 12%, 12% 0, 100% 4%, 96% 50%, 100% 96%, 92% 100%, 88% 90%, 4% 100%, 2% 60%);
+}
+[data-skin='collage'] .card:not(:first-child):not(:last-child)::before { display: none; }
+[data-skin='collage'] .card:last-child:not(:first-child)::before { left: auto; right: 16%; background: rgba(31, 122, 114, .6); transform: rotate(3deg); }
+[data-skin='collage'][data-theme='dark'] .card:first-child::before { background: rgba(255, 216, 74, .62); }
+[data-skin='collage'] .btn { font-family: var(--font-display); font-size: 1.05rem; font-weight: 400; letter-spacing: .02em; }
+[data-skin='collage'] .btn-solid:hover { transform: translate(-1px, -1px); filter: none; }
+[data-skin='collage'] .btn-solid:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--accent); }
+[data-skin='collage'] .btn-ghost { background: transparent; border: 2px solid var(--line-strong); font-family: var(--font-ui); font-size: .9rem; }
+[data-skin='collage'] .btn-text { font-family: var(--font-ui); font-size: .9rem; }
+[data-skin='collage'] .ring { border-radius: 3px; border: 2px solid var(--line-strong); background: transparent; }
+[data-skin='collage'] .ring-min { border-color: var(--c); }
+[data-skin='collage'] .ring-full { background: var(--c); border-color: var(--c); box-shadow: 1px 2px 0 rgba(0,0,0,.25); }
+[data-skin='collage'] .ring-half { border-radius: 1px; }
+[data-skin='collage'] .bar { background: color-mix(in srgb, var(--text) 12%, transparent); border: 1.5px solid var(--line-strong); border-radius: 3px; }
+[data-skin='collage'] .bar-fill { border-radius: 1px; }
+[data-skin='collage'] .section-rule { height: 0; background: none; border-top: 2px dotted var(--line-strong); }
+[data-skin='collage'] .page-title { text-shadow: 3px 3px 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+[data-skin='collage'] .brand span { color: var(--accent); }
+[data-skin='collage'] .tabbar { background: #201a14; border: 0; border-radius: 3px; box-shadow: 0 8px 18px -6px rgba(0,0,0,.55); backdrop-filter: none; }
+[data-skin='collage'][data-theme='dark'] .tabbar { background: #14100c; box-shadow: 0 0 0 1px var(--line), 0 8px 18px -6px rgba(0,0,0,.7); }
+[data-skin='collage'] .tab { color: #c9bda3; font-family: var(--font-ui); letter-spacing: .06em; font-weight: 400; }
+[data-skin='collage'] .tab.on { background: rgba(255, 216, 74, .14); color: #ffd84a; font-family: var(--font-display); }
+[data-skin='collage'] .tab.on svg { color: #ffd84a; }
+[data-skin='collage'] .rail { background: color-mix(in srgb, var(--surface) 55%, transparent); border-right: 2px dotted var(--line-strong); }
+[data-skin='collage'] .rail-link { color: var(--text); }
+[data-skin='collage'] .rail-link.on { background: #ffd84a; color: #201a14; box-shadow: 2px 3px 0 rgba(0,0,0,.25); font-family: var(--font-display); }
+[data-skin='collage'] .rail-link.on svg { color: #201a14; }
+[data-skin='collage'] .rail-link.on::before { display: none; }
+[data-skin='collage'] .sheet { border: 0; }
+[data-skin='collage'] .field input, [data-skin='collage'] .field textarea, [data-skin='collage'] .field select { background: color-mix(in srgb, var(--text) 6%, transparent); border: 0; border-bottom: 2px solid var(--line-strong); border-radius: 2px; box-shadow: none; }
