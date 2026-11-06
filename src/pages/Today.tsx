@@ -54,7 +54,7 @@ export default function Today() {
 
   return (
     <div className="today">
-      <section className="card hero rise" style={rise()}>
+      <section className="card hero">
         <div className="hero-text">
           <div className="t-greet">{greet}, {settings.name}.</div>
           <h1 className="display t-date"><em>{weekday}</em><span>{dateRest}</span></h1>
