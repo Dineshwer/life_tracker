@@ -21,4 +21,5 @@ export const IconMoon = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><pat
 export const IconFlame = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9Z" /></svg>);
 export const IconTrophy = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3M12 13v4M9 20h6" /></svg>);
 export const IconRejection = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><rect x="6" y="3" width="12" height="18" rx="1.5" /><path d="M14.5 12h.01" /><path d="M3 21h18" /></svg>);
+export const IconPlay = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><rect x="3" y="5" width="18" height="14" rx="3" /><path d="M10.5 9.5l4 2.5-4 2.5z" /></svg>);
 export const IconMore = ({ size, ...p }: P) => (<svg {...base(size)} {...p}><circle cx="5" cy="12" r="1.2" /><circle cx="12" cy="12" r="1.2" /><circle cx="19" cy="12" r="1.2" /></svg>);

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type {
-  Habit, HabitLog, Task, TimeBlock, Workout, BodyEntry, JournalEntry, Reward, XPEvent, Settings, WakeLog, Book, Conversation, Rejection, ISODate,
+  Habit, HabitLog, Task, TimeBlock, Workout, BodyEntry, JournalEntry, Reward, XPEvent, Settings, WakeLog, Book, Conversation, Rejection, Video, ISODate,
 } from './types';
 import { addDays, today, isWeekend, fromISO, weekDays } from './lib/dates';
 import { MISSED_PENALTY, TASK_XP } from './lib/xp';
@@ -15,7 +15,7 @@ interface State {
   tasks: Task[]; blocks: TimeBlock[];
   workouts: Workout[]; body: BodyEntry[];
   journal: JournalEntry[]; rewards: Reward[]; xp: XPEvent[];
-  wake: WakeLog[]; books: Book[]; conversations: Conversation[]; rejections: Rejection[];
+  wake: WakeLog[]; books: Book[]; conversations: Conversation[]; rejections: Rejection[]; videos: Video[];
   settings: Settings; settledThrough: ISODate;
 
   // generic helpers
@@ -31,13 +31,16 @@ interface State {
   claimReward: (id: string) => void;
   addRejection: (what: string, extra?: { who?: string; note?: string }) => { n: number; xp: number; milestone?: string };
   removeRejection: (id: string) => void;
+  addVideo: (ytId: string, title: string, tag: Video['tag']) => void;
+  setVideoWatched: (id: string, watched: boolean) => void;
+  removeVideo: (id: string) => void;
   setTheme: (t: Settings['theme']) => void;
   setSkin: (id: string, mode: Settings['theme']) => void;
   exportAll: () => string;
   importAll: (json: string) => void;
 }
 
-type CollectionKey = 'habits' | 'habitLogs' | 'tasks' | 'blocks' | 'workouts' | 'body' | 'journal' | 'rewards' | 'xp' | 'books' | 'conversations' | 'rejections';
+type CollectionKey = 'habits' | 'habitLogs' | 'tasks' | 'blocks' | 'workouts' | 'body' | 'journal' | 'rewards' | 'xp' | 'books' | 'conversations' | 'rejections' | 'videos';
 
 const isScheduled = (h: Habit, date: ISODate): boolean => {
   if (h.cadence.type === 'daily') return true;
@@ -151,6 +154,10 @@ export const useStore = create<State>()(
         });
         set({ rejections, xp });
       },
+
+      addVideo: (ytId, title, tag) => set((s) => s.videos.some((v) => v.ytId === ytId) ? s : { videos: [...s.videos, { id: uid(), ytId, title: title.trim() || 'Untitled video', tag, addedAt: new Date().toISOString() }] }),
+      setVideoWatched: (id, watched) => set((s) => ({ videos: s.videos.map((v) => (v.id === id ? { ...v, watchedAt: watched ? new Date().toISOString() : undefined } : v)) })),
+      removeVideo: (id) => set((s) => ({ videos: s.videos.filter((v) => v.id !== id) })),
 
       claimReward: (id) => set((s) => ({ rewards: s.rewards.map((r) => (r.id === id ? { ...r, claimedAt: new Date().toISOString() } : r)) })),
       setTheme: (theme) => set((s) => ({ settings: { ...s.settings, theme } })),

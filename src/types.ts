@@ -78,3 +78,6 @@ export interface Conversation { id: string; date: ISODate; who: string; note?: s
 
 /** One logged rejection in the 1,000-rejections challenge. */
 export interface Rejection { id: string; date: ISODate; createdAt: string; /** what I did to get it */ what: string; /** who / where (optional) */ who?: string; /** what I learned (optional) */ note?: string }
+
+/** A video saved to the Entertainment watch queue (played in-app via YouTube's privacy-friendly embed). */
+export interface Video { id: string; ytId: string; title: string; tag: 'learn' | 'fun'; addedAt: string; watchedAt?: string }

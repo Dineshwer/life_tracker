@@ -32,6 +32,12 @@ export function applyDemo() {
     return { id: uid(), date: addDays(t, day - 21 + 1 > 0 ? 0 : day - 21 + 1), createdAt: when.toISOString(), what: asks[i % asks.length] + (i % 3 === 0 ? ', they said not right now' : ''), who: whos[i % whos.length], note: i % 4 === 0 ? 'Ask earlier in the day next time' : undefined };
   });
   useStore.setState({ rejections: rej });
+  useStore.setState({ videos: [
+    { id: uid(), ytId: 'aircAruvnKk', title: 'But what is a neural network?', tag: 'learn', addedAt: new Date(Date.now() - 3e6).toISOString() },
+    { id: uid(), ytId: 'kCc8FmEb1nY', title: "Let's build GPT: from scratch, in code, spelled out", tag: 'learn', addedAt: new Date(Date.now() - 2e6).toISOString() },
+    { id: uid(), ytId: 'dQw4w9WgXcQ', title: 'A fun one for the weekend', tag: 'fun', addedAt: new Date(Date.now() - 1e6).toISOString() },
+    { id: uid(), ytId: 'FtutLA63Cp8', title: 'Bad Apple, the classic', tag: 'fun', addedAt: new Date(Date.now() - 9e6).toISOString(), watchedAt: new Date().toISOString() },
+  ] });
 
   const mk = (p: Partial<Task> & { title: string }): Task => ({ id: uid(), done: false, context: 'personal', tags: [], effort: 2, stat: 'discipline', ...p });
   const parent = mk({ title: 'Ship the client landing page', context: 'agency', date: t, tags: ['client', 'web'], effort: 3, stat: 'skill' });

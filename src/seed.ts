@@ -31,7 +31,7 @@ export function seed() {
   ];
   const settings: Settings = { theme: 'dark', skin: 'canopy', wakeTime: '07:00', name: 'Dinesh' };
   return {
-    habits, habitLogs: [], tasks: [], blocks, workouts: [], body: [], journal: [], rewards, xp: [], wake: [], books: [], conversations: [], rejections: [],
+    habits, habitLogs: [], tasks: [], blocks, workouts: [], body: [], journal: [], rewards, xp: [], wake: [], books: [], conversations: [], rejections: [], videos: [],
     settings, settledThrough: addDays(today(), -1),
   };
 }
