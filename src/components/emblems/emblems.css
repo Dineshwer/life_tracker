@@ -5,3 +5,6 @@
 @container (max-width: 220px) { .emb .emb-detail { display: none; } }
 @container (min-width: 221px) { .emb .emb-compact { display: none; } }
 @media (prefers-reduced-motion: reduce) { .hero-tree { animation: none !important; } }
+
+/* Emblems are static: no float, fade, blink, draw-in or flicker, in any theme. */
+.hero-tree, .hero-tree * { animation: none !important; transition: none !important; }
