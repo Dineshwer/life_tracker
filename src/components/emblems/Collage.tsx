@@ -6,6 +6,23 @@ const JIT = [0, 4, -2, 5, -3, 2, 6, -1, 3, -4, 5, 0, -2, 4, 6, -3, 1, 5, -2, 3, 
 const torn = (cx: number, cy: number, r: number) =>
   JIT.map((j, i) => { const a = (i / JIT.length) * Math.PI * 2; const rr = r + j * 0.9 - 2; return `${(cx + Math.cos(a) * rr).toFixed(1)},${(cy + Math.sin(a) * rr).toFixed(1)}`; }).join(' ');
 
+// Washi tape: translucent strip with torn, zig-zag ends and a faint sheen
+const tapePath = (x: number, y: number, w: number, h: number) => {
+  const n = 5, dx = 2.6; let d = `M ${x} ${y}`;
+  d += ` L ${x + w} ${y}`;
+  for (let i = 1; i <= n; i++) d += ` L ${x + w + (i % 2 ? dx : -dx * 0.2)} ${y + (h * i) / n}`;
+  d += ` L ${x} ${y + h}`;
+  for (let i = n - 1; i >= 0; i--) d += ` L ${x + (i % 2 ? dx : -dx * 0.2)} ${y + (h * i) / n}`;
+  return d + ' Z';
+};
+const Tape = ({ x, y, w, h, rot }: { x: number; y: number; w: number; h: number; rot: string }) => (
+  <g transform={rot}>
+    <path d={tapePath(x, y, w, h)} className="cg-tape" />
+    <path d={tapePath(x, y, w, h)} className="cg-tape-lines" />
+    <line x1={x + 6} x2={x + w - 6} y1={y + 3.5} y2={y + 3.5} className="cg-tape-sheen" />
+  </g>
+);
+
 /** Collage: tilted teal LEVEL badge on torn paper, washi tape title, marker numeral. */
 export default function Collage({ data }: EmblemProps) {
   const cx = 120, cy = 118, R = 70;
@@ -27,9 +44,9 @@ export default function Collage({ data }: EmblemProps) {
           strokeDasharray={`${C * pct} ${C}`} transform={`rotate(-90 ${cx} ${cy})`} />
         <text x={cx} y={cy - 45} textAnchor="middle" className="cg-small" fontSize={15} letterSpacing=".16em">LEVEL</text>
         <text x={cx} y={cy + fs * 0.34 + 2} textAnchor="middle" className="cg-num" fontSize={fs}>{lvl}</text>
-        <rect x={cx - 30} y={cy - 108} width={60} height={20} className="cg-tape" transform={`rotate(-6 ${cx} ${cy - 98})`} />
+        <Tape x={cx - 34} y={cy - 108} w={68} h={22} rot={`rotate(-6 ${cx} ${cy - 97})`} />
         <g transform={`rotate(-3 ${cx} ${cy + 86})`}>
-          <rect x={cx - 62} y={cy + 70} width={124} height={30} className="cg-tape" />
+          <Tape x={cx - 62} y={cy + 70} w={124} h={30} rot="" />
           <text x={cx} y={cy + 91} textAnchor="middle" className="cg-title" fontSize={19}>{data.title}</text>
         </g>
       </g>
