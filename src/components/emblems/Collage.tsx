@@ -25,7 +25,7 @@ export default function Collage({ data }: EmblemProps) {
         <circle cx={cx} cy={cy} r={R - 9} className="cg-track" fill="none" strokeWidth={5} strokeDasharray="2 5" strokeLinecap="round" />
         <circle cx={cx} cy={cy} r={R - 9} className="cg-prog" fill="none" strokeWidth={5} strokeLinecap="round"
           strokeDasharray={`${C * pct} ${C}`} transform={`rotate(-90 ${cx} ${cy})`} />
-        <text x={cx} y={cy - 38} textAnchor="middle" className="cg-small" fontSize={15} letterSpacing=".16em">LEVEL</text>
+        <text x={cx} y={cy - 45} textAnchor="middle" className="cg-small" fontSize={15} letterSpacing=".16em">LEVEL</text>
         <text x={cx} y={cy + fs * 0.34 + 2} textAnchor="middle" className="cg-num" fontSize={fs}>{lvl}</text>
         <rect x={cx - 30} y={cy - 108} width={60} height={20} className="cg-tape" transform={`rotate(-6 ${cx} ${cy - 98})`} />
         <g transform={`rotate(-3 ${cx} ${cy + 86})`}>

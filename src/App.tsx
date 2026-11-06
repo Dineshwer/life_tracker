@@ -58,9 +58,21 @@ export default function App() {
 
   useEffect(() => {
     if (!supabase) return;
-    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    // Offline-first: if Supabase can't answer within 2s (no network), open with the saved login so local data still shows.
+    let settled = false;
+    const stored = () => {
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) { const v = JSON.parse(localStorage.getItem(k) || 'null'); if (v?.user?.id) return v as Session; }
+        }
+      } catch { /* ignore */ }
+      return null;
+    };
+    const timer = window.setTimeout(() => { if (!settled) { settled = true; setSession(stored()); } }, 2000);
+    supabase.auth.getSession().then(({ data }) => { settled = true; window.clearTimeout(timer); setSession(data.session); }).catch(() => { if (!settled) { settled = true; window.clearTimeout(timer); setSession(stored()); } });
     const { data } = supabase.auth.onAuthStateChange((_e, s) => setSession(s));
-    return () => data.subscription.unsubscribe();
+    return () => { window.clearTimeout(timer); data.subscription.unsubscribe(); };
   }, []);
 
   const uid = session?.user.id;

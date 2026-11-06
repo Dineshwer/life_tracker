@@ -7,9 +7,16 @@
 .emb-collage .cg-track { stroke: color-mix(in srgb, var(--cg-ink) 45%, transparent); }
 .emb-collage .cg-prog { stroke: var(--cg-ink); }
 .emb-collage .cg-small { font-family: var(--font-ui); fill: var(--cg-ink); }
-.emb-collage .cg-num { font-family: var(--font-display); fill: var(--cg-ink); paint-order: stroke; stroke: color-mix(in srgb, var(--text) 30%, transparent); stroke-width: 0; }
+.emb-collage .cg-num { font-family: 'Arial Black', 'Helvetica Neue', Impact, Arial, sans-serif; font-weight: 900; fill: var(--cg-ink); filter: drop-shadow(0 3px 0 color-mix(in srgb, #000 28%, transparent)); }
 .emb-collage .cg-tape { fill: color-mix(in srgb, var(--skill) 78%, transparent); }
 .emb-collage .cg-title { font-family: var(--font-display); fill: var(--cg-tape-ink); }
 .emb-collage .cg-note { fill: var(--skill); }
 .emb-collage .cg-note-s { font-family: var(--font-ui); fill: var(--cg-tape-ink); }
 .emb-collage .cg-note-n { font-family: var(--font-display); fill: var(--cg-tape-ink); }
+
+/* soft shadows so each cut-out sits on the page */
+.emb-collage .cg-paper { filter: drop-shadow(0 6px 10px rgba(0,0,0,.35)); }
+.emb-collage .cg-badge { filter: drop-shadow(0 3px 5px rgba(0,0,0,.4)); }
+.emb-collage .cg-tape { filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+.emb-collage .cg-note { filter: drop-shadow(0 4px 6px rgba(0,0,0,.4)); }
+.emb-collage .cg-title, .emb-collage .cg-note-n { font-weight: 800; }
