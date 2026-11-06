@@ -5,7 +5,6 @@ import { Bar, Ring, SectionHeader } from '../components/ui';
 import { fmtTime, isWeekend, minutes, today as todayISO } from '../lib/dates';
 import { STATS, STAT_LABEL, levelFromXP, sumByStat } from '../lib/xp';
 import HeroEmblem from '../components/emblems';
-import LevelMeter from '../components/levelmeter/LevelMeter';
 import RejectionMeter from './rejections/RejectionMeter';
 import { REJECTION_GOAL } from '../lib/rejections';
 import { DayLine } from './today/DayLine';
@@ -73,7 +72,6 @@ export default function Today() {
           </div>
         </div>
         <HeroEmblem />
-        <div className="hero-level"><LevelMeter /></div>
         <div className="hero-foot">
           <div className="prog" role="img" aria-label={`${habitsDone} of ${due.length} habits touched`}>
             <svg viewBox="0 0 80 80" width="76" height="76">

@@ -1,5 +1,4 @@
 import { useStore } from '../store';
-import LevelMeter from '../components/levelmeter/LevelMeter';
 import Sapling from '../components/Sapling';
 import { Bar, Page, SectionHeader } from '../components/ui';
 import { STATS, STAT_LABEL, levelFromXP, overallXP, sumByStat } from '../lib/xp';
@@ -75,7 +74,6 @@ export default function Character() {
               <div className="label">XP to level {o.level + 1}</div>
             </div>
           </div>
-          <LevelMeter />
         </div>
       </section>
 
