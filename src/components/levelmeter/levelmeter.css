@@ -1,0 +1,21 @@
+/* Level-up meter: SVG strip + exact readout. Static in every theme. */
+.lm { display: flex; align-items: center; gap: 16px; width: 100%; min-width: 0; }
+.lm-svg { flex: 1 1 auto; min-width: 0; width: 100%; max-width: 600px; height: auto; display: block; overflow: visible; }
+.lm-read { flex: none; margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
+.lm-pct { font-size: 1.7rem; line-height: 1; }
+.lm-pct small { font-size: .55em; opacity: .7; margin-left: 1px; }
+.lm-sub { color: var(--muted); white-space: nowrap; margin-top: 4px; }
+.lm *, .lm-svg * { animation: none !important; transition: none !important; }
+.lm[data-lm='cyberpunk'] .lm-glow { filter: drop-shadow(0 0 3px var(--accent)); }
+.lm[data-lm='swiss'] .lm-sub { color: var(--accent); }
+.lm[data-lm='pop'] .lm-svg, .lm[data-lm='arcade'] .lm-svg { max-width: 520px; }
+
+/* in the Today hero the meter spans the card, above the stats row */
+.hero-level { grid-column: 1 / -1; margin-top: 14px; }
+@media (max-width: 520px) {
+  .lm { flex-direction: column; align-items: stretch; gap: 6px; }
+  .lm-read { flex-direction: row; align-items: baseline; justify-content: space-between; }
+  .lm-sub { margin-top: 0; }
+}
+/* on the Character screen it sits under the level ring */
+.ch-id .lm { margin-top: 16px; }
