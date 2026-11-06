@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { useStore } from '../store';
 import { Bar, Ring, SectionHeader } from '../components/ui';
 import { fmtTime, isWeekend, minutes, today as todayISO } from '../lib/dates';
-import { STATS, STAT_LABEL, levelFromXP, overallXP, sumByStat } from '../lib/xp';
-import Sapling from '../components/Sapling';
+import { STATS, STAT_LABEL, levelFromXP, sumByStat } from '../lib/xp';
+import HeroEmblem from '../components/emblems';
 import RejectionMeter from './rejections/RejectionMeter';
 import { REJECTION_GOAL } from '../lib/rejections';
 import { DayLine } from './today/DayLine';
@@ -45,8 +45,6 @@ export default function Today() {
 
   const habitsDone = due.filter((x) => x.level !== 'none').length;
   const dayPct = due.length ? habitsDone / due.length : 0;
-  const lv = Object.fromEntries(STATS.map((st) => [st, levelFromXP(byStat[st]).level])) as Record<(typeof STATS)[number], number>;
-  const overall = levelFromXP(overallXP(xp)).level;
   const now = new Date();
   const weekday = now.toLocaleDateString('en-IN', { weekday: 'long' });
   const dateRest = now.toLocaleDateString('en-IN', { day: 'numeric', month: 'long' });
@@ -73,7 +71,7 @@ export default function Today() {
             <div className="wake-note">Target {fmtTime(target)}{wakeLog ? '' : ' · logged with the time you tap'}</div>
           </div>
         </div>
-        <Sapling className="hero-tree" levels={lv} overall={overall} size={220} />
+        <HeroEmblem />
         <div className="hero-foot">
           <div className="prog" role="img" aria-label={`${habitsDone} of ${due.length} habits touched`}>
             <svg viewBox="0 0 80 80" width="76" height="76">

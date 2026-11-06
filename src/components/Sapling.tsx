@@ -10,7 +10,7 @@ function rng(seed: number) {
 }
 
 /** A tree that grows with the character. Trunk follows overall level; each stat owns one branch. */
-export default function Sapling({ levels, overall, size = 240, className }: { levels: Levels; overall: number; size?: number; className?: string }) {
+export default function Sapling({ levels, overall, size = 240, className }: { levels: Levels; overall: number; size?: number | string; className?: string }) {
   const art = useMemo(() => {
     const g = Math.min(1, (overall - 1) / 12);
     const trunkH = 46 + 104 * g;
@@ -62,7 +62,7 @@ export default function Sapling({ levels, overall, size = 240, className }: { le
   }, [levels.body, levels.mind, levels.skill, levels.discipline, overall]);
 
   return (
-    <svg className={className} width={size} height={size * 1.1} viewBox={art.viewBox} role="img" aria-label={`A tree grown to level ${overall}`}>
+    <svg className={className} {...(typeof size === 'number' ? { width: size, height: size * 1.1 } : { style: { width: size, height: 'auto', display: 'block' } })} viewBox={art.viewBox} role="img" aria-label={`A tree grown to level ${overall}`}>
       <defs>
         <radialGradient id="sap-ground" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="var(--accent)" stopOpacity=".28" /><stop offset="100%" stopColor="var(--accent)" stopOpacity="0" /></radialGradient>
         <radialGradient id="sap-halo" cx="50%" cy="46%" r="50%"><stop offset="0%" stopColor="var(--accent-2)" stopOpacity=".2" /><stop offset="70%" stopColor="var(--accent-2)" stopOpacity=".04" /><stop offset="100%" stopColor="var(--accent-2)" stopOpacity="0" /></radialGradient>

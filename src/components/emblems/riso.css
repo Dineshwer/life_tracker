@@ -1,0 +1,16 @@
+/* Riso emblem: flat two-ink print. No float, no glow. Multiply on light, screen on dark so the inks stay visible. */
+[data-emblem='riso'] { animation: none; filter: none; }
+.emb-riso .rs-pink { fill: var(--accent); }
+.emb-riso .rs-dot { fill: var(--accent); }
+.emb-riso .rs-blue { fill: var(--accent-2); opacity: 0.88; }
+.emb-riso .rs-blend { mix-blend-mode: multiply; }
+[data-theme='dark'] .emb-riso .rs-blend { mix-blend-mode: screen; }
+[data-theme='dark'] .emb-riso .rs-blue { opacity: 0.7; }
+.emb-riso .rs-n { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.04em; }
+.emb-riso .rs-n-pink { fill: var(--accent); }
+.emb-riso .rs-n-blue { fill: var(--accent-2); }
+.emb-riso .rs-n-main { fill: var(--text); }
+.emb-riso .rs-tag rect { fill: var(--text); }
+.emb-riso .rs-tagt { font-family: var(--font-mono); font-weight: 700; font-size: 14px; letter-spacing: 0.08em; fill: var(--bg); }
+.emb-riso .rs-reg { stroke: var(--text); stroke-width: 1.2; fill: none; opacity: 0.7; }
+.emb-riso .rs-mono { font-family: var(--font-mono); font-weight: 700; font-size: 11px; letter-spacing: 0.14em; fill: var(--text); }

@@ -1,0 +1,11 @@
+[data-emblem='rings'] { animation: none; }
+[data-theme='light'] [data-emblem='rings'] { filter: none; }
+.emb-rings .rg-track { opacity: .24; }
+[data-theme='light'] .emb-rings .rg-track { opacity: .24; }
+.emb-rings .rg-num { font-family: var(--font-display); font-weight: 800; fill: var(--text); letter-spacing: -0.02em; }
+.emb-rings .rg-small { font-family: var(--font-ui); font-weight: 600; fill: var(--muted); }
+.emb-rings .rg-lv { fill: var(--text); font-weight: 800; }
+@keyframes rg-draw { from { stroke-dasharray: 0.01 100; } }
+@media (prefers-reduced-motion: no-preference) {
+  .emb-rings .rg-bar { animation: rg-draw 1.1s var(--ease, ease-out) both; }
+}

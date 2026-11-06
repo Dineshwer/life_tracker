@@ -1,0 +1,6 @@
+/* Pop is a sticker: no float, no soft shadow. The hard shadow is baked into the svg. */
+[data-emblem='pop'] { animation: none; filter: none; }
+.emb-pop .pop-sh1, .emb-pop .pop-sh2, .emb-pop .pop-sh3 { fill: var(--line-strong); }
+[data-theme='dark'] .emb-pop .pop-sh1 { fill: var(--accent); }
+[data-theme='dark'] .emb-pop .pop-sh3 { fill: var(--accent-2); }
+[data-theme='dark'] .emb-pop .pop-sh2 { fill: var(--accent); }

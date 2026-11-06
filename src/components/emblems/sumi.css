@@ -1,0 +1,11 @@
+/* Sumi emblem: ink on washi. Flat, no glow. */
+[data-emblem='sumi'] { animation: none; filter: none; }
+.emb-sumi .sm-brush path, .emb-sumi .sm-dry path { stroke: var(--text); }
+.emb-sumi .sm-ink circle { fill: var(--text); }
+.emb-sumi .sm-brush { opacity: 0.92; }
+.emb-sumi .sm-num { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; fill: var(--text); }
+.emb-sumi .sm-sub { font-family: var(--font-ui); font-weight: 500; font-size: 11px; letter-spacing: 0.3em; fill: var(--muted); }
+.emb-sumi .sm-seal-bg { fill: var(--accent); }
+.emb-sumi .sm-seal-line { stroke: var(--bg); stroke-width: 1.4; opacity: 0.8; }
+.emb-sumi .sm-lv { font-family: var(--font-ui); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; fill: var(--accent-ink); }
+.emb-sumi .sm-kanji { font-family: var(--font-display), 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif CJK JP', serif; font-weight: 700; fill: var(--accent-ink); }

@@ -1,0 +1,8 @@
+[data-theme='dark'] .emb-arc .arc-num { filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 60%, transparent)); }
+[data-theme='dark'] .emb-arc .arc-xp { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent-2) 60%, transparent)); }
+[data-theme='dark'] .emb-arc .arc-on { filter: drop-shadow(0 0 3px var(--accent)); }
+.emb-arc .arc-on { animation: arc-blink 3.2s steps(1) infinite; }
+.emb-arc .arc-on:last-of-type { animation: arc-pulse 2s ease-in-out infinite; }
+@keyframes arc-blink { 0%, 100% { opacity: 1; } }
+@keyframes arc-pulse { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .emb-arc .arc-on { animation: none; } }

@@ -6,6 +6,7 @@ import { supabase } from './lib/supabase';
 import { startSync, stopSync } from './sync';
 import Auth from './Auth';
 import { DEFAULT_SKIN, loadSkinFonts } from './themes';
+import { setActiveSkin } from './lib/activeSkin';
 import { applyDemo } from './demo';
 
 /** URL overrides for QA: ?skin=paper&mode=light&demo=1 (demo only when cloud sync is off). Never persisted. */
@@ -52,7 +53,7 @@ export default function App() {
   const [session, setSession] = useState<Session | null | undefined>(supabase ? undefined : null);
 
   useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
-  useEffect(() => { document.documentElement.dataset.skin = skin; loadSkinFonts(skin); }, [skin]);
+  useEffect(() => { document.documentElement.dataset.skin = skin; setActiveSkin(skin); loadSkinFonts(skin); }, [skin]);
   useEffect(() => { settle(); }, [settle]);
 
   useEffect(() => {

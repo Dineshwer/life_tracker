@@ -1,0 +1,15 @@
+[data-emblem='collage'] { animation: none; filter: none; }
+.emb-collage { --cg-edge: var(--raised); --cg-ink: var(--raised); --cg-tape-ink: var(--raised); }
+[data-theme='dark'] .emb-collage { --cg-edge: var(--text); --cg-ink: var(--bg); --cg-tape-ink: var(--bg); }
+.emb-collage .cg-shadow { fill: color-mix(in srgb, var(--text) 28%, transparent); }
+.emb-collage .cg-paper { fill: var(--cg-edge); }
+.emb-collage .cg-badge { fill: var(--accent-2); stroke: color-mix(in srgb, var(--text) 18%, transparent); stroke-width: 1.5; }
+.emb-collage .cg-track { stroke: color-mix(in srgb, var(--cg-ink) 45%, transparent); }
+.emb-collage .cg-prog { stroke: var(--cg-ink); }
+.emb-collage .cg-small { font-family: var(--font-ui); fill: var(--cg-ink); }
+.emb-collage .cg-num { font-family: var(--font-display); fill: var(--cg-ink); paint-order: stroke; stroke: color-mix(in srgb, var(--text) 30%, transparent); stroke-width: 0; }
+.emb-collage .cg-tape { fill: color-mix(in srgb, var(--skill) 78%, transparent); }
+.emb-collage .cg-title { font-family: var(--font-display); fill: var(--cg-tape-ink); }
+.emb-collage .cg-note { fill: var(--skill); }
+.emb-collage .cg-note-s { font-family: var(--font-ui); fill: var(--cg-tape-ink); }
+.emb-collage .cg-note-n { font-family: var(--font-display); fill: var(--cg-tape-ink); }

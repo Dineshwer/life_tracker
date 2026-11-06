@@ -1,0 +1,15 @@
+/* Paper emblem: a rubber stamp. Flat print skin: no float, no glow. */
+[data-emblem='paper'] { animation: none; filter: none; }
+.emb-paper { color: var(--accent); }
+.emb-paper .pp-fill { fill: color-mix(in srgb, var(--accent) 6%, transparent); }
+.emb-paper .pp-ink { stroke: var(--accent); }
+.emb-paper .pp-text line { stroke: var(--accent); }
+.emb-paper .pp-text text { fill: var(--accent); }
+.emb-paper .pp-lvl { font-family: var(--font-ui); font-weight: 700; font-size: 13px; letter-spacing: 0.3em; text-indent: 0.3em; }
+.emb-paper .pp-num { font-family: var(--font-display); font-weight: 400; }
+.emb-paper .pp-title { font-family: var(--font-ui); font-weight: 700; font-size: 13px; letter-spacing: 0.18em; }
+.emb-paper .pp-xp { font-family: var(--font-mono); font-weight: 700; font-size: 11px; letter-spacing: 0.08em; }
+@keyframes pp-thump { from { transform: scale(1.05); } to { transform: scale(1); } }
+@media (prefers-reduced-motion: no-preference) {
+  .emb-paper .pp-stamp { transform-box: fill-box; transform-origin: center; animation: pp-thump 0.5s ease-out both; }
+}

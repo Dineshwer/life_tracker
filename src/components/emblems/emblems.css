@@ -1,0 +1,7 @@
+/* Shared emblem rules. Each emblem may add its own css file next to its component. */
+.hero-tree { container-type: inline-size; }
+.emb { display: block; width: 100%; height: auto; overflow: visible; }
+/* the hero slot is ~160px on phones: hide fine detail there */
+@container (max-width: 220px) { .emb .emb-detail { display: none; } }
+@container (min-width: 221px) { .emb .emb-compact { display: none; } }
+@media (prefers-reduced-motion: reduce) { .hero-tree { animation: none !important; } }

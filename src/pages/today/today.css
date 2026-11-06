@@ -111,3 +111,11 @@
 .rj-w-top { display: flex; align-items: baseline; gap: 8px; margin-bottom: 14px; }
 .rj-w-of { color: var(--muted); font-size: .95rem; }
 .rj-widget:hover { border-color: var(--line-strong); }
+
+/* phones: the emblem sits in the corner; the greeting and date keep clear of it */
+@media (max-width: 859px) {
+  .hero-tree { width: 124px; top: 8px; right: -10px; }
+  .hero-text > .t-greet, .hero-text > .t-date { padding-right: 92px; }
+  .t-date { font-size: clamp(2rem, 8.2vw, 3.9rem); }
+  .t-skill-line { margin-top: 14px; }
+}

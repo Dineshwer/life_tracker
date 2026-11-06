@@ -1,0 +1,9 @@
+/* Swiss emblem: flat poster. No float, no glow. */
+[data-emblem='swiss'] { animation: none; filter: none; }
+.emb-swiss .sw-rule { stroke: var(--text); stroke-width: 2; }
+.emb-swiss .sw-meta { font-family: var(--font-ui); font-weight: 600; font-size: 11px; letter-spacing: 0.01em; fill: var(--text); }
+.emb-swiss .sw-red { fill: var(--accent); }
+.emb-swiss .sw-num { font-family: var(--font-display); font-weight: 900; font-stretch: 125%; letter-spacing: -0.07em; fill: var(--text); }
+.emb-swiss .sw-disc { fill: var(--accent); }
+.emb-swiss .sw-pct { font-family: var(--font-display); font-weight: 900; font-size: 36px; letter-spacing: -0.04em; fill: var(--accent-ink); }
+.emb-swiss .sw-sub { font-family: var(--font-ui); font-weight: 700; font-size: 13px; letter-spacing: -0.01em; fill: var(--accent-ink); }

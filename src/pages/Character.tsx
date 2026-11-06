@@ -7,14 +7,7 @@ import './character/character.css';
 
 const fmt = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 
-const TITLES: [number, string, string][] = [
-  [1, 'Seedling', 'Small, green, and already reaching.'],
-  [3, 'Sapling', 'Bending, not breaking.'],
-  [5, 'Rooted', 'The ground knows your name.'],
-  [8, 'Branching', 'Every habit, a new limb.'],
-  [12, 'Canopy', 'Others find shade in what you built.'],
-];
-const titleFor = (lv: number) => [...TITLES].reverse().find((t) => lv >= t[0]) ?? TITLES[0];
+import { TITLES, titleFor } from '../lib/titles';
 
 function LevelRing({ pct, level }: { pct: number; level: number }) {
   const r = 86, c = 2 * Math.PI * r;

@@ -1,0 +1,3 @@
+.emb-cyb .cyb-fill { animation: cyb-flick 4s steps(1) infinite; }
+@keyframes cyb-flick { 0%, 93%, 97%, 100% { opacity: 1; } 95% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .emb-cyb .cyb-fill { animation: none; } }
