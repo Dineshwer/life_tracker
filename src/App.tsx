@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { useStore } from './store';
@@ -25,7 +25,7 @@ import Settings from './pages/Settings';
 import Rejections from './pages/Rejections';
 import Entertainment from './pages/Entertainment';
 import Books from './pages/Books';
-import AvatarLab from './pages/AvatarLab';
+const AvatarLab = lazy(() => import('./pages/AvatarLab')); // QA page: keeps three.js out of the main bundle
 import SyncBanner from './components/SyncBanner';
 import './styles/shell.css';
 
@@ -113,7 +113,7 @@ export default function App() {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/rejections" element={<Rejections />} />
           <Route path="/books" element={<Books />} />
-          <Route path="/avatar-lab" element={<AvatarLab />} />
+          <Route path="/avatar-lab" element={<Suspense fallback={null}><AvatarLab /></Suspense>} />
           <Route path="/entertainment" element={<Entertainment />} />
           <Route path="/gym" element={<Gym />} />
           <Route path="/journal" element={<Journal />} />

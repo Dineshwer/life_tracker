@@ -47,8 +47,26 @@
 .ch-note p + p { margin-top: 8px; }
 .ch-empty { color: var(--muted); font-size: .9rem; padding: 16px 0; }
 
-/* the per-theme emblem on this screen: it fills the column up to a comfortable size */
-.ch-tree { min-height: 0; }
-.ch-emblem { width: min(100%, 360px); margin: 0 auto; }
-.ch-lvl { margin-top: 12px; width: min(100%, 360px); }
+/* hero: 3D character on the left, id + unlocks on the right */
+.ch-hero { padding: 1rem; gap: 1rem; }
+@media (min-width: 860px) { .ch-hero { grid-template-columns: minmax(0, .85fr) minmax(0, 1fr); align-items: start; padding: 2rem; gap: 2.5rem; } }
+.ch-tree { min-height: 0; width: 100%; }
+.ch-avatar, .ch-emblem { width: 100%; max-width: 27.5rem; margin-inline: auto; }
+.ch-id { grid-template-columns: minmax(0, 1fr); justify-items: stretch; text-align: left; min-width: 0; }
+.ch-title { overflow-wrap: break-word; }
+.ch-lvl { margin-top: .5rem; width: 100%; }
 .ch-next { width: 100%; }
+.ch-unlocks { margin-top: .75rem; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius, .75rem); background: color-mix(in srgb, var(--card) 70%, transparent); }
+.ch-un-h { margin: 0 0 .5rem; font-weight: inherit; }
+.ch-un-list { list-style: none; margin: 0; padding: 0; display: grid; }
+.ch-un-list li { display: grid; grid-template-columns: minmax(6.5rem, auto) minmax(0, 1fr); gap: .75rem; align-items: baseline; padding: .5rem 0; border-top: 1px solid var(--line); font-size: .9rem; }
+.ch-un-list li:first-child { border-top: 0; }
+.ch-un-k { display: flex; align-items: center; gap: .5rem; color: var(--c); white-space: nowrap; }
+.ch-un-k small { font-family: var(--font-mono); color: var(--muted); font-size: .72rem; }
+.ch-un-v { color: var(--text); overflow-wrap: anywhere; }
+.ch-un-next { margin: .75rem 0 0; padding-top: .75rem; border-top: 1px dashed var(--line-strong); color: var(--muted); font-size: .9rem; }
+.ch-un-next .label { color: var(--accent-2); margin-right: .25rem; }
+@media (max-width: 480px) { .ch-un-list li { grid-template-columns: 1fr; gap: .125rem; } }
+.display.ch-title { font-size: clamp(2rem, 8vw, 3rem); }
+@media (min-width: 860px) { .display.ch-title { font-size: clamp(1.75rem, 3.4vw, 3.4rem); } }
+.ch-line { max-width: none; }

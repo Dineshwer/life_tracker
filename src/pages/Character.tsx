@@ -1,5 +1,8 @@
+import { lazy, Suspense } from 'react';
 import { useStore } from '../store';
 import { SkinEmblem } from '../components/emblems';
+import { useEmblemData } from '../components/emblems/useEmblemData';
+import { BAND_GEAR, BODY_UNLOCKS, DISC_TIERS, DISC_UNLOCKS, MIND_TIERS, MIND_UNLOCKS, SKILL_TIERS, SKILL_UNLOCKS, STREAK_TIERS, STREAK_UNLOCKS, tierOf } from '../components/avatar/tiers';
 import { Bar, Page, SectionHeader } from '../components/ui';
 import { STATS, STAT_LABEL, levelFromXP, overallXP, sumByStat } from '../lib/xp';
 import { addDays, fromISO, today } from '../lib/dates';
@@ -25,7 +28,36 @@ function Spark({ values }: { values: number[] }) {
   );
 }
 
+const Avatar3D = lazy(() => import('../components/avatar/Avatar3D'));
+
+/** first level of the band after `band`, from lib/titles */
+const BAND_STARTS = TITLES.map((t) => t[0]);
+const away = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'} away`;
+
+interface Unlock { key: string; label: string; level: string; text: string; color: string }
+
+function nextUnlock(d: ReturnType<typeof useEmblemData>, lv: { mind: number; skill: number; disc: number }): string | null {
+  const cands: { gap: number; text: string }[] = [];
+  const tiered = (name: string, v: number, tiers: number[], texts: string[]) => {
+    const k = tierOf(v, tiers);
+    if (k < tiers.length) cands.push({ gap: tiers[k] - v, text: `${name} level ${tiers[k]}: ${texts[k + 1].replace(/^./, (c) => c.toLowerCase())} (${away(tiers[k] - v, 'level')})` });
+  };
+  tiered('Mind', lv.mind, MIND_TIERS, MIND_UNLOCKS);
+  tiered('Skill', lv.skill, SKILL_TIERS, SKILL_UNLOCKS);
+  tiered('Discipline', lv.disc, DISC_TIERS, DISC_UNLOCKS);
+  const sk = tierOf(d.streak, STREAK_TIERS);
+  if (sk < STREAK_TIERS.length) cands.push({ gap: STREAK_TIERS[sk] - d.streak, text: `${STREAK_TIERS[sk]}-day streak: ${STREAK_UNLOCKS[sk + 1].replace(/^./, (c) => c.toLowerCase())} (${away(STREAK_TIERS[sk] - d.streak, 'day')})` });
+  if (d.band < 5 && BAND_STARTS[d.band] !== undefined) {
+    const g = BAND_STARTS[d.band] - d.level;
+    if (g > 0) cands.push({ gap: g, text: `Overall level ${BAND_STARTS[d.band]}: ${BAND_GEAR[d.band].replace(/^./, (c) => c.toLowerCase())} (${away(g, 'level')})` });
+  }
+  if (!cands.length) return null;
+  cands.sort((a, b) => a.gap - b.gap);
+  return cands[0].text;
+}
+
 export default function Character() {
+  const ed = useEmblemData();
   const xp = useStore((s) => s.xp);
   const total = overallXP(xp);
   const o = levelFromXP(total);
@@ -38,15 +70,28 @@ export default function Character() {
   const recentIdx = new Map(xp.map((e, i) => [e.id, i]));
   recent.sort((a, b) => (a.date === b.date ? (recentIdx.get(b.id) ?? 0) - (recentIdx.get(a.id) ?? 0) : 0));
 
-  const [, title, line] = titleFor(o.level);
+  const [, title, line] = titleFor(ed.level);
   const net = series.reduce((a, b) => a + b, 0);
+
+  const sl = (st: 'body' | 'mind' | 'skill' | 'discipline') => ed.stats[st].level;
+  const unlocks: Unlock[] = [
+    { key: 'outfit', label: 'Outfit', level: `Lv ${ed.level}`, text: BAND_GEAR[ed.band - 1], color: 'var(--accent)' },
+    { key: 'body', label: 'Body', level: `Lv ${sl('body')}`, text: BODY_UNLOCKS(sl('body')), color: 'var(--body)' },
+    { key: 'mind', label: 'Mind', level: `Lv ${sl('mind')}`, text: MIND_UNLOCKS[tierOf(sl('mind'), MIND_TIERS)], color: 'var(--mind)' },
+    { key: 'skill', label: 'Skill', level: `Lv ${sl('skill')}`, text: SKILL_UNLOCKS[tierOf(sl('skill'), SKILL_TIERS)], color: 'var(--skill)' },
+    { key: 'disc', label: 'Discipline', level: `Lv ${sl('discipline')}`, text: DISC_UNLOCKS[tierOf(sl('discipline'), DISC_TIERS)], color: 'var(--discipline)' },
+    { key: 'streak', label: 'Streak', level: `${ed.streak} d`, text: STREAK_UNLOCKS[tierOf(ed.streak, STREAK_TIERS)], color: 'var(--accent-2)' },
+  ];
+  const next = nextUnlock(ed, { mind: sl('mind'), skill: sl('skill'), disc: sl('discipline') });
 
   return (
     <Page title="Character" kicker={`${total.toLocaleString()} total XP`}>
       <section className="card ch-hero rise" style={{ ['--i' as string]: 0 }}>
-        <div className="ch-tree"><SkinEmblem className="ch-emblem" /></div>
+        <div className="ch-tree">
+          <Suspense fallback={<div className="ch-emblem"><SkinEmblem /></div>}><Avatar3D className="ch-avatar" /></Suspense>
+        </div>
         <div className="ch-id">
-          <div className="label">{title} &middot; band {Math.max(1, TITLES.findIndex((t) => t[1] === title) + 1)} of 5</div>
+          <div className="label">{title} &middot; band {ed.band} of 5</div>
           <h2 className="display ch-title">{title}</h2>
           <p className="ch-line">{line}</p>
           <div className="ch-lvl">
@@ -55,6 +100,18 @@ export default function Character() {
               <div className="label">XP to level {o.level + 1}</div>
               <Bar pct={o.pct} height={5} />
             </div>
+          </div>
+          <div className="ch-unlocks">
+            <h3 className="label ch-un-h">What you have unlocked</h3>
+            <ul className="ch-un-list">
+              {unlocks.map((u) => (
+                <li key={u.key} style={{ ['--c' as string]: u.color }}>
+                  <span className="ch-un-k"><i className="ch-dot" />{u.label}<small>{u.level}</small></span>
+                  <span className="ch-un-v">{u.text}</span>
+                </li>
+              ))}
+            </ul>
+            {next && <p className="ch-un-next"><span className="label">Next unlock</span> {next}</p>}
           </div>
         </div>
       </section>
