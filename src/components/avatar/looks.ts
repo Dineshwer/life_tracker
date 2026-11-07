@@ -288,6 +288,7 @@ export const makeMaterials: MakeMaterials = (skinId, mode) => {
     stat: { body: p.body.getHex(), mind: p.mind.getHex(), skill: p.skill.getHex(), discipline: p.disc.getHex() },
     accentHex: p.accent.getHex(), accent2Hex: p.accent2.getHex(), bgHex: p.bg.getHex(), textHex: p.text.getHex(),
     outline: spec.outline,
+    convert(src) { return src; }, // STUB: the looks agent replaces this with real themed conversion
     addOutline(mesh, thickness = spec.outlineW) {
       if (!spec.outline || !mesh.geometry || !mesh.geometry.attributes.normal) return null;
       const s = mesh.scale;

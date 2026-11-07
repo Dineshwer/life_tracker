@@ -6,7 +6,7 @@
    handL/R slot sits at the palm centre (fingers point to -y, palm faces the thigh, thumb forward). */
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-import type { AvatarRig, AvatarState, BuildBody, Dims, Materials, Slots } from './types';
+import type { AvatarRig, AvatarState, BuildBody, Dims, LoadBody, Materials, Slots } from './types';
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
@@ -372,3 +372,6 @@ export const buildBody: BuildBody = (state: AvatarState, mats: Materials): Avata
 
   return { root, dims, slots, update, dispose };
 };
+
+/** v2 entry point. Will be replaced by the model loader (model.ts); for now it wraps the procedural body. */
+export const loadBody: LoadBody = async (state, mats) => buildBody(state, mats);

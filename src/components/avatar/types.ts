@@ -33,6 +33,9 @@ export interface Materials {
   accentHex: number; accent2Hex: number; bgHex: number; textHex: number;
   /** true when the theme wants a drawn outline around meshes (toon / paper / ink styles) */
   outline: boolean;
+  /** Re-style a material that came from a loaded model (a MeshStandardMaterial with maps from a glTF) in this theme's rendering style,
+      keeping its textures: toon / lambert / flat / tinted per theme. `role` says what it is so the theme can recolour it sensibly. */
+  convert(src: THREE.Material, role: 'skin' | 'cloth' | 'hair' | 'metal' | 'eye' | 'other'): THREE.Material;
   /** make an outline for a mesh (inverted hull). No-op when outline is false. Returns the outline mesh or null. */
   addOutline(mesh: THREE.Mesh, thickness?: number): THREE.Mesh | null;
   dispose(): void;
@@ -82,6 +85,10 @@ export interface Slots {
   floor: THREE.Object3D;      // at y = 0 under the figure, for plinths, rings, flames
 }
 
+/* v2 NOTE for model-based bodies: slot Objects are Groups attached under the model's bones (so they follow the animated pose).
+   A slot must have identity scale in WORLD terms (counter-scale if a bone is scaled) so gear sized in metres stays correct.
+   Convention unchanged: the figure faces +z, L is at +x and R at -x, units are metres, feet on y = 0. */
+
 export interface AvatarRig {
   root: THREE.Group;          // add this to the scene
   dims: Dims;
@@ -107,6 +114,12 @@ export interface LookHandle {
 }
 
 export type BuildBody = (state: AvatarState, mats: Materials) => AvatarRig;
+/** v2: the real human model is loaded from glb files, so building the body is asynchronous. Falls back to the procedural body if loading fails. */
+export type LoadBody = (state: AvatarState, mats: Materials) => Promise<AvatarRig>;
+/** Ground / set dressing that grows with the band (bare ground, campfire, stone circle, tree, throne...). */
+export type BuildSetting = (state: AvatarState, mats: Materials, rig: AvatarRig) => GearHandle;
+/** A small companion that appears from band 3 and gets fancier (lantern wisp, bird...). */
+export type BuildCompanion = (state: AvatarState, mats: Materials, rig: AvatarRig) => GearHandle;
 export type ApplyGear = (rig: AvatarRig, state: AvatarState, mats: Materials) => GearHandle;
 export type MakeMaterials = (skinId: string, mode: 'dark' | 'light') => Materials;
 export type ApplyLook = (ctx: { scene: THREE.Scene; renderer: THREE.WebGLRenderer; skinId: string; mode: 'dark' | 'light'; mats: Materials; rig: AvatarRig }) => LookHandle;
