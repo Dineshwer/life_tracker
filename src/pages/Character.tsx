@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import { useStore } from '../store';
 import { SkinEmblem } from '../components/emblems';
 import { useEmblemData } from '../components/emblems/useEmblemData';
-import { BAND_GEAR, BODY_UNLOCKS, DISC_TIERS, DISC_UNLOCKS, MIND_TIERS, MIND_UNLOCKS, SKILL_TIERS, SKILL_UNLOCKS, STREAK_TIERS, STREAK_UNLOCKS, tierOf } from '../components/avatar/tiers';
+import { BAND_COMPANION, BAND_GEAR, BAND_NAMES, BAND_SETTING, BODY_UNLOCKS, DISC_TIERS, DISC_UNLOCKS, MIND_TIERS, MIND_UNLOCKS, SKILL_TIERS, SKILL_UNLOCKS, STREAK_TIERS, STREAK_UNLOCKS, tierOf } from '../components/avatar/tiers';
 import { Bar, Page, SectionHeader } from '../components/ui';
 import { STATS, STAT_LABEL, levelFromXP, overallXP, sumByStat } from '../lib/xp';
 import { addDays, fromISO, today } from '../lib/dates';
@@ -49,7 +49,10 @@ function nextUnlock(d: ReturnType<typeof useEmblemData>, lv: { mind: number; ski
   if (sk < STREAK_TIERS.length) cands.push({ gap: STREAK_TIERS[sk] - d.streak, text: `${STREAK_TIERS[sk]}-day streak: ${STREAK_UNLOCKS[sk + 1].replace(/^./, (c) => c.toLowerCase())} (${away(STREAK_TIERS[sk] - d.streak, 'day')})` });
   if (d.band < 5 && BAND_STARTS[d.band] !== undefined) {
     const g = BAND_STARTS[d.band] - d.level;
-    if (g > 0) cands.push({ gap: g, text: `Overall level ${BAND_STARTS[d.band]}: ${BAND_GEAR[d.band].replace(/^./, (c) => c.toLowerCase())} (${away(g, 'level')})` });
+    const nb = d.band; // index of the next band
+    const bits = [BAND_GEAR[nb], BAND_SETTING[nb], BAND_COMPANION[nb] !== 'None yet' ? BAND_COMPANION[nb] : ''].filter(Boolean).map((x) => x.replace(/^./, (c) => c.toLowerCase()));
+    const list = bits.length > 1 ? `${bits.slice(0, -1).join(', ')} and ${bits[bits.length - 1]}` : bits[0];
+    if (g > 0) cands.push({ gap: g, text: `Level ${BAND_STARTS[nb]}: ${BAND_NAMES[nb]}. ${list.replace(/^./, (c) => c.toUpperCase())} (${away(g, 'level')})` });
   }
   if (!cands.length) return null;
   cands.sort((a, b) => a.gap - b.gap);
@@ -76,6 +79,8 @@ export default function Character() {
   const sl = (st: 'body' | 'mind' | 'skill' | 'discipline') => ed.stats[st].level;
   const unlocks: Unlock[] = [
     { key: 'outfit', label: 'Outfit', level: `Lv ${ed.level}`, text: BAND_GEAR[ed.band - 1], color: 'var(--accent)' },
+    { key: 'setting', label: 'Setting', level: BAND_NAMES[ed.band - 1], text: BAND_SETTING[ed.band - 1], color: 'var(--accent-2)' },
+    { key: 'companion', label: 'Companion', level: BAND_NAMES[ed.band - 1], text: BAND_COMPANION[ed.band - 1], color: 'var(--accent)' },
     { key: 'body', label: 'Body', level: `Lv ${sl('body')}`, text: BODY_UNLOCKS(sl('body')), color: 'var(--body)' },
     { key: 'mind', label: 'Mind', level: `Lv ${sl('mind')}`, text: MIND_UNLOCKS[tierOf(sl('mind'), MIND_TIERS)], color: 'var(--mind)' },
     { key: 'skill', label: 'Skill', level: `Lv ${sl('skill')}`, text: SKILL_UNLOCKS[tierOf(sl('skill'), SKILL_TIERS)], color: 'var(--skill)' },

@@ -1,0 +1,7 @@
+Avatar 3D models (public/avatar/*.glb)
+
+Base character, hairstyles: "Universal Base Characters" by Quaternius (https://quaternius.com), CC0 1.0 (public domain).
+Outfits: "Modular Character Outfits - Fantasy" by Quaternius (https://quaternius.com), CC0 1.0 (public domain).
+
+The files were cut, merged, textured down to WebP and stripped of unused data by scripts/prepare-avatar-assets.mjs.
+No attribution is required by CC0; it is given here with thanks.

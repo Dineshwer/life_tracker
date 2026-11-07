@@ -96,6 +96,8 @@ export interface AvatarRig {
   /** advance the idle pose (subtle breathing / weight shift). t in seconds. Must be a no-op when reduced motion is set. */
   update(t: number): void;
   dispose(): void;
+  /** model bodies only (optional, additive): the skeleton's bones by name (pelvis, spine_01..03, neck_01, Head, clavicle_l, upperarm_l, lowerarm_l, hand_l, thigh_l, calf_l, foot_l, ball_l and the _r twins, finger bones) */
+  bones?: Record<string, THREE.Bone>;
 }
 
 /** A piece of animated gear / effects. */

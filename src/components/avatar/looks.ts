@@ -224,6 +224,55 @@ function addRim(m: THREE.Material, rim: Rim) {
   m.customProgramCacheKey = () => 'rim';
 }
 
+// ---------------------------------------------------------------- model material conversion (grade tables)
+type Role = 'skin' | 'cloth' | 'hair' | 'metal' | 'eye' | 'other';
+/** mix = how far the texture is pulled toward the theme colour (duotone, keeps shading detail), sat = saturation of the texture first, post = posterize levels (0 off) */
+interface Grade { mix: number; sat: number; post?: number }
+type GradeSet = Record<Role, Grade>;
+const gs = (skin: [number, number], hair: [number, number], cloth: [number, number], metal = 0.6, post = 0): GradeSet => ({
+  skin: { mix: skin[0], sat: skin[1], post }, hair: { mix: hair[0], sat: hair[1], post }, cloth: { mix: cloth[0], sat: cloth[1], post },
+  metal: { mix: metal, sat: 0.6, post }, eye: { mix: 0, sat: skin[1] < 0.5 ? 0.2 : 1, post }, other: { mix: 0.2, sat: 1, post },
+});
+const GRADE: Record<string, GradeSet> = {
+  canopy: gs([0, 1], [0.35, 1], [0.25, 1]),
+  paper: gs([0.15, 0.85], [0.45, 0.9], [0.3, 0.9]),
+  grimoire: gs([0.1, 1], [0.4, 1], [0.3, 1]),
+  pop: gs([0.1, 1.15], [0.5, 1], [0.3, 1.2]),
+  arcade: gs([0.1, 1], [0.4, 1], [0.3, 1], 0.6, 6),
+  sumi: gs([0.85, 0.15], [0.8, 0.2], [0.8, 0.15], 0.8),
+  bauhaus: gs([0.15, 1.1], [0.6, 1], [0.6, 1]),
+  riso: gs([0.6, 0.5], [0.7, 0.5], [0.6, 0.5]),
+  blueprint: gs([0.8, 0.2], [0.8, 0.2], [0.8, 0.2], 0.8),
+  swiss: gs([0.75, 0.1], [0.8, 0.1], [0.7, 0.2], 0.7),
+  collage: gs([0.1, 1], [0.4, 1], [0.3, 1]),
+  rings: gs([0, 1], [0.35, 1], [0.25, 1]),
+  cyberpunk: gs([0.12, 1], [0.5, 1], [0.5, 1], 0.5),
+};
+const REF: Record<Role, number> = { skin: 0.4, hair: 0.1, cloth: 0.3, metal: 0.4, eye: 1, other: 0.3 };
+
+/** one onBeforeCompile for both the texture grade and the optional rim light */
+function patchMaterial(m: THREE.Material, g: Grade, tint: THREE.Color, ref: number, rim: Rim | null) {
+  const rc = rim ? new THREE.Color(rim.color).multiplyScalar(rim.strength) : null;
+  m.onBeforeCompile = (sh) => {
+    sh.uniforms.uSat = { value: g.sat }; sh.uniforms.uMix = { value: g.mix }; sh.uniforms.uTint = { value: tint };
+    sh.uniforms.uRef = { value: ref }; sh.uniforms.uPost = { value: g.post ?? 0 };
+    let f = 'uniform float uSat;\nuniform float uMix;\nuniform vec3 uTint;\nuniform float uRef;\nuniform float uPost;\n' +
+      (rc ? 'uniform vec3 uRim;\nuniform float uRimP;\n' : '') + sh.fragmentShader;
+    f = f.replace('#include <map_fragment>', `#include <map_fragment>
+ { float gLum = dot(diffuseColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+   vec3 gc = mix(vec3(gLum), diffuseColor.rgb, uSat);
+   gc = mix(gc, uTint * clamp(gLum / uRef, 0.55, 1.4), uMix);
+   if (uPost > 0.5) gc = floor(gc * uPost + 0.5) / uPost;
+   diffuseColor.rgb = gc; }`);
+    if (rc) {
+      sh.uniforms.uRim = { value: rc }; sh.uniforms.uRimP = { value: rim!.power };
+      f = f.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n float rimF = pow(1.0 - saturate(dot(normalize(vViewPosition), normal)), uRimP);\n totalEmissiveRadiance += uRim * rimF;');
+    }
+    sh.fragmentShader = f;
+  };
+  m.customProgramCacheKey = () => (rc ? 'grade-rim' : 'grade');
+}
+
 export const makeMaterials: MakeMaterials = (skinId, mode) => {
   const spec = SPEC[skinId] ?? SPEC.canopy;
   const p = readPalette(mode);
@@ -258,6 +307,7 @@ export const makeMaterials: MakeMaterials = (skinId, mode) => {
   }));
   const inkC = spec.ink(p);
 
+  const convCache = new Map<string, THREE.Material>();
   const outlineCache = new Map<number, THREE.MeshBasicMaterial>();
   const outlineMat = (th: number) => {
     const key = Math.round(th * 10000);
@@ -288,12 +338,58 @@ export const makeMaterials: MakeMaterials = (skinId, mode) => {
     stat: { body: p.body.getHex(), mind: p.mind.getHex(), skill: p.skill.getHex(), discipline: p.disc.getHex() },
     accentHex: p.accent.getHex(), accent2Hex: p.accent2.getHex(), bgHex: p.bg.getHex(), textHex: p.text.getHex(),
     outline: spec.outline,
-    convert(src) { return src; }, // STUB: the looks agent replaces this with real themed conversion
+    convert(src, role) {
+      const key = src.uuid + '|' + role;
+      const hit = convCache.get(key);
+      if (hit) return hit;
+      const S = src as THREE.MeshStandardMaterial;
+      const g = (GRADE[skinId] ?? GRADE.canopy)[role];
+      const tint = (role === 'skin' ? spec.skin(p) : role === 'hair' ? spec.hair(p) : role === 'metal' ? spec.metal(p)
+        : role === 'cloth' ? spec.cloth(p) : role === 'other' ? spec.cloth2(p) : new THREE.Color(0xffffff)).clone();
+      const base: Record<string, unknown> = { color: S.color ? S.color.clone() : new THREE.Color(0xffffff) };
+      if (S.map) base.map = S.map;
+      if (S.alphaMap) base.alphaMap = S.alphaMap;
+      if (S.alphaTest) base.alphaTest = S.alphaTest;
+      if (S.transparent) { base.transparent = true; base.opacity = S.opacity; base.depthWrite = S.depthWrite; }
+      base.side = S.side;
+      if (S.vertexColors) base.vertexColors = true;
+      let m: THREE.Material;
+      if (role === 'metal' && spec.phongMetal) {
+        m = new THREE.MeshPhongMaterial({ ...base, shininess: 70, specular: new THREE.Color(0x777777) });
+      } else if (spec.style === 'flat') {
+        m = new THREE.MeshLambertMaterial({ ...base, flatShading: true });
+      } else if (spec.style === 'cyber') {
+        m = new THREE.MeshLambertMaterial({ ...base, emissive: new THREE.Color(0xffffff).multiplyScalar(role === 'eye' ? 0.3 : 0.1), emissiveMap: S.map ?? null });
+      } else {
+        m = new THREE.MeshToonMaterial({ ...base, gradientMap: grad });
+      }
+      m.name = src.name;
+      if (S.map || g.mix > 0 || g.sat !== 1 || g.post) patchMaterial(m, g, tint, REF[role], rimSpec && role !== 'eye' ? rimSpec : null);
+      else if (rimSpec && role !== 'eye') addRim(m, rimSpec);
+      convCache.set(key, m);
+      return own(m);
+    },
     addOutline(mesh, thickness = spec.outlineW) {
       if (!spec.outline || !mesh.geometry || !mesh.geometry.attributes.normal) return null;
-      const s = mesh.scale;
-      const k = Math.max(0.05, (Math.abs(s.x) + Math.abs(s.y) + Math.abs(s.z)) / 3);
-      const o = new THREE.Mesh(mesh.geometry, outlineMat(thickness / k));
+      const sm = mesh as THREE.SkinnedMesh;
+      const srcMat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material) as THREE.Material | undefined;
+      if (srcMat && (srcMat.alphaTest > 0 || (srcMat.transparent && srcMat.opacity < 1) || (srcMat as THREE.MeshStandardMaterial).alphaMap)) return null; // hair cards / lashes: a hull would be a solid blob
+      let o: THREE.Mesh;
+      if (sm.isSkinnedMesh) {
+        if (!sm.skeleton) return null;
+        mesh.updateWorldMatrix(true, false);
+        const ws = mesh.getWorldScale(new THREE.Vector3());
+        const k = Math.max(0.05, (Math.abs(ws.x) + Math.abs(ws.y) + Math.abs(ws.z)) / 3);
+        // the hull shares geometry, skeleton and bind matrix; the push happens at begin_vertex, i.e. before skinning_vertex
+        const hull = new THREE.SkinnedMesh(mesh.geometry, outlineMat(thickness / k));
+        hull.bind(sm.skeleton, sm.bindMatrix);
+        hull.frustumCulled = false;
+        o = hull;
+      } else {
+        const s = mesh.scale;
+        const k = Math.max(0.05, (Math.abs(s.x) + Math.abs(s.y) + Math.abs(s.z)) / 3);
+        o = new THREE.Mesh(mesh.geometry, outlineMat(thickness / k));
+      }
       o.name = 'outline';
       o.userData.isOutline = true;
       o.raycast = () => {};
@@ -301,27 +397,29 @@ export const makeMaterials: MakeMaterials = (skinId, mode) => {
       mesh.add(o);
       return o;
     },
-    dispose() { owned.forEach((o) => o.dispose()); owned.length = 0; outlineCache.clear(); },
+    dispose() { owned.forEach((o) => o.dispose()); owned.length = 0; outlineCache.clear(); convCache.clear(); },
   };
   return mats;
 };
 
 // ---------------------------------------------------------------- look
 interface Cam { fov: number; distance: number; height: number; lookAtY: number }
+/** distance so that +-hw metres (at the figure's depth) fit the 4:5 portrait frame: wings, weapon, rings and set dressing all inside */
+const frame = (fov: number, height: number, lookAtY: number, hw = 1.15): Cam => ({ fov, height, lookAtY, distance: Math.round((hw / 0.8 / Math.tan(THREE.MathUtils.degToRad(fov / 2))) * 100) / 100 });
 const CAMERA: Record<string, Cam> = {
-  canopy: { fov: 30, distance: 6.3, height: 1.2, lookAtY: 1.0 },
-  paper: { fov: 28, distance: 6.7, height: 1.15, lookAtY: 1.0 },
-  grimoire: { fov: 30, distance: 6.3, height: 1.0, lookAtY: 1.02 },
-  pop: { fov: 34, distance: 5.7, height: 1.2, lookAtY: 1.0 },
-  arcade: { fov: 28, distance: 6.6, height: 1.0, lookAtY: 1.0 },
-  sumi: { fov: 26, distance: 7.3, height: 1.1, lookAtY: 1.0 },
-  bauhaus: { fov: 24, distance: 7.8, height: 1.1, lookAtY: 1.0 },
-  riso: { fov: 28, distance: 6.7, height: 1.15, lookAtY: 1.0 },
-  blueprint: { fov: 22, distance: 8.6, height: 1.0, lookAtY: 1.0 },
-  swiss: { fov: 24, distance: 7.8, height: 1.05, lookAtY: 1.0 },
-  collage: { fov: 30, distance: 6.3, height: 1.15, lookAtY: 1.0 },
-  rings: { fov: 30, distance: 6.3, height: 1.2, lookAtY: 1.0 },
-  cyberpunk: { fov: 32, distance: 6.0, height: 0.7, lookAtY: 1.05 },
+  canopy: frame(30, 1.25, 1.05),
+  paper: frame(28, 1.2, 1.05),
+  grimoire: frame(30, 1.1, 1.07),
+  pop: frame(34, 1.25, 1.05),
+  arcade: frame(28, 1.1, 1.05),
+  sumi: frame(26, 1.15, 1.05),
+  bauhaus: frame(24, 1.15, 1.05),
+  riso: frame(28, 1.2, 1.05),
+  blueprint: frame(22, 1.05, 1.05),
+  swiss: frame(24, 1.1, 1.05),
+  collage: frame(30, 1.2, 1.05),
+  rings: frame(30, 1.25, 1.05),
+  cyberpunk: frame(32, 0.8, 1.1),
 };
 
 interface LightSpec {
@@ -645,7 +743,7 @@ export const applyLook: ApplyLook = ({ scene, renderer, skinId, mode, rig }) => 
       g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx);
       put(g, basic(ink, { transparent: true, opacity: dk ? 0.78 : 0.86, side: THREE.DoubleSide }), 0, cy + 0.02, -1.0);
       disc(1.0, mixc(p.bg, ink, dk ? 0.07 : 0.045), 0, cy + 0.02, -1.05);
-      put(new THREE.PlaneGeometry(0.16, 0.16), basic(p.accent), 0.98, cy - 0.78, -0.95).rotation.z = 0.06;
+      put(new THREE.PlaneGeometry(0.16, 0.16), basic(p.accent), -0.92, cy + 1.0, -0.95).rotation.z = 0.06;
       floorGlow(ink, 1.1, dk ? 0.2 : 0.3, false);
       break;
     }
@@ -812,3 +910,22 @@ export const applyLook: ApplyLook = ({ scene, renderer, skinId, mode, rig }) => 
 };
 
 export type { AvatarRig };
+
+// ---------------------------------------------------------------- shared helpers for setting.ts / companion.ts
+export const fxReducedMotion = reducedMotion;
+export function fxMix(a: THREE.Color, b: THREE.Color, f: number): THREE.Color { return mix(a, b, f); }
+export function fxIsDark(bgHex: number): boolean { return lum(new THREE.Color(bgHex)) < 0.5; }
+/** soft radial glow texture (white-ish centre fading to transparent) */
+export function fxGlowTexture(c: THREE.Color, inner = 1): THREE.CanvasTexture {
+  const cv = document.createElement('canvas');
+  cv.width = cv.height = 64;
+  const ctx = cv.getContext('2d')!;
+  const rgb = c.getRGB({ r: 0, g: 0, b: 0 } as THREE.RGB, SRGB);
+  const col = (a: number) => `rgba(${Math.round(rgb.r * 255)},${Math.round(rgb.g * 255)},${Math.round(rgb.b * 255)},${a})`;
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, col(inner)); g.addColorStop(0.45, col(inner * 0.35)); g.addColorStop(1, col(0));
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 64);
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = SRGB;
+  return t;
+}

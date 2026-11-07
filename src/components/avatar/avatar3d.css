@@ -1,5 +1,5 @@
 .av3-wrap { position: relative; width: 100%; aspect-ratio: 4 / 5; min-height: 300px; max-height: 600px; margin-inline: auto; border-radius: var(--radius, 12px); overflow: hidden; }
-.av3-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; cursor: grab; outline: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+.av3-canvas { opacity: 0; transition: opacity .6s var(--ease, ease); position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: pan-y; cursor: grab; outline: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
 .av3-canvas:active { cursor: grabbing; }
 .av3-canvas:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .av3-wrap[data-skin='arcade'] .av3-canvas { image-rendering: pixelated; }
@@ -14,3 +14,14 @@
 @keyframes av3-flash { 0% { opacity: 0; } 25% { opacity: .9; } 100% { opacity: 0; } }
 @keyframes av3-cap { 0% { opacity: 0; transform: scale(.85); } 18% { opacity: 1; transform: scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translateY(-.5rem); } }
 @media (prefers-reduced-motion: reduce) { .av3-hint { transition: none; } .av3-wrap[data-celebrate='true'] .av3-flash { animation: none; } }
+
+.av3-wrap[data-ready='true'] .av3-canvas { opacity: 1; }
+.av3-loading { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; opacity: .4; animation: av3-pulse 1.8s ease-in-out infinite; transition: opacity .6s var(--ease, ease); }
+.av3-loading > * { width: 78%; max-height: 92%; }
+.av3-loading[data-done='true'] { opacity: 0; animation: none; }
+@keyframes av3-pulse { 0%, 100% { opacity: .22; } 50% { opacity: .5; } }
+.av3-line { position: absolute; left: 50%; bottom: 14%; transform: translateX(-50%); width: max-content; max-width: 90%; text-align: center; font-size: .95rem; padding: .35rem .9rem; border-radius: 999px; border: 1px solid var(--accent); background: color-mix(in srgb, var(--card, #000) 80%, transparent); color: var(--text); backdrop-filter: blur(4px); pointer-events: none; opacity: 0; animation: av3-line 4.2s ease-out .8s both; }
+.av3-wrap[data-celebrate='band'] .av3-cap { animation: av3-cap 2.6s ease-out both; }
+.av3-wrap[data-celebrate='band'] .av3-flash { animation: av3-flash 1.8s ease-out both; }
+@keyframes av3-line { 0% { opacity: 0; margin-bottom: -.4rem; } 12% { opacity: 1; margin-bottom: 0; } 85% { opacity: 1; } 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .av3-loading { animation: none; } .av3-canvas, .av3-loading { transition: none; } .av3-wrap[data-celebrate] .av3-flash { animation: none; } }

@@ -3,9 +3,13 @@ import * as THREE from 'three';
 import { SkinEmblem } from '../emblems';
 import { useEmblemData } from '../emblems/useEmblemData';
 import { useActiveSkin } from '../../lib/activeSkin';
-import { buildBody } from './body';
+import { loadBody } from './body';
 import { applyGear } from './gear';
 import { applyLook, makeMaterials } from './looks';
+import { buildSetting } from './setting';
+import { buildCompanion } from './companion';
+import { BAND_NAMES, BAND_UNLOCK_LINE } from './tiers';
+import { bandFor } from '../../lib/titles';
 import type { AvatarRig, AvatarState, Band, GearHandle, LookHandle, Materials } from './types';
 import './avatar3d.css';
 
@@ -23,7 +27,46 @@ const lsGet = (k: string) => { try { return localStorage.getItem(k); } catch { r
 const lsSet = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } };
 const ease = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
 
-interface Built { mats: Materials; rig: AvatarRig; gear: GearHandle; look: LookHandle; scene: THREE.Scene }
+interface Built { mats: Materials; rig: AvatarRig; gear: GearHandle; look: LookHandle; setting: GearHandle; companion: GearHandle; scene: THREE.Scene }
+const NOOP: GearHandle = { update() {}, dispose() {} };
+const FX_MS = 2400;
+
+/** Warm the glb model cache (the loader agent's ./model exports preloadAvatar). Safe before that module exists. */
+const modelMods = import.meta.glob('./model.ts');
+export function warmAvatar() {
+  try {
+    Object.values(modelMods).forEach((load) => { (load() as Promise<{ preloadAvatar?: () => unknown }>).then((m) => m.preloadAvatar?.()).catch(() => {}); });
+  } catch { /* ignore */ }
+}
+
+function disposeBuilt(b: Built) {
+  const safe = (f: () => void) => { try { f(); } catch { /* ignore */ } };
+  safe(() => b.companion.dispose()); safe(() => b.setting.dispose()); safe(() => b.gear.dispose());
+  safe(() => b.look.dispose()); safe(() => b.rig.dispose());
+  safe(() => disposeSceneGeometries(b.scene)); safe(() => b.mats.dispose());
+}
+
+/** how far the figure (with gear) reaches sideways and vertically, so wings / cape / weapon never leave the frame */
+function measure(rig: AvatarRig) {
+  const box = new THREE.Box3();
+  const tmp = new THREE.Box3();
+  try {
+    rig.root.updateWorldMatrix(true, true);
+    const walk = (o: THREE.Object3D) => {
+      if (o.userData && o.userData.noFit) return; // scenery (stones, tree, banner) never decides the framing
+      const m = o as THREE.Mesh;
+      if ((m.isMesh || (o as THREE.Points).isPoints) && m.geometry) {
+        if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+        if (m.geometry.boundingBox) { tmp.copy(m.geometry.boundingBox).applyMatrix4(o.matrixWorld); box.union(tmp); }
+      }
+      o.children.forEach(walk);
+    };
+    walk(rig.root);
+  } catch { /* ignore */ }
+  if (box.isEmpty()) return { r: 0.8, top: 1.9, bottom: 0 };
+  const r = Math.min(1.8, Math.max(Math.abs(box.min.x), Math.abs(box.max.x), Math.abs(box.min.z), Math.abs(box.max.z)));
+  return { r, top: Math.min(3, box.max.y), bottom: Math.max(-0.5, box.min.y) };
+}
 
 function disposeSceneGeometries(scene: THREE.Scene) {
   scene.traverse((o) => { const m = o as THREE.Mesh; if (m.geometry) m.geometry.dispose(); });
@@ -35,8 +78,10 @@ export default function Avatar3D({ className }: { className?: string }) {
   const [mode, setMode] = useState<Mode>(() => readMode());
   const [failed, setFailed] = useState(false);
   const [hintGone, setHintGone] = useState(false);
-  const [celebrate, setCelebrate] = useState(0); // 0 none, >0 level being celebrated
+  const [celebrate, setCelebrate] = useState<{ level: number; band: number; newBand: boolean } | null>(null);
   const [rendererReady, setRendererReady] = useState(0);
+  const [loaded, setLoaded] = useState(false);       // first build finished: canvas is showing the model
+  const [loaderGone, setLoaderGone] = useState(false);
 
   const state: AvatarState = useMemo(() => {
     const n = (k: string, d: number) => { const v = Number(QS.get(k)); return v >= 1 ? Math.round(v) : d; };
@@ -83,6 +128,11 @@ export default function Avatar3D({ className }: { className?: string }) {
     const camera = new THREE.PerspectiveCamera(35, ASPECT_REF, 0.1, 100);
     let built: Built | null = null;
     let camCfg = { fov: 35, distance: 5.2, height: 1.1, lookAtY: 0.95 };
+    let fit = { r: 0.8, top: 1.9, bottom: 0 };
+    let pull = 0; // 0..1 level-up camera pull-back
+    let fx: { start: number; ring: THREE.Mesh[]; pts: THREE.Points; vel: Float32Array } | null = null;
+    let gen = 0;
+    let loadTimer = 0;
     let aspect = ASPECT_REF;
     let visible = true, docVisible = !document.hidden, raf = 0, last = 0, disposed = false;
     const reduced = reducedMotion();
@@ -96,8 +146,14 @@ export default function Avatar3D({ className }: { className?: string }) {
 
     const placeCamera = () => {
       const k = 1 / Math.min(1, aspect / ASPECT_REF);
+      const vh = Math.tan(THREE.MathUtils.degToRad(camCfg.fov) / 2);
+      const hh = vh * aspect;
+      const dh = fit.r / hh + fit.r * 0.3;
+      const dv = (Math.max(fit.top - camCfg.lookAtY, camCfg.lookAtY - fit.bottom) + 0.12) / vh + fit.r * 0.2;
+      const base = camCfg.distance * k;
+      const dist = Math.min(base * 1.6, Math.max(base, dh, dv));
       camera.fov = camCfg.fov; camera.aspect = aspect;
-      camera.position.set(0, camCfg.height, camCfg.distance * k);
+      camera.position.set(0, camCfg.height + pull * 0.25, dist * (1 + pull * 0.28));
       camera.lookAt(0, camCfg.lookAtY, 0);
       camera.updateProjectionMatrix();
     };
@@ -110,15 +166,57 @@ export default function Avatar3D({ className }: { className?: string }) {
     };
     const spinOffset = (now: number) => {
       if (spinStart < 0) return 0;
-      const p = (now - spinStart) / 1800;
+      const p = (now - spinStart) / FX_MS;
       if (p >= 1) { spinStart = -1; return 0; }
       return ease(p) * Math.PI * 2;
+    };
+    const endFx = (scene?: THREE.Scene) => {
+      if (!fx) return;
+      fx.ring.forEach((m) => { scene?.remove(m); m.geometry.dispose(); (m.material as THREE.Material).dispose(); });
+      scene?.remove(fx.pts); fx.pts.geometry.dispose(); (fx.pts.material as THREE.Material).dispose();
+      fx = null; pull = 0; placeCamera();
+    };
+    const updateFx = (now: number, scene: THREE.Scene) => {
+      if (!fx) return;
+      const p = (now - fx.start) / FX_MS;
+      if (p >= 1) { endFx(scene); return; }
+      pull = Math.sin(Math.PI * Math.min(1, p / 0.9)); placeCamera();
+      fx.ring.forEach((m, i) => {
+        const q = Math.min(1, Math.max(0, (p - i * 0.14) / 0.6));
+        m.visible = q > 0 && q < 1;
+        m.scale.setScalar(0.25 + ease(q) * 3.4);
+        (m.material as THREE.MeshBasicMaterial).opacity = (1 - q) * 0.95;
+      });
+      const pos = fx.pts.geometry.getAttribute('position') as THREE.BufferAttribute;
+      const tt = Math.max(0, p - 0.12) * FX_MS / 1000;
+      for (let i = 0; i < pos.count; i++) {
+        pos.setXYZ(i, fx.vel[i * 3] * tt * 0.9, 0.1 + fx.vel[i * 3 + 1] * tt - 1.4 * tt * tt, fx.vel[i * 3 + 2] * tt * 0.9);
+      }
+      pos.needsUpdate = true;
+      (fx.pts.material as THREE.PointsMaterial).opacity = p < 0.12 ? 0 : Math.max(0, 1 - (p - 0.12) / 0.88);
+    };
+    const startFx = (scene: THREE.Scene, mats: Materials, now: number) => {
+      endFx(scene);
+      const ring = [0, 1].map(() => {
+        const m = new THREE.Mesh(new THREE.RingGeometry(0.92, 1, 72), new THREE.MeshBasicMaterial({ color: mats.accentHex, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
+        m.rotation.x = -Math.PI / 2; m.position.y = 0.03; m.visible = false; scene.add(m); return m;
+      });
+      const N = 110, vel = new Float32Array(N * 3), arr = new Float32Array(N * 3);
+      for (let i = 0; i < N; i++) {
+        const a = Math.random() * Math.PI * 2, sp = 0.5 + Math.random() * 1.6;
+        vel[i * 3] = Math.cos(a) * sp; vel[i * 3 + 1] = 1.6 + Math.random() * 2.2; vel[i * 3 + 2] = Math.sin(a) * sp;
+      }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(arr, 3));
+      const pts = new THREE.Points(g, new THREE.PointsMaterial({ color: mats.accent2Hex, size: 0.07, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));
+      pts.frustumCulled = false; scene.add(pts);
+      fx = { start: now, ring, pts, vel };
     };
     const draw = (now: number) => {
       if (!built) return;
       const t = (now - t0) / 1000;
-      built.rig.update(t); built.gear.update(t); built.look.update(t);
+      built.rig.update(t); built.gear.update(t); built.look.update(t); built.setting.update(t); built.companion.update(t);
       built.rig.root.rotation.y = angle + spinOffset(now);
+      if (fx) updateFx(now, built.scene);
       try { renderer.render(built.scene, camera); } catch { setFailed(true); }
     };
     const shouldRun = () => visible && docVisible && !reduced && !disposed;
@@ -141,24 +239,42 @@ export default function Avatar3D({ className }: { className?: string }) {
     }
 
     const rebuild = () => {
-      const old = built; built = null;
-      if (old) { old.gear.dispose(); old.look.dispose(); old.rig.dispose(); disposeSceneGeometries(old.scene); old.mats.dispose(); }
-      try {
-        const scene = new THREE.Scene();
-        const mats = makeMaterials(skinRef.current, modeRef.current);
-        const rig = buildBody(stateRef.current, mats);
-        scene.add(rig.root);
-        const gear = applyGear(rig, stateRef.current, mats);
-        const look = applyLook({ scene, renderer, skinId: skinRef.current, mode: modeRef.current, mats, rig });
-        built = { mats, rig, gear, look, scene };
-        camCfg = look.camera;
-      } catch (e) { console.error('Avatar3D build failed', e); setFailed(true); return; }
-      resize();
+      const my = ++gen;
+      const st = stateRef.current, skin = skinRef.current, mode = modeRef.current;
+      const mats = makeMaterials(skin, mode);
+      clearTimeout(loadTimer);
+      // offline / very slow first load: give up quietly and show the 2D emblem
+      if (!built) loadTimer = window.setTimeout(() => { if (my === gen && !built) { gen++; mats.dispose(); setFailed(true); } }, 30000);
+      loadBody(st, mats).then((rig) => {
+        if (my !== gen || disposed) { try { rig.dispose(); } catch { /* ignore */ } mats.dispose(); return; }
+        clearTimeout(loadTimer);
+        const old = built; built = null;
+        if (old) { endFx(old.scene); disposeBuilt(old); }
+        try {
+          const scene = new THREE.Scene();
+          scene.add(rig.root);
+          const gear = applyGear(rig, st, mats);
+          const look = applyLook({ scene, renderer, skinId: skin, mode, mats, rig });
+          let setting = NOOP, companion = NOOP;
+          try { setting = buildSetting(st, mats, rig); } catch (e) { console.warn('setting failed', e); }
+          try { companion = buildCompanion(st, mats, rig); } catch (e) { console.warn('companion failed', e); }
+          built = { mats, rig, gear, look, setting, companion, scene };
+          camCfg = look.camera;
+          rig.update(0);
+          fit = measure(rig);
+        } catch (e) { console.error('Avatar3D build failed', e); setFailed(true); return; }
+        resize();
+        setLoaded(true);
+      }).catch((e) => {
+        if (my !== gen || disposed) { mats.dispose(); return; }
+        console.warn('Avatar3D load failed, using 2D emblem', e); mats.dispose(); setFailed(true);
+      });
     };
 
     api.current = { rebuild, requestRender, resize, celebrate: () => {
-      if (reduced) return;
-      spinStart = performance.now(); requestRender();
+      if (reduced || !built) return;
+      const now = performance.now();
+      spinStart = now; startFx(built.scene, built.mats, now); requestRender();
     } };
 
     // interaction
@@ -219,13 +335,13 @@ export default function Avatar3D({ className }: { className?: string }) {
     setRendererReady((n) => n + 1);
 
     return () => {
-      disposed = true; cancelAnimationFrame(raf); raf = 0;
+      disposed = true; gen++; clearTimeout(loadTimer); cancelAnimationFrame(raf); raf = 0;
       ro.disconnect(); io.disconnect(); document.removeEventListener('visibilitychange', onVis);
       canvas.removeEventListener('pointerdown', onDown); canvas.removeEventListener('pointermove', onMove);
       canvas.removeEventListener('pointerup', onUp); canvas.removeEventListener('pointercancel', onUp);
       canvas.removeEventListener('dblclick', reset); canvas.removeEventListener('keydown', onKey);
       canvas.removeEventListener('webglcontextlost', onLost);
-      if (built) { built.gear.dispose(); built.look.dispose(); built.rig.dispose(); disposeSceneGeometries(built.scene); built.mats.dispose(); built = null; }
+      if (built) { endFx(built.scene); disposeBuilt(built); built = null; }
       renderer.dispose();
       api.current = null;
     };
@@ -236,32 +352,50 @@ export default function Avatar3D({ className }: { className?: string }) {
     if (rendererReady) api.current?.rebuild();
   }, [rendererReady, skinId, mode, stateKey]);
 
-  // level-up moment
-  const checked = useRef(false);
+  // loader overlay fades out after the cross-fade
   useEffect(() => {
-    if (checked.current || !rendererReady) return;
+    if (!loaded) return;
+    const id = setTimeout(() => setLoaderGone(true), 700);
+    return () => clearTimeout(id);
+  }, [loaded]);
+
+  // level-up moment (once, after the first build)
+  const checked = useRef(false);
+  const celebrateTimer = useRef(0);
+  useEffect(() => {
+    if (checked.current || !loaded) return;
     checked.current = true;
     const stored = lsGet(SEEN_KEY);
-    const forced = QS.get('levelup') === '1';
+    const force = QS.get('levelup');
     const lv = stateRef.current.level;
-    const up = forced || (stored !== null && lv > Number(stored));
+    const band = stateRef.current.band;
+    const lvUp = stored !== null && lv > Number(stored);
+    const up = !!force || lvUp;
+    const newBand = force === 'band' || (lvUp && bandFor(Number(stored)) < band);
     if (!QS.get('lv')) lsSet(SEEN_KEY, String(lv));
     if (up) {
-      setCelebrate(lv); api.current?.celebrate();
-      const id = setTimeout(() => setCelebrate(0), 2700);
-      return () => clearTimeout(id);
+      setCelebrate({ level: lv, band, newBand });
+      api.current?.celebrate();
+      celebrateTimer.current = window.setTimeout(() => setCelebrate(null), newBand ? 4600 : 2800);
     }
-  }, [rendererReady]);
+  }, [loaded]);
+  useEffect(() => () => clearTimeout(celebrateTimer.current), []);
 
   if (failed) return <div className={className}><SkinEmblem /></div>;
 
-  const label = `Your character, level ${state.level}, ${['Seedling', 'Sapling', 'Rooted', 'Branching', 'Canopy'][state.band - 1]}. Drag to turn.`;
+  const label = `Your character, level ${state.level}, ${BAND_NAMES[state.band - 1]}. Drag to turn.`;
   return (
-    <div ref={wrapRef} className={`av3-wrap ${className ?? ''}`} data-skin={skinId} data-celebrate={celebrate ? 'true' : 'false'}>
+    <div ref={wrapRef} className={`av3-wrap ${className ?? ''}`} data-skin={skinId} data-ready={loaded ? 'true' : 'false'} data-celebrate={celebrate ? (celebrate.newBand ? 'band' : 'true') : 'false'}>
       <canvas ref={canvasRef} className="av3-canvas" tabIndex={0} role="img" aria-label={label} />
+      {!loaderGone && <div className="av3-loading" data-done={loaded} aria-hidden="true"><SkinEmblem /></div>}
       <div className="av3-flash" aria-hidden="true" />
-      {celebrate > 0 && <div className="av3-cap display" role="status"><b>LEVEL UP</b><span>Level {celebrate}</span></div>}
-      <div className="av3-hint" data-hide={hintGone} aria-hidden="true">Drag to turn</div>
+      {celebrate && (
+        <div className="av3-cap display" role="status">
+          <b>LEVEL UP</b><span>Level {celebrate.level}</span>
+        </div>
+      )}
+      {celebrate?.newBand && <div className="av3-line" role="status">{BAND_UNLOCK_LINE[celebrate.band - 1]}</div>}
+      <div className="av3-hint" data-hide={hintGone || !loaded} aria-hidden="true">Drag to turn</div>
     </div>
   );
 }

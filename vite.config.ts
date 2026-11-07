@@ -23,7 +23,15 @@ export default defineConfig({
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
       },
-      workbox: { navigateFallback: '/index.html' },
+      workbox: {
+        navigateFallback: '/index.html',
+        // glb models are NOT precached (keeps the install light); they are cached on first use instead
+        globIgnores: ['**/avatar/**', '**/*.glb'],
+        runtimeCaching: [
+          { urlPattern: ({ url }) => url.pathname.startsWith('/avatar/'), handler: 'CacheFirst', options: { cacheName: 'avatar-models', expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 365 }, cacheableResponse: { statuses: [0, 200] }, rangeRequests: true } },
+          { urlPattern: ({ url }) => url.pathname === '/hackertube.json', handler: 'StaleWhileRevalidate', options: { cacheName: 'hackertube-data', expiration: { maxEntries: 4 } } },
+        ],
+      },
     }),
   ],
 });

@@ -25,6 +25,8 @@ import Settings from './pages/Settings';
 import Rejections from './pages/Rejections';
 import Entertainment from './pages/Entertainment';
 import Books from './pages/Books';
+// warm the 3D character (code + model files) when the user is about to open the Character screen
+const warm = (to: string) => { if (to === '/character') import('./components/avatar/Avatar3D').then((m) => (m as { warmAvatar?: () => void }).warmAvatar?.()).catch(() => {}); };
 const AvatarLab = lazy(() => import('./pages/AvatarLab')); // QA page: keeps three.js out of the main bundle
 import SyncBanner from './components/SyncBanner';
 import './styles/shell.css';
@@ -97,7 +99,7 @@ export default function App() {
         <div className="brand display">Ledger<span>.</span></div>
         <nav>
           {NAV.map(({ to, label, Icon }) => (
-            <NavLink key={to} to={to} className={({ isActive }) => `rail-link${isActive ? ' on' : ''}`}><Icon size={18} />{label}</NavLink>
+            <NavLink key={to} to={to} onPointerEnter={() => warm(to)} onFocus={() => warm(to)} className={({ isActive }) => `rail-link${isActive ? ' on' : ''}`}><Icon size={18} />{label}</NavLink>
           ))}
         </nav>
         <button className="theme-toggle" onClick={() => setTheme(storedTheme === 'dark' ? 'light' : 'dark')} aria-label="Toggle theme">
@@ -131,7 +133,7 @@ export default function App() {
       <Sheet open={moreOpen} onClose={() => setMoreOpen(false)} title="More">
         <nav className="more-list">
           {NAV.filter((n) => !MOBILE.includes(n.to)).map(({ to, label, Icon }) => (
-            <NavLink key={to} to={to} className={({ isActive }) => `more-link${isActive ? ' on' : ''}`}><Icon size={20} /><span>{label}</span></NavLink>
+            <NavLink key={to} to={to} onPointerDown={() => warm(to)} onFocus={() => warm(to)} className={({ isActive }) => `more-link${isActive ? ' on' : ''}`}><Icon size={20} /><span>{label}</span></NavLink>
           ))}
           <button className="more-link" onClick={() => setTheme(storedTheme === 'dark' ? 'light' : 'dark')}>{storedTheme === 'dark' ? <IconSun size={20} /> : <IconMoon size={20} />}<span>{storedTheme === 'dark' ? 'Light mode' : 'Dark mode'}</span></button>
         </nav>
