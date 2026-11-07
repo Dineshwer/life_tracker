@@ -6,7 +6,7 @@ import type {
 import { addDays, today, isWeekend, fromISO, weekDays } from './lib/dates';
 import { MISSED_PENALTY, TASK_XP } from './lib/xp';
 import { REJECTION_XP } from './lib/rejections';
-import { seed } from './seed';
+import { seed, DEFAULT_CHANNELS } from './seed';
 
 export const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
 
@@ -180,6 +180,10 @@ export const useStore = create<State>()(
       exportAll: () => JSON.stringify(get(), null, 2),
       importAll: (json) => set(JSON.parse(json)),
     }),
-    { name: 'life-tracker-v1', version: 1 },
+    {
+      name: 'life-tracker-v1', version: 2,
+      // v2: the channel list was reworked (security, psychology, persuasion, business, science); start from the new defaults.
+      migrate: (persisted, version) => { const p = persisted as Partial<State>; if (version < 2) p.channels = DEFAULT_CHANNELS; return p as State; },
+    },
   ),
 );

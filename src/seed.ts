@@ -1,4 +1,4 @@
-import type { Habit, TimeBlock, Settings, Reward } from './types';
+import type { Channel, Habit, TimeBlock, Settings, Reward } from './types';
 import { addDays, today } from './lib/dates';
 
 const h = (id: string, name: string, stat: Habit['stat'], cadence: Habit['cadence'], xp: number, minimum?: string): Habit => ({ id, name, stat, cadence, xp, minimum });
@@ -37,11 +37,11 @@ export function seed() {
 }
 
 /** Starter channels for the Entertainment feed: long-form, informative, no noise. Edit them in the app. */
-const mk = (handle: string, topic: 'sec' | 'sci' | 'code') => ({ id: handle.replace(/^@/, '').toLowerCase(), handle, topic });
-export const DEFAULT_CHANNELS = [
-  mk('@LiveOverflow', 'sec'), mk('@_JohnHammond', 'sec'), mk('@ippsec', 'sec'), mk('@DavidBombal', 'sec'), mk('@HackerSploit', 'sec'),
-  mk('@OALabs', 'sec'), mk('@MalwareAnalysisForHedgehogs', 'sec'),
-  mk('@Computerphile', 'code'), mk('@LowLevelTV', 'code'), mk('@CodeAesthetic', 'code'),
-  mk('@3blue1brown', 'sci'), mk('@veritasium', 'sci'), mk('@Kurzgesagt', 'sci'), mk('@Numberphile', 'sci'), mk('@Mathologer', 'sci'),
-  mk('@SabineHossenfelder', 'sci'), mk('@minutephysics', 'sci'), mk('@SmarterEveryDay', 'sci'), mk('@RealEngineering', 'sci'),
+const mk = (handle: string, topic: Channel['topic']) => ({ id: handle.replace(/^@/, '').toLowerCase(), handle, topic });
+export const DEFAULT_CHANNELS: Channel[] = [
+  mk('@LiveOverflow', 'sec'), mk('@_JohnHammond', 'sec'), mk('@ippsec', 'sec'), mk('@DavidBombal', 'sec'), mk('@OALabs', 'sec'), mk('@13Cubed', 'sec'),
+  mk('@HubermanLab', 'psy'), mk('@AcademyofIdeas', 'psy'), mk('@YaleCourses', 'psy'), mk('@Stanford', 'psy'), mk('@TheSchoolOfLife', 'psy'), mk('@BigThink', 'psy'),
+  mk('@CharismaOnCommand', 'per'), mk('@VanessaVanEdwards', 'per'),
+  mk('@YCombinator', 'biz'), mk('@StanfordGSB', 'biz'), mk('@AlexHormozi', 'biz'), mk('@Acquired', 'biz'),
+  mk('@3blue1brown', 'sci'), mk('@veritasium', 'sci'), mk('@Kurzgesagt', 'sci'), mk('@Numberphile', 'sci'), mk('@Computerphile', 'sci'), mk('@LowLevelTV', 'sci'),
 ];

@@ -23,11 +23,7 @@ Sync is item level: every habit, task, set and so on is one row in `public.recor
 Ships with the open [HackerTube data](https://hackertube.org/data) (6,454 videos Hacker News readers recommend, ODC-BY licence, exported 2026-10-31) as `public/hackertube.json`. Pick topics in the app; no key needed. To refresh it, download `videos.jsonl` and `taxonomy.json` from that page and rebuild the file.
 
 ## Entertainment: My YouTube tab (your channels)
-The feed shows the newest long videos from YouTube channels you pick (starter list: LiveOverflow, John Hammond, 3Blue1Brown, Veritasium and others; edit it under Channels). It uses the official YouTube Data API, so it needs one free key:
-1. In Google Cloud Console create a project, enable **YouTube Data API v3**, and create an API key (restrict it to that API).
-2. Laptop: put `YOUTUBE_API_KEY=your-key` in `.env.local` and restart `npm run dev`.
-3. Phone (Vercel): add `YOUTUBE_API_KEY` under Project Settings > Environment Variables, then redeploy.
-Each refresh costs about 3 quota units per channel against a free 10,000 a day. The key never reaches the browser: it is read by `api/feed.js`.
+Shows the newest videos (4 minutes or longer) from the YouTube channels you pick under Channels, using public Invidious mirror servers, so no account or key is needed. The app tries several mirrors and remembers the one that works. Mirrors are run by volunteers and can go offline; if the tab shows an error, try again later, or add your own mirror in `ledger-mirror-extra` (localStorage). Playback uses YouTube's embedded player; "Open ad-free" opens the video on a mirror in a new tab.
 
 ## Themes
 13 skins, each with a dark and a light mode, switchable in Settings → Theme.

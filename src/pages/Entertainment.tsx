@@ -3,6 +3,7 @@ import { useStore } from '../store';
 import { Button, Field, Page, SectionHeader } from '../components/ui';
 import type { Video } from '../types';
 import Feed from './entertainment/Feed';
+import { mirrorBase } from '../lib/mirror';
 import './entertainment/entertainment.css';
 
 /** Pull the 11-character video id out of any common YouTube link (watch, youtu.be, shorts, embed, live). */
@@ -87,6 +88,7 @@ export default function Entertainment() {
             <div className="en-title">{current.title}</div>
             <div className="en-actions">
               <Button onClick={() => { logWatched(current.ytId, current.title); setPlaying(null); }}>Mark watched</Button>
+              <a className="btn btn-ghost" href={`${mirrorBase()}/watch?v=${current.ytId}`} target="_blank" rel="noreferrer noopener">Open ad-free</a>
               <Button variant="ghost" onClick={() => setPlaying(null)}>Close</Button>
             </div>
           </div>
