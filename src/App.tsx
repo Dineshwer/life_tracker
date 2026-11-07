@@ -25,6 +25,7 @@ import Settings from './pages/Settings';
 import Rejections from './pages/Rejections';
 import Entertainment from './pages/Entertainment';
 import Books from './pages/Books';
+import AvatarLab from './pages/AvatarLab';
 import SyncBanner from './components/SyncBanner';
 import './styles/shell.css';
 
@@ -112,6 +113,7 @@ export default function App() {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/rejections" element={<Rejections />} />
           <Route path="/books" element={<Books />} />
+          <Route path="/avatar-lab" element={<AvatarLab />} />
           <Route path="/entertainment" element={<Entertainment />} />
           <Route path="/gym" element={<Gym />} />
           <Route path="/journal" element={<Journal />} />
