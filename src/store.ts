@@ -34,6 +34,7 @@ interface State {
   addVideo: (ytId: string, title: string, tag: Video['tag']) => void;
   setVideoWatched: (id: string, watched: boolean) => void;
   removeVideo: (id: string) => void;
+  logWatched: (ytId: string, title: string, tag?: Video['tag']) => void;
   setTheme: (t: Settings['theme']) => void;
   setSkin: (id: string, mode: Settings['theme']) => void;
   exportAll: () => string;
@@ -157,6 +158,11 @@ export const useStore = create<State>()(
 
       addVideo: (ytId, title, tag) => set((s) => s.videos.some((v) => v.ytId === ytId) ? s : { videos: [...s.videos, { id: uid(), ytId, title: title.trim() || 'Untitled video', tag, addedAt: new Date().toISOString() }] }),
       setVideoWatched: (id, watched) => set((s) => ({ videos: s.videos.map((v) => (v.id === id ? { ...v, watchedAt: watched ? new Date().toISOString() : undefined } : v)) })),
+      logWatched: (ytId, title, tag = 'learn') => set((s) => {
+        const now = new Date().toISOString();
+        if (s.videos.some((v) => v.ytId === ytId)) return { videos: s.videos.map((v) => (v.ytId === ytId ? { ...v, watchedAt: now } : v)) };
+        return { videos: [...s.videos, { id: uid(), ytId, title: title.trim() || 'Untitled video', tag, addedAt: now, watchedAt: now }] };
+      }),
       removeVideo: (id) => set((s) => ({ videos: s.videos.filter((v) => v.id !== id) })),
 
       claimReward: (id) => set((s) => ({ rewards: s.rewards.map((r) => (r.id === id ? { ...r, claimedAt: new Date().toISOString() } : r)) })),

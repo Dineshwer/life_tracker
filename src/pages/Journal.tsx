@@ -3,7 +3,7 @@ import type { JournalEntry } from '../types';
 import { Page, SectionHeader } from '../components/ui';
 import { useStore, uid } from '../store';
 import { fmtLong, fromISO, today, weekStart } from '../lib/dates';
-import { Books, Conversations, Dots, Sparkline } from './journal/Parts';
+import { Conversations, Dots, Sparkline } from './journal/Parts';
 import './journal/journal.css';
 
 const PROMPTS = [
@@ -164,7 +164,6 @@ export default function Journal() {
         <aside>
           <SectionHeader label="Mood & energy" />
           <div className="card spark-card j-fx" style={{ ['--i' as string]: 3 }}><Sparkline entries={journal} /></div>
-          <Books />
           <Conversations />
         </aside>
       </div>

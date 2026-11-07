@@ -73,7 +73,12 @@ export interface Settings {
 
 export interface WakeLog { date: ISODate; time: string }
 
-export interface Book { id: string; title: string; author?: string; status: 'reading' | 'done' | 'queued' }
+export interface Book {
+  id: string; title: string; author?: string; status: 'reading' | 'done' | 'queued';
+  /** which shelf: self-growth books or stories (undefined = self-growth) */
+  kind?: 'self' | 'story';
+  pages?: number; page?: number; startedAt?: string; finishedAt?: string; /** 1-5 */ rating?: number;
+}
 export interface Conversation { id: string; date: ISODate; who: string; note?: string }
 
 /** One logged rejection in the 1,000-rejections challenge. */

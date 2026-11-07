@@ -76,9 +76,11 @@ export function applyDemo() {
       { id: uid(), date: addDays(t, -4), kind: 'daily', body: 'Good conversation with a stranger at the cafe. Voice practice felt steadier.', mood: 5, energy: 4 },
     ],
     books: [
-      { id: uid(), title: 'Atomic Habits', author: 'James Clear', status: 'reading' },
-      { id: uid(), title: 'The Web Application Hacker\'s Handbook', status: 'queued' },
-      { id: uid(), title: 'Deep Work', author: 'Cal Newport', status: 'done' },
+      { id: uid(), title: 'Atomic Habits', author: 'James Clear', status: 'reading', kind: 'self', pages: 320, page: 140, startedAt: addDays(t, -9) },
+      { id: uid(), title: "The Web Application Hacker's Handbook", status: 'queued', kind: 'self', pages: 912 },
+      { id: uid(), title: 'Deep Work', author: 'Cal Newport', status: 'done', kind: 'self', finishedAt: addDays(t, -30), rating: 5 },
+      { id: uid(), title: 'The Alchemist', author: 'Paulo Coelho', status: 'reading', kind: 'story', pages: 208, page: 36, startedAt: addDays(t, -3) },
+      { id: uid(), title: 'Norwegian Wood', author: 'Haruki Murakami', status: 'queued', kind: 'story' },
     ],
     conversations: [
       { id: uid(), date: addDays(t, -1), who: 'Barista at the corner cafe', note: 'Asked about the roast' },

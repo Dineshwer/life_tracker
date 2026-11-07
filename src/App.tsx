@@ -12,7 +12,7 @@ import { applyDemo } from './demo';
 /** URL overrides for QA: ?skin=paper&mode=light&demo=1 (demo only when cloud sync is off). Never persisted. */
 const QS = new URLSearchParams(typeof location === 'undefined' ? '' : location.search);
 if (!supabase && QS.get('demo')) applyDemo();
-import { IconCharacter, IconGym, IconHabits, IconJournal, IconMore, IconMoon, IconPlay, IconRejection, IconRewards, IconSettings, IconSun, IconTasks, IconToday } from './components/icons';
+import { IconBook, IconCharacter, IconGym, IconHabits, IconJournal, IconMore, IconMoon, IconPlay, IconRejection, IconRewards, IconSettings, IconSun, IconTasks, IconToday } from './components/icons';
 import { Sheet } from './components/ui';
 import Today from './pages/Today';
 import Habits from './pages/Habits';
@@ -24,6 +24,7 @@ import Rewards from './pages/Rewards';
 import Settings from './pages/Settings';
 import Rejections from './pages/Rejections';
 import Entertainment from './pages/Entertainment';
+import Books from './pages/Books';
 import './styles/shell.css';
 
 const NAV = [
@@ -33,6 +34,7 @@ const NAV = [
   { to: '/rejections', label: 'Rejections', Icon: IconRejection },
   { to: '/gym', label: 'Gym', Icon: IconGym },
   { to: '/journal', label: 'Journal', Icon: IconJournal },
+  { to: '/books', label: 'Books', Icon: IconBook },
   { to: '/entertainment', label: 'Entertainment', Icon: IconPlay },
   { to: '/character', label: 'Character', Icon: IconCharacter },
   { to: '/rewards', label: 'Rewards', Icon: IconRewards },
@@ -107,6 +109,7 @@ export default function App() {
           <Route path="/habits" element={<Habits />} />
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/rejections" element={<Rejections />} />
+          <Route path="/books" element={<Books />} />
           <Route path="/entertainment" element={<Entertainment />} />
           <Route path="/gym" element={<Gym />} />
           <Route path="/journal" element={<Journal />} />

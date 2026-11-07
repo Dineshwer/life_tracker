@@ -35,3 +35,18 @@
 .en-seg button, .en-filter button { background: transparent; border: 0; font: inherit; font-size: .78rem; cursor: pointer; }
 .en-seg button.on, .en-filter button.on { background: var(--accent); color: var(--btn-ink); }
 .en-thumb { border: 0; cursor: pointer; }
+
+/* curated feed */
+.en-feed { margin-top: 18px; }
+.en-feed-note { color: var(--muted); font-size: .86rem; margin: 0 0 12px; }
+.en-feed .en-filter { flex-wrap: wrap; justify-content: flex-end; }
+.en-feed-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.en-card { display: grid; gap: 10px; padding: 10px; border: 1px solid var(--line); border-radius: var(--r-card); background: var(--card); align-content: start; }
+.en-card .en-thumb { width: 100%; }
+.en-card-body { display: grid; gap: 6px; padding: 0 4px 4px; }
+.en-feed-meta { color: var(--muted); font-size: .76rem; }
+.en-feed-meta a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.en-card-act { justify-content: flex-start; margin-left: -10px; }
+.en-link { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.en-feed-end { color: var(--muted); font-size: .86rem; margin: 14px 0 0; text-align: center; }
+@media (max-width: 760px) { .en-feed-list { grid-template-columns: minmax(0, 1fr); } }

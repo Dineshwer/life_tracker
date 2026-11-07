@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { useStore } from '../store';
 import { Button, Field, Page, SectionHeader } from '../components/ui';
 import type { Video } from '../types';
+import Feed from './entertainment/Feed';
 import './entertainment/entertainment.css';
 
 /** Pull the 11-character video id out of any common YouTube link (watch, youtu.be, shorts, embed, live). */
@@ -29,16 +30,17 @@ export default function Entertainment() {
   const addVideo = useStore((s) => s.addVideo);
   const setWatched = useStore((s) => s.setVideoWatched);
   const removeVideo = useStore((s) => s.removeVideo);
+  const logWatched = useStore((s) => s.logWatched);
   const [url, setUrl] = useState('');
   const [title, setTitle] = useState('');
   const [tag, setTag] = useState<Video['tag']>('learn');
   const [err, setErr] = useState('');
-  const [playing, setPlaying] = useState<string | null>(null);
+  const [playing, setPlaying] = useState<{ ytId: string; title: string } | null>(null);
   const [filter, setFilter] = useState<'all' | 'learn' | 'fun'>('all');
 
   const queue = useMemo(() => videos.filter((v) => !v.watchedAt && (filter === 'all' || v.tag === filter)).sort((a, b) => a.addedAt.localeCompare(b.addedAt)), [videos, filter]);
   const done = useMemo(() => videos.filter((v) => v.watchedAt).sort((a, b) => (b.watchedAt ?? '').localeCompare(a.watchedAt ?? '')), [videos]);
-  const current = videos.find((v) => v.id === playing) ?? null;
+  const current = playing;
   const weekAgo = Date.now() - 7 * 86400000;
   const weekCount = done.filter((v) => new Date(v.watchedAt!).getTime() >= weekAgo).length;
 
@@ -61,7 +63,7 @@ export default function Entertainment() {
 
   const Row = ({ v }: { v: Video }) => (
     <li className={`en-item ${v.watchedAt ? 'is-done' : ''}`}>
-      <button className="en-thumb" onClick={() => setPlaying(v.id)} aria-label={`Play ${v.title}`}>
+      <button className="en-thumb" onClick={() => setPlaying({ ytId: v.ytId, title: v.title })} aria-label={`Play ${v.title}`}>
         <img src={thumb(v.ytId)} alt="" loading="lazy" />
         <span className="en-play" aria-hidden>▶</span>
       </button>
@@ -77,27 +79,21 @@ export default function Entertainment() {
   );
 
   return (
-    <Page title="Entertainment" kicker={`${queue.length} queued · ${weekCount} watched this week`}>
-      <section className="card en-hub">
-        <div>
-          <div className="label">Find something worth watching</div>
-          <p className="en-hub-line">HackerTube lists the videos Hacker News recommends. It cannot be shown inside Ledger, so open it, copy a link you like and add it below. You pick the video once, then watch it here, with no feed to scroll.</p>
-        </div>
-        <a className="btn btn-solid en-open" href="https://hackertube.org/" target="_blank" rel="noreferrer noopener">Open HackerTube</a>
-      </section>
-
+    <Page title="Entertainment" kicker={`${queue.length} saved · ${weekCount} watched this week`}>
       {current && (
         <section className="en-player card">
           <div className="en-frame"><iframe src={`https://www.youtube-nocookie.com/embed/${current.ytId}?rel=0&autoplay=1`} title={current.title} allow="accelerometer; autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen /></div>
           <div className="en-player-bar">
             <div className="en-title">{current.title}</div>
             <div className="en-actions">
-              <Button onClick={() => { setWatched(current.id, true); setPlaying(null); }}>Mark watched</Button>
+              <Button onClick={() => { logWatched(current.ytId, current.title); setPlaying(null); }}>Mark watched</Button>
               <Button variant="ghost" onClick={() => setPlaying(null)}>Close</Button>
             </div>
           </div>
         </section>
       )}
+
+      <Feed onPlay={(ytId, title) => { setPlaying({ ytId, title }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
 
       <form className="card en-add" onSubmit={submit}>
         <div className="en-add-grid">
@@ -115,7 +111,7 @@ export default function Entertainment() {
         </div>
       </form>
 
-      <SectionHeader label="Watch queue" right={
+      <SectionHeader label="Saved for later" right={
         <span className="en-filter">{(['all', 'learn', 'fun'] as const).map((f) => <button key={f} className={filter === f ? 'on' : ''} onClick={() => setFilter(f)}>{f}</button>)}</span>
       } />
       {queue.length ? <ul className="en-list">{queue.map((v) => <Row key={v.id} v={v} />)}</ul>

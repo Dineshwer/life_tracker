@@ -1,0 +1,32 @@
+.bk-tabs { display: none; gap: 4px; padding: 3px; border: 1px solid var(--line); border-radius: var(--r-pill); width: fit-content; margin-bottom: 16px; }
+.bk-tabs button { background: transparent; border: 0; font: inherit; font-size: .85rem; padding: 7px 18px; border-radius: var(--r-pill); color: var(--muted); cursor: pointer; }
+.bk-tabs button.on { background: var(--accent); color: var(--btn-ink); }
+.bk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+.bk-shelf { padding: 20px; }
+.bk-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+.bk-name { font-size: 1.6rem; line-height: 1.1; margin: 0; }
+.bk-blurb { color: var(--muted); font-size: .84rem; margin: 4px 0 0; }
+.bk-count { text-align: right; } .bk-count b { display: block; font-size: 1.8rem; line-height: 1; } .bk-count span { font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.bk-list { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 8px; }
+.bk-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; padding: 11px 12px; border: 1px solid var(--line); border-radius: var(--r-card); }
+.bk-now { border-color: var(--accent); }
+.bk-title { font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.bk-by { color: var(--muted); font-size: .8rem; margin-top: 2px; }
+.bk-prog { grid-column: 1 / -1; display: grid; gap: 8px; }
+.bk-pg { display: flex; align-items: center; gap: 8px; font-size: .8rem; color: var(--muted); }
+.bk-pg input { width: 78px; padding: 6px 8px; }
+.bk-act { display: flex; gap: 2px; flex-wrap: wrap; justify-content: flex-end; }
+.bk-add { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 84px auto; gap: 8px; margin-bottom: 10px; }
+.bk-empty { color: var(--muted); font-size: .86rem; margin: 6px 0 12px; }
+.is-done .bk-title { opacity: .85; }
+.bk-stars { display: flex; }
+.bk-stars button { background: none; border: 0; padding: 0 1px; font-size: 1.05rem; color: var(--line-strong); cursor: pointer; }
+.bk-stars button.on { color: var(--accent-2); }
+.is-done { grid-template-columns: minmax(0, 1fr) auto auto; }
+@media (max-width: 900px) {
+  .bk-tabs { display: inline-flex; }
+  .bk-grid { grid-template-columns: minmax(0, 1fr); }
+  .bk-col { display: none; } .bk-col.show { display: block; }
+  .bk-add { grid-template-columns: minmax(0, 1fr) 84px auto; } .bk-add input:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+  .is-done { grid-template-columns: minmax(0, 1fr); }
+}
