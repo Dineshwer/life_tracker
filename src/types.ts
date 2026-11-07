@@ -86,3 +86,6 @@ export interface Rejection { id: string; date: ISODate; createdAt: string; /** w
 
 /** A video saved to the Entertainment watch queue (played in-app via YouTube's privacy-friendly embed). */
 export interface Video { id: string; ytId: string; title: string; tag: 'learn' | 'fun'; addedAt: string; watchedAt?: string }
+
+/** A YouTube channel followed in the Entertainment feed. */
+export interface Channel { id: string; handle: string; topic: 'sec' | 'sci' | 'code' }

@@ -31,7 +31,17 @@ export function seed() {
   ];
   const settings: Settings = { theme: 'dark', skin: 'canopy', wakeTime: '07:00', name: 'Dinesh' };
   return {
-    habits, habitLogs: [], tasks: [], blocks, workouts: [], body: [], journal: [], rewards, xp: [], wake: [], books: [], conversations: [], rejections: [], videos: [],
+    habits, habitLogs: [], tasks: [], blocks, workouts: [], body: [], journal: [], rewards, xp: [], wake: [], books: [], conversations: [], rejections: [], videos: [], channels: DEFAULT_CHANNELS,
     settings, settledThrough: addDays(today(), -1),
   };
 }
+
+/** Starter channels for the Entertainment feed: long-form, informative, no noise. Edit them in the app. */
+const mk = (handle: string, topic: 'sec' | 'sci' | 'code') => ({ id: handle.replace(/^@/, '').toLowerCase(), handle, topic });
+export const DEFAULT_CHANNELS = [
+  mk('@LiveOverflow', 'sec'), mk('@_JohnHammond', 'sec'), mk('@ippsec', 'sec'), mk('@DavidBombal', 'sec'), mk('@HackerSploit', 'sec'),
+  mk('@OALabs', 'sec'), mk('@MalwareAnalysisForHedgehogs', 'sec'),
+  mk('@Computerphile', 'code'), mk('@LowLevelTV', 'code'), mk('@CodeAesthetic', 'code'),
+  mk('@3blue1brown', 'sci'), mk('@veritasium', 'sci'), mk('@Kurzgesagt', 'sci'), mk('@Numberphile', 'sci'), mk('@Mathologer', 'sci'),
+  mk('@SabineHossenfelder', 'sci'), mk('@minutephysics', 'sci'), mk('@SmarterEveryDay', 'sci'), mk('@RealEngineering', 'sci'),
+];

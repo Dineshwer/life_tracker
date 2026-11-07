@@ -1,9 +1,27 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-export default defineConfig({
+/** Serves api/feed.js at /api/feed while developing, the same way Vercel will in production. */
+function apiDev(env: Record<string, string>): Plugin {
+  return {
+    name: 'ledger-api-dev',
+    configureServer(server) {
+      server.middlewares.use('/api/feed', async (req, res) => {
+        try {
+          const mod = await server.ssrLoadModule('/api/feed.js');
+          const q = Object.fromEntries(new URL(req.url ?? '', 'http://localhost').searchParams);
+          const out = await mod.run(q, env);
+          res.statusCode = out.status; res.setHeader('content-type', 'application/json'); res.end(JSON.stringify(out.body));
+        } catch (e) { res.statusCode = 500; res.end(JSON.stringify({ error: String(e) })); }
+      });
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => ({
   plugins: [
+    apiDev(loadEnv(mode, process.cwd(), '')),
     react(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -26,4 +44,4 @@ export default defineConfig({
       workbox: { navigateFallback: '/index.html' },
     }),
   ],
-});
+}));

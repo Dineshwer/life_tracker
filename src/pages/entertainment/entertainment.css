@@ -50,3 +50,36 @@
 .en-link { background: none; border: 0; padding: 0; font: inherit; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
 .en-feed-end { color: var(--muted); font-size: .86rem; margin: 14px 0 0; text-align: center; }
 @media (max-width: 760px) { .en-feed-list { grid-template-columns: minmax(0, 1fr); } }
+
+.en-feed-in { display: block; }
+.en-subbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.en-manage { padding: 14px; margin-bottom: 14px; display: grid; gap: 12px; }
+.en-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.en-chips li { display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px 4px 10px; border: 1px solid var(--line-strong); border-radius: var(--r-pill); font-size: .8rem; }
+.en-chips button { background: none; border: 0; color: var(--muted); cursor: pointer; font-size: 1rem; line-height: 1; padding: 0 4px; }
+.en-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.en-dot.sec { background: var(--discipline); } .en-dot.sci { background: var(--mind); } .en-dot.code { background: var(--skill); }
+.en-chan-add { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; }
+.en-setup { padding: 16px; margin-bottom: 14px; } .en-setup p { margin: 6px 0 0; color: var(--muted); font-size: .9rem; max-width: 66ch; }
+.en-setup code { font-size: .82em; padding: 1px 5px; border: 1px solid var(--line); border-radius: 4px; }
+.en-dur { position: absolute; right: 6px; bottom: 6px; padding: 1px 6px; border-radius: 4px; background: rgba(0,0,0,.78); color: #fff; font-size: .7rem; }
+@media (max-width: 620px) { .en-chan-add { grid-template-columns: minmax(0, 1fr); } }
+
+/* HackerTube tab */
+.en-ht-sel { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-width: 0; flex: 1; }
+.en-chip { padding: 3px 10px; border-radius: var(--r-pill); border: 1px solid var(--line-strong); font-size: .76rem; color: var(--text); }
+.en-chip.more { color: var(--muted); }
+.en-topics { padding: 16px; margin-bottom: 14px; display: grid; gap: 14px; max-height: 70vh; overflow: auto; }
+.en-topics-bar { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+.en-area { display: grid; gap: 6px; }
+.en-cat-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.en-cat { background: transparent; font: inherit; font-size: .78rem; color: var(--muted); border: 1px solid var(--line-strong); border-radius: var(--r-pill); padding: 4px 10px; cursor: pointer; }
+.en-cat i { font-style: normal; opacity: .6; margin-left: 4px; }
+.en-cat.on { background: var(--accent); border-color: var(--accent); color: var(--btn-ink); }
+.en-ht-tools { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+.en-ht-tools input { flex: 1 1 260px; min-width: 0; }
+.en-tags { display: flex; gap: 6px; }
+.en-sum { margin: 0; color: var(--text); font-size: .86rem; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.en-why { margin: 0; color: var(--muted); font-size: .8rem; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.en-why b { color: var(--accent); font-weight: 600; }
+.en-more { display: flex; justify-content: center; margin: 18px 0; }

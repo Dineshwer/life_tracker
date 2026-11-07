@@ -8,7 +8,7 @@ import { useStore } from './store';
    - After that: an item changed locally is pushed; an item unchanged locally takes the cloud version.
    - Deletes are tombstones (deleted = true). */
 
-const LISTS = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'books', 'conversations', 'rejections', 'videos', 'wake'] as const;
+const LISTS = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'books', 'conversations', 'rejections', 'videos', 'channels', 'wake'] as const;
 type Item = { id?: string; date?: string };
 
 const idOf = (col: string, it: Item) => (col === 'wake' ? `wake:${it.date}` : (it.id as string));

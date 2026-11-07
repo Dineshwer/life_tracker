@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type {
-  Habit, HabitLog, Task, TimeBlock, Workout, BodyEntry, JournalEntry, Reward, XPEvent, Settings, WakeLog, Book, Conversation, Rejection, Video, ISODate,
+  Habit, HabitLog, Task, TimeBlock, Workout, BodyEntry, JournalEntry, Reward, XPEvent, Settings, WakeLog, Book, Conversation, Rejection, Video, Channel, ISODate,
 } from './types';
 import { addDays, today, isWeekend, fromISO, weekDays } from './lib/dates';
 import { MISSED_PENALTY, TASK_XP } from './lib/xp';
@@ -15,7 +15,7 @@ interface State {
   tasks: Task[]; blocks: TimeBlock[];
   workouts: Workout[]; body: BodyEntry[];
   journal: JournalEntry[]; rewards: Reward[]; xp: XPEvent[];
-  wake: WakeLog[]; books: Book[]; conversations: Conversation[]; rejections: Rejection[]; videos: Video[];
+  wake: WakeLog[]; books: Book[]; conversations: Conversation[]; rejections: Rejection[]; videos: Video[]; channels: Channel[];
   settings: Settings; settledThrough: ISODate;
 
   // generic helpers
@@ -34,6 +34,8 @@ interface State {
   addVideo: (ytId: string, title: string, tag: Video['tag']) => void;
   setVideoWatched: (id: string, watched: boolean) => void;
   removeVideo: (id: string) => void;
+  addChannel: (handle: string, topic: Channel['topic']) => void;
+  removeChannel: (id: string) => void;
   logWatched: (ytId: string, title: string, tag?: Video['tag']) => void;
   setTheme: (t: Settings['theme']) => void;
   setSkin: (id: string, mode: Settings['theme']) => void;
@@ -41,7 +43,7 @@ interface State {
   importAll: (json: string) => void;
 }
 
-type CollectionKey = 'habits' | 'habitLogs' | 'tasks' | 'blocks' | 'workouts' | 'body' | 'journal' | 'rewards' | 'xp' | 'books' | 'conversations' | 'rejections' | 'videos';
+type CollectionKey = 'habits' | 'habitLogs' | 'tasks' | 'blocks' | 'workouts' | 'body' | 'journal' | 'rewards' | 'xp' | 'books' | 'conversations' | 'rejections' | 'videos' | 'channels';
 
 const isScheduled = (h: Habit, date: ISODate): boolean => {
   if (h.cadence.type === 'daily') return true;
@@ -163,6 +165,13 @@ export const useStore = create<State>()(
         if (s.videos.some((v) => v.ytId === ytId)) return { videos: s.videos.map((v) => (v.ytId === ytId ? { ...v, watchedAt: now } : v)) };
         return { videos: [...s.videos, { id: uid(), ytId, title: title.trim() || 'Untitled video', tag, addedAt: now, watchedAt: now }] };
       }),
+      addChannel: (handle, topic) => set((s) => {
+        const h = handle.trim().replace(/^https?:\/\/(www\.)?youtube\.com\//, '').replace(/\/.*$/, '');
+        const clean = h.startsWith('@') ? h : `@${h}`;
+        const id = clean.replace(/^@/, '').toLowerCase();
+        return !id || s.channels.some((c) => c.id === id) ? s : { channels: [...s.channels, { id, handle: clean, topic }] };
+      }),
+      removeChannel: (id) => set((s) => ({ channels: s.channels.filter((c) => c.id !== id) })),
       removeVideo: (id) => set((s) => ({ videos: s.videos.filter((v) => v.id !== id) })),
 
       claimReward: (id) => set((s) => ({ rewards: s.rewards.map((r) => (r.id === id ? { ...r, claimedAt: new Date().toISOString() } : r)) })),
