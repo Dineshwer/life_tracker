@@ -1,0 +1,40 @@
+/* Phone layout and touch comfort. Written to adapt to any screen: a OnePlus 13s is about 393 CSS px wide at 3x density,
+   but nothing here is tied to that width. Sizes use rem/clamp, and safe-area insets cover notches and gesture bars. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
+button, a, input, select, textarea, summary { touch-action: manipulation; }
+
+/* side gutters respect landscape notches; the bottom padding clears the floating tab bar plus the gesture bar */
+.main { padding-left: max(var(--gutter), env(safe-area-inset-left, 0px)); padding-right: max(var(--gutter), env(safe-area-inset-right, 0px)); padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
+.tabbar { left: max(10px, env(safe-area-inset-left, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); margin-bottom: 0; }
+@media (min-width: 860px) { .main { padding-bottom: 48px; } }
+/* sheets and dialogs never run past the visible area on phones with dynamic browser bars */
+.sheet { max-height: 88dvh; overflow-y: auto; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px)); }
+
+/* fields in the newer screens share the app's input look */
+.bk-add input, .bk-pg input, .en-ht-tools input, .en-chan-add input, .en-chan-add select, .mini-form input {
+  background: color-mix(in srgb, var(--bg) 70%, transparent); color: var(--text); border: 1px solid var(--line-strong); border-radius: var(--r-control);
+  padding: 10px 12px; font-size: .95rem; min-width: 0; box-shadow: 0 1px 2px rgba(0,0,0,.18) inset; transition: border-color .18s var(--ease), box-shadow .18s var(--ease);
+}
+.bk-add input:focus, .bk-pg input:focus, .en-ht-tools input:focus, .en-chan-add input:focus, .en-chan-add select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+.bk-add input::placeholder, .en-ht-tools input::placeholder, .en-chan-add input::placeholder { color: var(--faint); }
+
+/* the active theme badge sits under the name instead of over the description */
+.tpk-check { position: static; justify-self: start; margin: 0 4px; }
+
+@media (pointer: coarse) {
+  /* 16px stops mobile browsers zooming into a focused field; 44px is a comfortable thumb target */
+  input, select, textarea { font-size: 16px; }
+  input:not([type='checkbox']):not([type='radio']), select { min-height: 44px; }
+  .btn { min-height: 44px; }
+  button.chip, .minbtn, .tpk-seg button, .bk-tabs button, .en-seg button, .en-filter button, .en-cat, .set-seg button { min-height: 40px; display: inline-flex; align-items: center; }
+  .en-filter button, .en-seg button { padding-top: 6px; padding-bottom: 6px; }
+
+  /* small visual controls keep their look; an invisible padded area makes them easy to hit */
+  .ring, .dots button, .bk-stars button, .rj-del, .en-link, .en-chips button, .rw-title, button.name, .spine-status, .spine-x { position: relative; }
+  .ring::before, .dots button::before, .bk-stars button::before, .rj-del::before, .en-link::before, .en-chips button::before, .rw-title::before, button.name::before, .spine-status::before, .spine-x::before {
+    content: ''; position: absolute; inset: -9px -7px; }
+  .dots button { width: 34px; }
+  .bk-stars button { padding: 0 5px; }
+}
+@media (pointer: coarse) { button.name { padding-block: 8px; margin-block: -8px; } }
