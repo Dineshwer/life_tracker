@@ -62,7 +62,7 @@ export default function Sumi({ data }: EmblemProps) {
       </g>
       <text x="120" y={two ? 150 : 158} textAnchor="middle" className="sm-num" fontSize={two ? 70 : 92}>{level}</text>
       <g className="emb-detail">
-        <text x="120" y="184" textAnchor="middle" className="sm-sub">{title.toUpperCase()}</text>
+        <text x="104" y="186" textAnchor="middle" className="sm-sub sm-title">{title.toUpperCase()}</text>
         <text x="120" y="80" textAnchor="middle" className="sm-sub">{Math.round(p * 100)}%</text>
       </g>
       <g transform="translate(188 204) rotate(4)" className="sm-seal">

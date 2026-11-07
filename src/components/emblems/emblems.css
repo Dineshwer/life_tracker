@@ -1,5 +1,5 @@
 /* Shared emblem rules. Each emblem may add its own css file next to its component. */
-.hero-tree { container-type: inline-size; }
+.hero-tree, .emb-box { container-type: inline-size; }
 .emb { display: block; width: 100%; height: auto; overflow: visible; }
 /* the hero slot is ~160px on phones: hide fine detail there */
 @container (max-width: 220px) { .emb .emb-detail { display: none; } }
@@ -7,4 +7,6 @@
 @media (prefers-reduced-motion: reduce) { .hero-tree { animation: none !important; } }
 
 /* Emblems are static: no float, fade, blink, draw-in or flicker, in any theme. */
-.hero-tree, .hero-tree * { animation: none !important; transition: none !important; }
+.hero-tree, .hero-tree *, .emb-box, .emb-box * { animation: none !important; transition: none !important; }
+
+.emb-box { width: 100%; }

@@ -95,6 +95,13 @@ export default function Entertainment() {
         </section>
       )}
 
+      <SectionHeader label="Saved for later" right={
+        <span className="en-filter">{(['all', 'learn', 'fun'] as const).map((f) => <button key={f} className={filter === f ? 'on' : ''} onClick={() => setFilter(f)}>{f}</button>)}</span>
+      } />
+      {queue.length ? <ul className="en-list">{queue.map((v) => <Row key={v.id} v={v} />)}</ul>
+        : <p className="en-empty">{videos.length ? 'Nothing queued in this filter.' : 'Your queue is empty. Add a link above and it appears here.'}</p>}
+
+
       <Feed onPlay={(ytId, title) => { setPlaying({ ytId, title }); window.scrollTo({ top: 0, behavior: 'smooth' }); }} />
 
       <form className="card en-add" onSubmit={submit}>
@@ -112,12 +119,6 @@ export default function Entertainment() {
           <Button type="submit">Add to queue</Button>
         </div>
       </form>
-
-      <SectionHeader label="Saved for later" right={
-        <span className="en-filter">{(['all', 'learn', 'fun'] as const).map((f) => <button key={f} className={filter === f ? 'on' : ''} onClick={() => setFilter(f)}>{f}</button>)}</span>
-      } />
-      {queue.length ? <ul className="en-list">{queue.map((v) => <Row key={v.id} v={v} />)}</ul>
-        : <p className="en-empty">{videos.length ? 'Nothing queued in this filter.' : 'Your queue is empty. Add a link above and it appears here.'}</p>}
 
       {done.length > 0 && (<>
         <SectionHeader label="Watched" right={`${done.length}`} />

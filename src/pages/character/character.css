@@ -46,3 +46,9 @@
 .display.ch-note { font-style: var(--em-style); color: var(--muted); font-size: 1rem; line-height: 1.6; max-width: 38ch; font-weight: calc(var(--display-weight) - 40); }
 .ch-note p + p { margin-top: 8px; }
 .ch-empty { color: var(--muted); font-size: .9rem; padding: 16px 0; }
+
+/* the per-theme emblem on this screen: it fills the column up to a comfortable size */
+.ch-tree { min-height: 0; }
+.ch-emblem { width: min(100%, 360px); margin: 0 auto; }
+.ch-lvl { margin-top: 12px; width: min(100%, 360px); }
+.ch-next { width: 100%; }

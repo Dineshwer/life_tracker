@@ -9,3 +9,6 @@
 .emb-sumi .sm-seal-line { stroke: var(--bg); stroke-width: 1.4; opacity: 0.8; }
 .emb-sumi .sm-lv { font-family: var(--font-ui); font-weight: 500; font-size: 11px; letter-spacing: 0.12em; fill: var(--accent-ink); }
 .emb-sumi .sm-kanji { font-family: var(--font-display), 'Hiragino Mincho ProN', 'Yu Mincho', 'Noto Serif CJK JP', serif; font-weight: 700; fill: var(--accent-ink); }
+
+/* keep the title clear of the seal in the corner */
+.emb-sumi .sm-title { font-size: 10px; letter-spacing: 0.2em; }

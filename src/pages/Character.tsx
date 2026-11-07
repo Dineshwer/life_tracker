@@ -1,5 +1,5 @@
 import { useStore } from '../store';
-import Sapling from '../components/Sapling';
+import { SkinEmblem } from '../components/emblems';
 import { Bar, Page, SectionHeader } from '../components/ui';
 import { STATS, STAT_LABEL, levelFromXP, overallXP, sumByStat } from '../lib/xp';
 import { addDays, fromISO, today } from '../lib/dates';
@@ -8,20 +8,6 @@ import './character/character.css';
 const fmt = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 
 import { TITLES, titleFor } from '../lib/titles';
-
-function LevelRing({ pct, level }: { pct: number; level: number }) {
-  const r = 86, c = 2 * Math.PI * r;
-  return (
-    <div className="ch-ring" role="img" aria-label={`Overall level ${level}`}>
-      <svg viewBox="0 0 200 200">
-        <circle cx="100" cy="100" r={r} fill="none" stroke="var(--line-strong)" strokeWidth="1.5" />
-        <circle className="ch-arc" cx="100" cy="100" r={r} fill="none" stroke="var(--accent-2)" strokeWidth="2.5" strokeLinecap="round"
-          strokeDasharray={c} strokeDashoffset={c * (1 - pct)} transform="rotate(-90 100 100)" />
-      </svg>
-      <div className="c"><div className="label">Level</div><div className="display lv">{level}</div></div>
-    </div>
-  );
-}
 
 function Spark({ values }: { values: number[] }) {
   const W = 320, H = 72, p = 4;
@@ -53,25 +39,21 @@ export default function Character() {
   recent.sort((a, b) => (a.date === b.date ? (recentIdx.get(b.id) ?? 0) - (recentIdx.get(a.id) ?? 0) : 0));
 
   const [, title, line] = titleFor(o.level);
-  const levels = { body: levelFromXP(by.body).level, mind: levelFromXP(by.mind).level, skill: levelFromXP(by.skill).level, discipline: levelFromXP(by.discipline).level };
   const net = series.reduce((a, b) => a + b, 0);
 
   return (
     <Page title="Character" kicker={`${total.toLocaleString()} total XP`}>
       <section className="card ch-hero rise" style={{ ['--i' as string]: 0 }}>
-        <div className="ch-tree">
-          <div className="ch-halo" aria-hidden />
-          <div className="ch-sway"><Sapling levels={levels} overall={o.level} size={300} /></div>
-        </div>
+        <div className="ch-tree"><SkinEmblem className="ch-emblem" /></div>
         <div className="ch-id">
           <div className="label">{title} &middot; band {Math.max(1, TITLES.findIndex((t) => t[1] === title) + 1)} of 5</div>
           <h2 className="display ch-title">{title}</h2>
           <p className="ch-line">{line}</p>
           <div className="ch-lvl">
-            <LevelRing pct={o.pct} level={o.level} />
             <div className="ch-next">
               <div className="display ch-xp">{Math.round(o.into)}<small> / {o.need}</small></div>
               <div className="label">XP to level {o.level + 1}</div>
+              <Bar pct={o.pct} height={5} />
             </div>
           </div>
         </div>

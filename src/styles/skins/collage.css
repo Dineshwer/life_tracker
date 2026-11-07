@@ -1,6 +1,8 @@
+/* Marker digits read as scribbles (a "1" becomes a worm), so numbers use a sturdy face and letters keep the marker. */
+@font-face { font-family: 'CollageDigits'; src: url(https://fonts.gstatic.com/s/archivoblack/v23/HTxqL289NzCGg4MzN6KJ7eW6OYs.ttf) format('truetype'); font-display: swap; unicode-range: U+0030-0039, U+0025, U+002B, U+002D, U+002F; }
 /* skin: collage — cut paper on kraft board: tape, soft paper shadows, marker + typewriter. */
 [data-skin='collage'] {
-  --font-display: 'Permanent Marker', 'Marker Felt', cursive;
+  --font-display: 'CollageDigits', 'Permanent Marker', 'Marker Felt', cursive;
   --font-ui: 'Special Elite', 'Courier New', ui-monospace, monospace;
   --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
   --display-weight: 400;

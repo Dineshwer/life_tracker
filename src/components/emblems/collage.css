@@ -7,7 +7,7 @@
 .emb-collage .cg-track { stroke: color-mix(in srgb, var(--cg-ink) 45%, transparent); }
 .emb-collage .cg-prog { stroke: var(--cg-ink); }
 .emb-collage .cg-small { font-family: var(--font-ui); fill: var(--cg-ink); }
-.emb-collage .cg-num { font-family: 'Arial Black', 'Helvetica Neue', Impact, Arial, sans-serif; font-weight: 900; fill: var(--cg-ink); filter: drop-shadow(0 2px 0 color-mix(in srgb, #000 20%, transparent)); }
+.emb-collage .cg-num { font-family: 'CollageDigits', 'Arial Black', Impact, Arial, sans-serif; font-weight: 400; fill: var(--cg-ink); filter: drop-shadow(0 2px 0 color-mix(in srgb, #000 20%, transparent)); }
 .emb-collage .cg-tape { fill: color-mix(in srgb, var(--skill) 72%, transparent); stroke: color-mix(in srgb, var(--skill) 55%, #000 15%); stroke-width: .6; stroke-opacity: .5; }
 .emb-collage .cg-tape-lines { fill: none; stroke: none; }
 .emb-collage .cg-tape-sheen { stroke: #fff; stroke-opacity: .35; stroke-width: 1.6; stroke-linecap: round; }

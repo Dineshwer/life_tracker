@@ -29,3 +29,11 @@ export default function HeroEmblem() {
   const Emblem = EMBLEMS[skin] ?? Tree;
   return <div className="hero-tree" data-emblem={skin}><Emblem data={data} /></div>;
 }
+
+/** The same per-skin emblem at any size, for screens other than the Today hero (it fills its container's width). */
+export function SkinEmblem({ className = '' }: { className?: string }) {
+  const skin = useActiveSkin();
+  const data = useEmblemData();
+  const Emblem = EMBLEMS[skin] ?? Tree;
+  return <div className={`emb-box ${className}`} data-emblem={skin}><Emblem data={data} /></div>;
+}
