@@ -31,7 +31,7 @@ export const mirrorBase = (): string => read<string | null>(LS.good, null) ?? FA
 async function get<T>(path: string): Promise<T> {
   let last: unknown = new Error('no mirror');
   for (const b of (await bases()).slice(0, 5)) {
-    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 9000);
+    const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 20000);
     try {
       const r = await fetch(`${b}${path}`, { signal: ctl.signal });
       if (!r.ok) throw new Error(String(r.status));
@@ -42,7 +42,8 @@ async function get<T>(path: string): Promise<T> {
 }
 
 /** @handle -> channel id, remembered forever. */
-export async function channelId(handle: string): Promise<string | null> {
+export async function channelId(handle: string, known?: string): Promise<string | null> {
+  if (known) return known;
   const key = handle.toLowerCase(); const ids = read<Record<string, string>>(LS.ids, {});
   if (ids[key]) return ids[key];
   const h = handle.startsWith('@') ? handle : `@${handle}`;

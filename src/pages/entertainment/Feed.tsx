@@ -44,7 +44,7 @@ export function ChannelFeed({ onPlay }: { onPlay: (ytId: string, title: string) 
       while (next < channels.length) {
         const c = channels[next++];
         try {
-          const id = await channelId(c.handle);
+          const id = await channelId(c.handle, c.cid);
           if (!id) throw new Error('unknown');
           const vs = await channelVideos(id);
           acc.push(...vs.map((v) => ({ ytId: v.ytId, title: v.title, at: v.at, dur: v.dur, channel: v.author, topic: c.topic })));
@@ -53,13 +53,13 @@ export function ChannelFeed({ onPlay }: { onPlay: (ytId: string, title: string) 
         setDone(++finished);
       }
     };
-    await Promise.all([worker(), worker()]);
+    await Promise.all([worker(), worker(), worker()]);
     // Mirrors rate-limit bursts: give the channels that failed a second, slower try.
     for (const h of [...bad]) {
       const c = channels.find((x) => x.handle === h); if (!c) continue;
       await new Promise((r) => setTimeout(r, 900));
       try {
-        const id = await channelId(c.handle); if (!id) continue;
+        const id = await channelId(c.handle, c.cid); if (!id) continue;
         const vs = await channelVideos(id);
         acc.push(...vs.map((v) => ({ ytId: v.ytId, title: v.title, at: v.at, dur: v.dur, channel: v.author, topic: c.topic })));
         bad.splice(bad.indexOf(h), 1); setItems([...acc]); setFailed([...bad]);
@@ -70,6 +70,25 @@ export function ChannelFeed({ onPlay }: { onPlay: (ytId: string, title: string) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sig]);
   useEffect(() => { refresh(); }, [refresh]);
+
+  /** Retry only the channels that failed, keeping what already loaded. */
+  const retryFailed = useCallback(async () => {
+    const todo = channels.filter((c) => failed.includes(c.handle));
+    if (!todo.length) return;
+    setBusy(true);
+    const acc = [...items]; const bad: string[] = [];
+    for (const c of todo) {
+      try {
+        const id = await channelId(c.handle, c.cid); if (!id) throw new Error('unknown');
+        const vs = await channelVideos(id);
+        acc.push(...vs.map((v) => ({ ytId: v.ytId, title: v.title, at: v.at, dur: v.dur, channel: v.author, topic: c.topic })));
+        setItems([...acc]);
+      } catch { bad.push(c.handle); }
+      setFailed([...bad, ...todo.slice(todo.indexOf(c) + 1).map((x) => x.handle)]);
+    }
+    setFailed(bad); setBusy(false);
+    if (acc.length) { try { localStorage.setItem(CCACHE, JSON.stringify({ at: Date.now(), sig, items: acc })); } catch { /* */ } }
+  }, [channels, failed, items, sig]);
 
   const known = useMemo(() => new Set(videos.map((v) => v.ytId)), [videos]);
   const shown = useMemo(() => items
@@ -99,9 +118,9 @@ export function ChannelFeed({ onPlay }: { onPlay: (ytId: string, title: string) 
         </div>
       )}
 
-      {busy && <p className="en-feed-note">Loading your channels… {done} of {channels.length}</p>}
+      {busy && done < channels.length && <p className="en-feed-note">Loading your channels… {done} of {channels.length}</p>}
       {allFailed && <p className="en-empty">Could not reach any mirror server. They are run by volunteers and are sometimes down. <button className="en-link" onClick={() => refresh(true)}>Try again</button></p>}
-      {!busy && failed.length > 0 && !allFailed && <p className="en-feed-note">Could not load: {failed.join(', ')}. <button className="en-link" onClick={() => refresh(true)}>Retry</button></p>}
+      {!busy && failed.length > 0 && !allFailed && <p className="en-feed-note">Could not load: {failed.join(', ')}. <button className="en-link" onClick={retryFailed}>Retry</button></p>}
       {!busy && items.length > 0 && shown.length === 0 && <p className="en-empty">Nothing new in this topic.</p>}
 
       <ul className="en-feed-list">

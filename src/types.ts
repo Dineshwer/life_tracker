@@ -88,4 +88,4 @@ export interface Rejection { id: string; date: ISODate; createdAt: string; /** w
 export interface Video { id: string; ytId: string; title: string; tag: 'learn' | 'fun'; addedAt: string; watchedAt?: string }
 
 /** A YouTube channel followed in the Entertainment feed. */
-export interface Channel { id: string; handle: string; topic: 'sec' | 'psy' | 'per' | 'biz' | 'sci' | 'code' }
+export interface Channel { id: string; handle: string; /** YouTube channel id, if known (saves a lookup) */ cid?: string; topic: 'sec' | 'psy' | 'per' | 'biz' | 'sci' | 'code' }

@@ -37,7 +37,8 @@ export function seed() {
 }
 
 /** Starter channels for the Entertainment feed: long-form, informative, no noise. Edit them in the app. */
-const mk = (handle: string, topic: Channel['topic']) => ({ id: handle.replace(/^@/, '').toLowerCase(), handle, topic });
+const CID: Record<string, string> = {"LiveOverflow": "UClcE-kVhqyiHCcjYwcpfj9w", "_JohnHammond": "UCVeW9qkBjo3zosnqUbG7CFw", "ippsec": "UCa6eh7gCkpPo5XXUDfygQQA", "DavidBombal": "UCP7WmQ_U4GB3K51Od9QvM0w", "OALabs": "UC--DwaiMV-jtO-6EvmKOnqg", "13Cubed": "UCy8ntxFEudOCRZYT1f7ya9Q", "HubermanLab": "UC2D2CMWXMOVWx7giW1n3LIg", "AcademyofIdeas": "UCiRiQGCHGjDLT9FQXFW0I3A", "YaleCourses": "UC4EY_qnSeAP1xGsh61eOoJA", "Stanford": "UC-EnprmCZ3OXyAoG7vjVNCA", "TheSchoolOfLife": "UCfySbXm7Ae8N12TfJL6dnug", "BigThink": "UCvQECJukTDE2i6aCoMnS-Vg", "CharismaOnCommand": "UCU_W0oE_ock8bWKjALiGs8Q", "VanessaVanEdwards": "UCfzic9OwPjSaAgW3SYKLwCw", "YCombinator": "UCcefcZRL2oaA_uBNeo5UOWg", "StanfordGSB": "UCGwuxdEeCf0TIA2RbPOj-8g", "AlexHormozi": "UCUyDOdBWhC1MCxEjC46d-zw", "Acquired": "UCQWYPqj5rNz0leLLBjHK2OA", "3blue1brown": "UCYO_jab_esuFRV4b17AJtAw", "veritasium": "UCHnyfMqiRRG1u-2MsSQLbXA", "Kurzgesagt": "UCsXVk37bltHxD1rDPwtNM8Q", "Numberphile": "UCoxcjq-8xIDTYp3uz647V5A", "Computerphile": "UC9-y-6csu5WGm29I7JiwpnA", "LowLevelTV": "UC6biysICWOJ-C3P4Tyeggzg"};
+const mk = (handle: string, topic: Channel['topic']): Channel => ({ id: handle.replace(/^@/, '').toLowerCase(), handle, topic, ...(CID[handle.replace(/^@/, '')] ? { cid: CID[handle.replace(/^@/, '')] } : {}) });
 export const DEFAULT_CHANNELS: Channel[] = [
   mk('@LiveOverflow', 'sec'), mk('@_JohnHammond', 'sec'), mk('@ippsec', 'sec'), mk('@DavidBombal', 'sec'), mk('@OALabs', 'sec'), mk('@13Cubed', 'sec'),
   mk('@HubermanLab', 'psy'), mk('@AcademyofIdeas', 'psy'), mk('@YaleCourses', 'psy'), mk('@Stanford', 'psy'), mk('@TheSchoolOfLife', 'psy'), mk('@BigThink', 'psy'),
