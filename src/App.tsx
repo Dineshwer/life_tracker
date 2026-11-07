@@ -25,6 +25,7 @@ import Settings from './pages/Settings';
 import Rejections from './pages/Rejections';
 import Entertainment from './pages/Entertainment';
 import Books from './pages/Books';
+import SyncBanner from './components/SyncBanner';
 import './styles/shell.css';
 
 const NAV = [
@@ -103,6 +104,7 @@ export default function App() {
         </button>
       </aside>
       <main className="main">
+          <SyncBanner />
         <Routes>
           <Route path="/" element={<Navigate to="/today" replace />} />
           <Route path="/today" element={<Today />} />

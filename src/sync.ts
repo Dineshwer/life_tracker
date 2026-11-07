@@ -117,17 +117,26 @@ async function cycle() {
   }
 }
 
-function schedule(ms = 1500) { clearTimeout(timer); timer = setTimeout(cycle, ms); }
+function schedule(ms = 700) { clearTimeout(timer); timer = setTimeout(cycle, ms); }
 
 export function startSync(uid: string) {
   stopSync(); userId = uid; synced = new Map(); firstSync = true; loadSnap();
   unsub = useStore.subscribe(() => schedule());
-  const wake = () => { if (document.visibilityState === 'visible') schedule(200); };
-  document.addEventListener('visibilitychange', wake); window.addEventListener('online', wake);
+  // coming back (or the network returning) pulls changes; leaving the app pushes anything not yet uploaded, right away
+  const wake = () => { schedule(document.visibilityState === 'visible' ? 200 : 0); };
+  const leave = () => schedule(0);
+  document.addEventListener('visibilitychange', wake); window.addEventListener('online', wake); window.addEventListener('pagehide', leave);
   poll = setInterval(() => schedule(0), 60_000);
-  const prevUnsub = unsub; unsub = () => { prevUnsub?.(); document.removeEventListener('visibilitychange', wake); window.removeEventListener('online', wake); };
+  const prevUnsub = unsub; unsub = () => { prevUnsub?.(); document.removeEventListener('visibilitychange', wake); window.removeEventListener('online', wake); window.removeEventListener('pagehide', leave); };
   schedule(0);
 }
 
 export function stopSync() { unsub?.(); unsub = undefined; clearInterval(poll); clearTimeout(timer); userId = null; setStatus('off'); }
 export const syncNow = () => schedule(0);
+/** How many items changed on this device but are not in the cloud yet. */
+export function pendingCount(): number {
+  let n = 0; const local = flatten();
+  for (const [key, v] of local) if (synced.get(key) !== v.json) n++;
+  for (const key of synced.keys()) if (!local.has(key)) n++;
+  return n;
+}
