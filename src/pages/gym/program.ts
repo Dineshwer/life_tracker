@@ -96,8 +96,7 @@ export const MOBILITY: MobRoutine[] = [
     { name: '90/90s', dose: '2 × 8', demo: 'hip_9090', src: WR },
     { name: 'Kick-throughs', dose: '2 × 10', demo: 'kick_through', src: WR, note: 'Go as fast as you can with control.' },
   ] },
-  { id: 'wed', name: 'Mobility day: hips and back', when: 'Wednesday', minutes: 35, blurb: 'The long session for your tight back and hips. Hold stretches 60–90 s: strong pull, not pain.', items: [
-    { name: 'Daily primer', dose: '10 min', src: PL, note: 'Do the primer first.' },
+  { id: 'wed', name: 'Mobility day: hips and back', when: 'Wednesday', minutes: 35, blurb: 'The long session for your tight back and hips. Do the daily primer first. Hold stretches 60–90 s: strong pull, not pain.', items: [
     { name: 'Hamstring lunges and walkouts', dose: '2 × 6', demo: 'hamstring_lunge', src: WR },
     { name: 'Hip 90/90 transitions', dose: '2 × 8', demo: 'hip_9090', src: WR },
     { name: 'Pigeon pose', dose: '90 s each side', demo: 'pigeon', src: PL },
@@ -109,8 +108,7 @@ export const MOBILITY: MobRoutine[] = [
     { name: 'Deep squat hold at the wall', dose: '2 × 60 s', demo: 'deep_squat_wall', src: TK },
     { name: 'Bar hang', dose: '60–90 s', demo: 'bar_hang', src: PL },
   ] },
-  { id: 'sun', name: 'Mobility day: shoulders and spine', when: 'Sunday', minutes: 35, blurb: 'Opens the shoulders, spine and wrists for handstand, planche and the bridge. Do not force end range.', items: [
-    { name: 'Daily primer', dose: '10 min', src: PL, note: 'Do the primer first.' },
+  { id: 'sun', name: 'Mobility day: shoulders and spine', when: 'Sunday', minutes: 35, blurb: 'Opens the shoulders, spine and wrists for handstand, planche and the bridge. Do the daily primer first. Do not force end range.', items: [
     { name: 'Chest and shoulder stretch', dose: '60 s each side', demo: 'chest_stretch', src: PL },
     { name: 'Wall bridge', dose: '3 × 20 s', demo: 'wall_bridge', src: TK, note: 'Hands on a wall or bench, not the floor, until your shoulders open up.' },
     { name: 'Skin-the-cat and German hang', dose: '3 × 5 s', demo: 'german_hang', src: TK, note: 'Start with feet on the floor. Never hang in the full German hang before your shoulders are ready.' },

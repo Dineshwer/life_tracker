@@ -9,7 +9,7 @@ import BodyTab from './gym/BodyTab';
 import MobilityTab from './gym/MobilityTab';
 import SkillsTab from './gym/SkillsTab';
 import { DemoSheet } from './gym/demos';
-import { loadPlan, savePlan, type Plan, type PlanSession } from './gym/lib';
+import { loadPlan, queueFrom, savePlan, type Plan, type PlanSession } from './gym/lib';
 import './gym/gym.css';
 
 const TABS = ['Log', 'Plan', 'Mobility', 'Skills', 'Progress', 'Body'] as const;
@@ -27,7 +27,7 @@ export default function Gym() {
   const startFromPlan = (s: PlanSession) => {
     const d = today();
     const existing = useStore.getState().workouts.find((w) => w.date === d);
-    if (!existing) upsert('workouts', { id: uid(), date: d, name: s.name, sets: [] });
+    if (!existing) upsert('workouts', { id: uid(), date: d, name: s.name, sets: [], queue: queueFrom(s), planId: s.id });
     setPlanned(s); setTab('Log');
   };
 
@@ -38,7 +38,7 @@ export default function Gym() {
         {TABS.map((t) => <button key={t} role="tab" aria-selected={tab === t} className={tab === t ? 'on' : ''} onClick={() => setTab(t)}>{t}</button>)}
       </nav>
       <div className="gym-body" key={tab}>
-        {tab === 'Log' && <LogTab planned={planned} plan={plan} onClearPlanned={() => setPlanned(null)} onDemo={setDemo} />}
+        {tab === 'Log' && <LogTab planned={planned} plan={plan} onClearPlanned={() => setPlanned(null)} onDemo={setDemo} setPlan={setPlan} onOpenMobility={() => setTab('Mobility')} />}
         {tab === 'Plan' && <PlanTab plan={plan} setPlan={setPlan} onStart={startFromPlan} onDemo={setDemo} onOpenMobility={() => setTab('Mobility')} />}
         {tab === 'Mobility' && <MobilityTab onDemo={setDemo} />}
         {tab === 'Skills' && <SkillsTab onDemo={setDemo} />}

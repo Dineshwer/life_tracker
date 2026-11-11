@@ -37,25 +37,29 @@ export function DemoThumb({ k, onOpen, size = 56 }: { k?: string; onOpen: (k: st
   );
 }
 
-/** Full demo: animated GIF with steps, and a tutorial video when there is one. */
-export function DemoSheet({ k, onClose }: { k: string | null; onClose: () => void }) {
+/** The form demo itself: animated picture, steps, and the tutorial video. Used inline and in the sheet. */
+export function DemoBody({ k, autoVideo = false }: { k: string | null | undefined; autoVideo?: boolean }) {
   const m = useDemos(); const d = k ? m[k] : undefined;
   const [video, setVideo] = useState(false);
   useEffect(() => { setVideo(false); }, [k]);
+  if (!d) return null;
+  const showVideo = !!d.yt && (video || (!d.gif && autoVideo));
   return (
-    <Sheet open={!!k && !!d} onClose={onClose} title={d?.name ?? 'Form'}>
-      {d && (
-        <div className="demo-body">
-          {d.gif && <img className="demo-gif" src={gifUrl(d)} alt={`${d.name} form, two positions`} />}
-          {d.muscles && d.muscles.length > 0 && <div className="label">Works: {d.muscles.join(', ')}</div>}
-          {d.steps && d.steps.length > 0 && <ol className="demo-steps">{d.steps.map((s, i) => <li key={i}>{s}</li>)}</ol>}
-          {d.yt && (video
-            ? <div className="demo-video"><iframe src={`https://www.youtube-nocookie.com/embed/${d.yt}?rel=0&autoplay=1`} title={d.ytTitle ?? d.name} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen /></div>
-            : <button type="button" className="gym-btn gym-btn-ghost" onClick={() => setVideo(true)}>Watch tutorial{d.ytChannel ? ` · ${d.ytChannel}` : ''}</button>)}
-          {d.yt && d.ytTitle && <div className="demo-cap">{d.ytTitle}</div>}
-          {!d.gif && !d.yt && <p className="gym-muted">No demo found yet for this one.</p>}
-        </div>
-      )}
-    </Sheet>
+    <div className="demo-body">
+      {d.gif && <img className="demo-gif" src={gifUrl(d)} alt={`${d.name} form, two positions`} />}
+      {d.muscles && d.muscles.length > 0 && <div className="label">Works: {d.muscles.join(', ')}</div>}
+      {d.steps && d.steps.length > 0 && <ol className="demo-steps">{d.steps.map((s, i) => <li key={i}>{s}</li>)}</ol>}
+      {d.yt && (showVideo
+        ? <div className="demo-video"><iframe src={`https://www.youtube-nocookie.com/embed/${d.yt}?rel=0`} title={d.ytTitle ?? d.name} allow="encrypted-media; picture-in-picture; fullscreen" allowFullScreen /></div>
+        : <button type="button" className="gym-btn gym-btn-ghost" onClick={() => setVideo(true)}>Watch tutorial{d.ytChannel ? ` · ${d.ytChannel}` : ''}</button>)}
+      {d.yt && !d.gif && d.ytChannel && <div className="demo-cap">Tutorial by {d.ytChannel}</div>}
+      {!d.gif && !d.yt && <p className="gym-muted">No demo found yet for this one.</p>}
+    </div>
   );
+}
+
+/** Full demo in a sheet. */
+export function DemoSheet({ k, onClose }: { k: string | null; onClose: () => void }) {
+  const m = useDemos(); const d = k ? m[k] : undefined;
+  return <Sheet open={!!k && !!d} onClose={onClose} title={d?.name ?? 'Form'}>{k && <DemoBody k={k} autoVideo />}</Sheet>;
 }

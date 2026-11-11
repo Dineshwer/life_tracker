@@ -53,7 +53,9 @@ export interface TimeBlock {
 }
 
 export interface WorkoutSet { id: string; exercise: string; reps: number; weight: number; unit: 'kg' | 'bw' | 'sec'; note?: string }
-export interface Workout { id: string; date: ISODate; name: string; sets: WorkoutSet[]; notes?: string }
+/** One planned exercise inside today's session. Edits here apply to today only unless saved back to the plan. */
+export interface QueueItem { id: string; name: string; sets: number; reps: number; unit: 'kg' | 'bw' | 'sec'; demo?: string; text?: string; note?: string; skipped?: boolean }
+export interface Workout { id: string; date: ISODate; name: string; sets: WorkoutSet[]; notes?: string; /** today's ordered exercise list */ queue?: QueueItem[]; /** the plan session it came from */ planId?: string }
 export interface BodyEntry { id: string; date: ISODate; weightKg?: number; measurements?: Record<string, number>; photo?: string }
 
 export interface JournalEntry { id: string; date: ISODate; body: string; mood?: 1 | 2 | 3 | 4 | 5; energy?: 1 | 2 | 3 | 4 | 5; kind: 'daily' | 'weekly' }

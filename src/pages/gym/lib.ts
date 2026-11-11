@@ -1,4 +1,4 @@
-import type { Workout, WorkoutSet, BodyEntry } from '../../types';
+import type { Workout, WorkoutSet, BodyEntry, QueueItem } from '../../types';
 import { fromISO } from '../../lib/dates';
 import { PROGRAM } from './program';
 
@@ -101,6 +101,10 @@ export interface PlanSession { id: string; name: string; days: number[]; exercis
 export interface Plan { sessions: PlanSession[] }
 const PLAN_KEY = 'ledger-gym-plan';
 const uidp = () => Math.random().toString(36).slice(2, 10);
+
+/** Copy a plan session's exercises into a fresh, editable list for today. */
+export const queueFrom = (s?: { exercises: PlanExercise[] }): QueueItem[] =>
+  (s?.exercises ?? []).filter((e) => e.name.trim()).map((e) => ({ id: uidp(), name: e.name, sets: Math.max(1, e.sets), reps: e.reps, unit: e.unit, demo: e.demo, text: e.text, note: e.note }));
 
 /** The 7-day program (see program.ts / GYM_PLAN.md). */
 export const programPlan = (): Plan => ({
