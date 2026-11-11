@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type {
-  Habit, HabitLog, Task, TimeBlock, Workout, BodyEntry, JournalEntry, Reward, XPEvent, Settings, WakeLog, Book, Conversation, Rejection, Video, Channel, ISODate,
+  Habit, HabitLog, Task, TimeBlock, Workout, BodyEntry, JournalEntry, Reward, XPEvent, Settings, WakeLog, Book, Conversation, Rejection, Video, Channel, OneLog, OneId, ISODate,
 } from './types';
 import { addDays, today, isWeekend, fromISO, weekDays } from './lib/dates';
 import { MISSED_PENALTY, TASK_XP } from './lib/xp';
@@ -15,7 +15,7 @@ interface State {
   tasks: Task[]; blocks: TimeBlock[];
   workouts: Workout[]; body: BodyEntry[];
   journal: JournalEntry[]; rewards: Reward[]; xp: XPEvent[];
-  wake: WakeLog[]; books: Book[]; conversations: Conversation[]; rejections: Rejection[]; videos: Video[]; channels: Channel[];
+  wake: WakeLog[]; books: Book[]; conversations: Conversation[]; rejections: Rejection[]; videos: Video[]; channels: Channel[]; oneLogs: OneLog[];
   settings: Settings; settledThrough: ISODate;
 
   // generic helpers
@@ -29,6 +29,8 @@ interface State {
   addXP: (e: Omit<XPEvent, 'id'>) => void;
   settle: () => void; // applies missed-day penalties for days before today, once
   claimReward: (id: string) => void;
+  addOneLog: (exercise: OneId, sets: number, reps: number, effort?: number, date?: ISODate) => void;
+  removeOneLog: (id: string) => void;
   addRejection: (what: string, extra?: { who?: string; note?: string }) => { n: number; xp: number; milestone?: string };
   removeRejection: (id: string) => void;
   addVideo: (ytId: string, title: string, tag: Video['tag']) => void;
@@ -43,7 +45,7 @@ interface State {
   importAll: (json: string) => void;
 }
 
-type CollectionKey = 'habits' | 'habitLogs' | 'tasks' | 'blocks' | 'workouts' | 'body' | 'journal' | 'rewards' | 'xp' | 'books' | 'conversations' | 'rejections' | 'videos' | 'channels';
+type CollectionKey = 'habits' | 'habitLogs' | 'tasks' | 'blocks' | 'workouts' | 'body' | 'journal' | 'rewards' | 'xp' | 'books' | 'conversations' | 'rejections' | 'videos' | 'channels' | 'oneLogs';
 
 const isScheduled = (h: Habit, date: ISODate): boolean => {
   if (h.cadence.type === 'daily') return true;
@@ -131,6 +133,21 @@ export const useStore = create<State>()(
           d = addDays(d, 1);
         }
         set({ xp: [...s.xp, ...newXP], settledThrough: addDays(t, -1) });
+      },
+
+      addOneLog: (exercise, sets, reps, effort, date = today()) => {
+        const s = get(); const id = uid();
+        const log: OneLog = { id, date, exercise, sets, reps, ...(effort ? { effort } : {}) };
+        const ref = `one:${date}`;
+        // one small XP reward per day for keeping the minimum, so logging twice cannot farm XP
+        const xp = s.xp.some((e) => e.ref === ref) ? s.xp : [...s.xp, { id: uid(), date, stat: 'discipline' as const, amount: 10, reason: 'Kept the daily minimum', ref }];
+        set({ oneLogs: [...s.oneLogs, log], xp });
+      },
+      removeOneLog: (id) => {
+        const s = get(); const log = s.oneLogs.find((l) => l.id === id); if (!log) return;
+        const oneLogs = s.oneLogs.filter((l) => l.id !== id);
+        const xp = oneLogs.some((l) => l.date === log.date) ? s.xp : s.xp.filter((e) => e.ref !== `one:${log.date}`);
+        set({ oneLogs, xp });
       },
 
       addRejection: (what, extra) => {

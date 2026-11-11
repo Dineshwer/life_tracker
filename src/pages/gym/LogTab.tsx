@@ -4,6 +4,8 @@ import { today, fmtLong } from '../../lib/dates';
 import type { Workout, WorkoutSet } from '../../types';
 import { SectionHeader } from '../../components/ui';
 import { IconClose } from '../../components/icons';
+import CardioCard from './CardioCard';
+import { DemoThumb, findDemoKey, useDemos } from './demos';
 import { computePRs, exerciseNames, lastSession, fmtSet, norm, num, PR_LABEL, shortDate, prBoard, unitSuffix, type PlanSession, type Plan, type Unit } from './lib';
 
 const dayOf = () => (new Date().getDay());
@@ -11,7 +13,8 @@ const bump = (v: string, d: number, min = 0) => { const n = Math.max(min, Math.r
 const volumeOf = (w?: Workout) => (w ? w.sets.reduce((a, s) => a + (s.unit === 'kg' ? s.weight * s.reps : 0), 0) : 0);
 const fmtVol = (n: number) => (n >= 10000 ? `${(n / 1000).toFixed(1)}k` : Math.round(n).toLocaleString('en-IN'));
 
-export default function LogTab({ planned, plan, onClearPlanned }: { planned: PlanSession | null; plan: Plan; onClearPlanned: () => void }) {
+export default function LogTab({ planned, plan, onClearPlanned, onDemo }: { planned: PlanSession | null; plan: Plan; onClearPlanned: () => void; onDemo: (k: string) => void }) {
+  const manifest = useDemos();
   const workouts = useStore((s) => s.workouts);
   const habitLogs = useStore((s) => s.habitLogs);
   const upsert = useStore((s) => s.upsert);
@@ -34,6 +37,9 @@ export default function LogTab({ planned, plan, onClearPlanned }: { planned: Pla
 
   const last = lastSession(workouts, ex, workout?.id);
   const best = board.find((b) => norm(b.exercise) === norm(ex) && b.unit === unit);
+  const planEx = [...(planned?.exercises ?? []), ...plan.sessions.flatMap((s) => s.exercises)].find((e) => norm(e.name) === norm(ex));
+  const formKey = planEx?.demo ?? findDemoKey(manifest, ex);
+  const formDemo = formKey && manifest[formKey] ? { key: formKey, note: planEx?.note ?? planEx?.text } : null;
 
   const start = () => {
     const name = startName.trim() || planned?.name || todays?.name || 'Training';
@@ -85,6 +91,20 @@ export default function LogTab({ planned, plan, onClearPlanned }: { planned: Pla
             <button className="gym-btn" onClick={start}>Start workout</button>
           </div>
         </section>
+        {todays && todays.exercises.length > 0 && (
+          <section className="card gym-rise" style={{ padding: 16 }}>
+            <SectionHeader label={`Today · ${todays.name}`} />
+            <ul className="plan-preview">
+              {todays.exercises.map((e) => (
+                <li key={e.id}>
+                  <DemoThumb k={e.demo} onOpen={onDemo} size={44} />
+                  <div><div className="gym-set-ex">{e.name}</div><div className="plan-ex-text">{e.text ?? `${e.sets} × ${e.reps}${e.unit === 'sec' ? ' s' : ''}`}{e.note ? ` · ${e.note}` : ''}</div></div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+        <CardioCard onDemo={onDemo} />
         <History past={past} />
       </div>
     );
@@ -114,10 +134,13 @@ export default function LogTab({ planned, plan, onClearPlanned }: { planned: Pla
             {planned.exercises.map((p) => {
               const n = countFor(p.name);
               return (
-                <button key={p.id} className={`gym-chip ${n >= p.sets ? 'done' : ''}`} onClick={() => pick(p.name, p.reps, p.unit)}>
-                  <span>{p.name || 'Unnamed'}</span>
-                  <span className="gym-chip-meta">{n}/{p.sets} × {p.reps}{p.unit === 'sec' ? 's' : ''}</span>
-                </button>
+                <span key={p.id} className="gym-chipwrap">
+                  <DemoThumb k={p.demo} onOpen={onDemo} size={40} />
+                  <button className={`gym-chip ${n >= p.sets ? 'done' : ''}`} onClick={() => pick(p.name, p.reps, p.unit)}>
+                    <span>{p.name || 'Unnamed'}</span>
+                    <span className="gym-chip-meta">{n}/{p.sets} × {p.reps}{p.unit === 'sec' ? 's' : ''}</span>
+                  </button>
+                </span>
               );
             })}
           </div>
@@ -128,6 +151,12 @@ export default function LogTab({ planned, plan, onClearPlanned }: { planned: Pla
         <div className="gym-entry-head"><span className="label">{editing ? 'Edit set' : 'Add set'}</span>{flash && <span className="gym-flash" role="status"><span className="gym-pr">PR</span>{flash.replace('New PR · ', '')}</span>}</div>
         <input className="gym-input gym-ex" list="gym-names" placeholder="Exercise" value={ex} onChange={(e) => { setEx(e.target.value); const l = lastSession(workouts, e.target.value, workout.id); if (l && !editing && names.some((n) => norm(n) === norm(e.target.value))) { setUnit(l.sets[0].unit); if (l.sets[0].unit === 'kg') setWeight(String(l.sets[0].weight)); } }} autoCapitalize="sentences" />
         <datalist id="gym-names">{names.map((n) => <option key={n} value={n} />)}</datalist>
+        {formDemo && (
+          <div className="form-hint">
+            <DemoThumb k={formDemo.key} onOpen={onDemo} size={64} />
+            <div className="form-hint-text"><span className="label">Form</span>{formDemo.note ?? 'Tap the picture to see the movement and the steps.'}</div>
+          </div>
+        )}
         <div className="gym-seg" role="group" aria-label="Unit" style={{ ['--n' as string]: 3, ['--i' as string]: ['kg', 'bw', 'sec'].indexOf(unit) }}>
           <span className="gym-seg-thumb" aria-hidden="true" />
           {(['kg', 'bw', 'sec'] as Unit[]).map((u) => <button key={u} className={unit === u ? 'on' : ''} onClick={() => setUnit(u)}>{u === 'kg' ? 'Weighted' : u === 'bw' ? 'Bodyweight' : 'Hold'}</button>)}
@@ -185,6 +214,7 @@ export default function LogTab({ planned, plan, onClearPlanned }: { planned: Pla
           </ol>
         )}
       </section>
+      <CardioCard onDemo={onDemo} />
       <History past={past} />
     </div>
   );

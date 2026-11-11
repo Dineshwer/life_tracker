@@ -89,3 +89,7 @@ export interface Video { id: string; ytId: string; title: string; tag: 'learn' |
 
 /** A YouTube channel followed in the Entertainment feed. */
 export interface Channel { id: string; handle: string; /** YouTube channel id, if known (saves a lookup) */ cid?: string; topic: 'sec' | 'psy' | 'per' | 'biz' | 'sci' | 'code' }
+
+/** One entry for the daily "one exercise" minimum (the 1-10 method). Workout-session sets are counted separately, straight from `workouts`. */
+export type OneId = 'pullups' | 'dips' | 'pushups' | 'rows' | 'pikes' | 'squats' | 'splits' | 'rdls';
+export interface OneLog { id: string; date: ISODate; exercise: OneId; sets: number; reps: number; /** 1-10 */ effort?: number }

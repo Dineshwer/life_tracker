@@ -25,6 +25,7 @@ import Settings from './pages/Settings';
 import Rejections from './pages/Rejections';
 import Entertainment from './pages/Entertainment';
 import Books from './pages/Books';
+import OneExercise from './pages/OneExercise';
 // warm the 3D character (code + model files) when the user is about to open the Character screen
 const warm = (to: string) => { if (to === '/character') import('./components/avatar/Avatar3D').then((m) => (m as { warmAvatar?: () => void }).warmAvatar?.()).catch(() => {}); };
 const AvatarLab = lazy(() => import('./pages/AvatarLab')); // QA page: keeps three.js out of the main bundle
@@ -37,6 +38,7 @@ const NAV = [
   { to: '/tasks', label: 'Tasks', Icon: IconTasks },
   { to: '/rejections', label: 'Rejections', Icon: IconRejection },
   { to: '/gym', label: 'Gym', Icon: IconGym },
+  { to: '/one', label: 'The one', Icon: IconHabits },
   { to: '/journal', label: 'Journal', Icon: IconJournal },
   { to: '/books', label: 'Books', Icon: IconBook },
   { to: '/entertainment', label: 'Entertainment', Icon: IconPlay },
@@ -118,6 +120,7 @@ export default function App() {
           <Route path="/avatar-lab" element={<Suspense fallback={null}><AvatarLab /></Suspense>} />
           <Route path="/entertainment" element={<Entertainment />} />
           <Route path="/gym" element={<Gym />} />
+          <Route path="/one" element={<OneExercise />} />
           <Route path="/journal" element={<Journal />} />
           <Route path="/character" element={<Character />} />
           <Route path="/rewards" element={<Rewards />} />

@@ -8,6 +8,7 @@ import HeroEmblem from '../components/emblems';
 import RejectionMeter from './rejections/RejectionMeter';
 import { REJECTION_GOAL } from '../lib/rejections';
 import { DayLine } from './today/DayLine';
+import OnePanel from './one/OnePanel';
 import { RingTap } from './today/RingTap';
 import { SKILL_OF_DAY, blocksForDay, dueToday, fmtHours, freeMinutesLeft, statVar } from './today/helpers';
 import './today/today.css';
@@ -90,6 +91,8 @@ export default function Today() {
         <div>
           <SectionHeader label="Day line" />
           <DayLine nowMin={nowMin} rise={() => rise()} />
+
+          <OnePanel style={rise()} />
 
           <SectionHeader label="Habits due" right={due.length ? `${habitsDone} of ${due.length}` : undefined} />
           {due.length === 0 ? <p className="t-empty">Nothing is due. Rest is part of the plan.</p> : (

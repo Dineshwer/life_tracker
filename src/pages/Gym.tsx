@@ -6,16 +6,20 @@ import LogTab from './gym/LogTab';
 import PlanTab from './gym/PlanTab';
 import ProgressTab from './gym/ProgressTab';
 import BodyTab from './gym/BodyTab';
+import MobilityTab from './gym/MobilityTab';
+import SkillsTab from './gym/SkillsTab';
+import { DemoSheet } from './gym/demos';
 import { loadPlan, savePlan, type Plan, type PlanSession } from './gym/lib';
 import './gym/gym.css';
 
-const TABS = ['Log', 'Plan', 'Progress', 'Body'] as const;
+const TABS = ['Log', 'Plan', 'Mobility', 'Skills', 'Progress', 'Body'] as const;
 type Tab = (typeof TABS)[number];
 
 export default function Gym() {
   const [tab, setTab] = useState<Tab>('Log');
   const [plan, setPlan] = useState<Plan>(loadPlan);
   const [planned, setPlanned] = useState<PlanSession | null>(null);
+  const [demo, setDemo] = useState<string | null>(null);
   const upsert = useStore((s) => s.upsert);
 
   useEffect(() => { savePlan(plan); }, [plan]);
@@ -29,16 +33,19 @@ export default function Gym() {
 
   return (
     <Page title="Gym" kicker="Body · strength">
-      <nav className="gym-tabs" role="tablist" style={{ ['--i' as string]: TABS.indexOf(tab) }}>
+      <nav className="gym-tabs" role="tablist" style={{ ['--i' as string]: TABS.indexOf(tab), ['--n' as string]: TABS.length }}>
         <span className="gym-tabs-thumb" aria-hidden="true" />
         {TABS.map((t) => <button key={t} role="tab" aria-selected={tab === t} className={tab === t ? 'on' : ''} onClick={() => setTab(t)}>{t}</button>)}
       </nav>
       <div className="gym-body" key={tab}>
-        {tab === 'Log' && <LogTab planned={planned} plan={plan} onClearPlanned={() => setPlanned(null)} />}
-        {tab === 'Plan' && <PlanTab plan={plan} setPlan={setPlan} onStart={startFromPlan} />}
+        {tab === 'Log' && <LogTab planned={planned} plan={plan} onClearPlanned={() => setPlanned(null)} onDemo={setDemo} />}
+        {tab === 'Plan' && <PlanTab plan={plan} setPlan={setPlan} onStart={startFromPlan} onDemo={setDemo} onOpenMobility={() => setTab('Mobility')} />}
+        {tab === 'Mobility' && <MobilityTab onDemo={setDemo} />}
+        {tab === 'Skills' && <SkillsTab onDemo={setDemo} />}
         {tab === 'Progress' && <ProgressTab />}
         {tab === 'Body' && <BodyTab />}
       </div>
+      <DemoSheet k={demo} onClose={() => setDemo(null)} />
     </Page>
   );
 }

@@ -1,5 +1,5 @@
 /* ---------- tabs: segmented control with sliding thumb ---------- */
-.gym-tabs { --n: 4; position: relative; display: grid; grid-template-columns: repeat(var(--n), 1fr); margin: 20px 0 16px; padding: 4px; border-radius: calc(var(--r-control) * 1.4); background: color-mix(in srgb, var(--text) 5%, transparent); border: 1px solid var(--line); max-width: 460px; }
+.gym-tabs { --n: 6; position: relative; display: grid; grid-template-columns: repeat(var(--n), 1fr); margin: 20px 0 16px; padding: 4px; border-radius: calc(var(--r-control) * 1.4); background: color-mix(in srgb, var(--text) 5%, transparent); border: 1px solid var(--line); max-width: 640px; }
 .gym-tabs-thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / var(--n)); border-radius: var(--r-control); background: var(--card); border: 1px solid var(--edge); box-shadow: var(--shadow), 0 0 22px -8px var(--body); transform: translateX(calc(var(--i) * 100%)); transition: transform .34s cubic-bezier(.3,1.25,.5,1); }
 .gym-tabs button { position: relative; z-index: 1; background: none; border: 0; padding: 11px 0; min-height: 44px; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.02em; color: var(--muted); transition: color .2s var(--ease); }
 .gym-tabs button:hover { color: var(--text); }
@@ -163,3 +163,62 @@
 
 @media (prefers-reduced-motion: reduce) { .gym-rise, .gym-body > * { animation: none; } .gym-pr::after { display: none; } }
 @media (min-width: 700px) { .gym-steppers:has(.gym-step:nth-child(2)) { grid-template-columns: 1fr 1fr; } }
+
+/* ---------- demos (form GIFs) ---------- */
+.demo-thumb { flex: none; padding: 0; border: 1px solid var(--line-strong); border-radius: var(--r-control); overflow: hidden; background: color-mix(in srgb, var(--bg) 60%, var(--card)); display: grid; place-items: center; position: relative; }
+.demo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.demo-thumb:hover { border-color: var(--body); }
+.demo-play { color: var(--body); font-size: 1.1rem; }
+.demo-body { display: grid; gap: 14px; }
+.demo-gif { width: 100%; max-width: 420px; border-radius: var(--r-control); border: 1px solid var(--line); justify-self: center; background: #fff; }
+.demo-steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: .9rem; color: var(--text); }
+.demo-video { position: relative; aspect-ratio: 16 / 9; border-radius: var(--r-control); overflow: hidden; background: #000; }
+.demo-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.demo-cap { color: var(--muted); font-size: .78rem; }
+.form-hint { display: flex; gap: 12px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: var(--r-control); }
+.form-hint-text { display: grid; gap: 2px; font-size: .85rem; color: var(--muted); min-width: 0; }
+
+.gym-chipwrap { display: inline-flex; align-items: center; gap: 8px; }
+
+/* ---------- plan rows ---------- */
+.plan-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.plan-blurb { margin: -4px 0 12px; }
+.plan-ex-top { display: flex; gap: 12px; align-items: flex-start; }
+.plan-ex-name { flex: 1; min-width: 0; display: grid; gap: 6px; }
+.plan-ex-text { font-size: .78rem; color: var(--muted); display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.plan-preview { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.plan-preview li { display: flex; gap: 12px; align-items: center; }
+
+/* ---------- mobility + skills ---------- */
+.mob, .skill { padding: 0; overflow: hidden; }
+.mob-head { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; background: none; border: 0; padding: 18px 20px; text-align: left; }
+.mob-name { display: block; font-size: 1.4rem; line-height: 1.15; }
+.mob-when { display: block; margin-top: 4px; }
+.mob-count { color: var(--muted); font-size: .85rem; }
+.mob-blurb { padding: 0 20px 4px; }
+.mob-list, .skill-steps { list-style: none; margin: 0; padding: 8px 20px 18px; display: grid; gap: 14px; }
+.mob-list li, .skill-step { display: flex; gap: 12px; align-items: center; }
+.mob-check { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--line-strong); background: none; display: grid; place-items: center; font-size: .8rem; color: var(--accent-ink); }
+.mob-list li.on .mob-check, .skill-step.done .mob-check { background: var(--body); border-color: var(--body); }
+.mob-list li.on .mob-title { color: var(--muted); text-decoration: line-through; }
+.skill-step.now .mob-check { border-color: var(--body); color: var(--body); }
+.skill-step.next { opacity: .55; }
+.mob-main { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.mob-title { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-weight: 600; }
+.mob-dose { color: var(--muted); font-size: .78rem; font-weight: 400; }
+.mob-note { font-size: .8rem; color: var(--muted); }
+.mob-src { font-size: .66rem; color: var(--faint); }
+.skill { padding: 18px 20px 6px; }
+.skill-head { display: flex; justify-content: space-between; align-items: baseline; }
+.skill-name { font-size: 1.5rem; }
+.skill-goal { margin: 2px 0 10px; }
+.skill-steps { padding: 8px 0 14px; }
+
+/* ---------- cardio ---------- */
+.cardio { padding: 16px 20px; }
+.cardio-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.cardio-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 12px; }
+.cardio-list li { display: flex; gap: 12px; align-items: center; }
+.cardio-name { flex: 1; display: grid; gap: 2px; font-size: .92rem; }
+.cardio-note { font-size: .78rem; color: var(--muted); display: block !important; }
+@media (max-width: 560px) { .gym-tabs button { font-size: .72rem; } }

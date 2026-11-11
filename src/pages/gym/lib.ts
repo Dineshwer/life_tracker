@@ -1,5 +1,6 @@
 import type { Workout, WorkoutSet, BodyEntry } from '../../types';
 import { fromISO } from '../../lib/dates';
+import { PROGRAM } from './program';
 
 export type Unit = WorkoutSet['unit'];
 export type PRType = 'weight' | 'reps' | 'hold';
@@ -95,20 +96,30 @@ export const bodyWeightSeries = (body: BodyEntry[]) =>
   [...body].filter((b) => b.weightKg != null).sort((a, b) => (a.date < b.date ? -1 : 1)).map((b) => ({ date: b.date, value: b.weightKg as number }));
 
 // ---- plan (local to this page) ----
-export interface PlanExercise { id: string; name: string; sets: number; reps: number; unit: Unit }
-export interface PlanSession { id: string; name: string; days: number[]; exercises: PlanExercise[] }
+export interface PlanExercise { id: string; name: string; sets: number; reps: number; unit: Unit; /** demo key into public/demos/manifest.json */ demo?: string; /** prescription text, e.g. "4 × 5 · start ~35 kg" */ text?: string; note?: string; one?: boolean }
+export interface PlanSession { id: string; name: string; days: number[]; exercises: PlanExercise[]; kind?: 'workout' | 'mobility' | 'free'; blurb?: string }
 export interface Plan { sessions: PlanSession[] }
 const PLAN_KEY = 'ledger-gym-plan';
+const uidp = () => Math.random().toString(36).slice(2, 10);
 
-export const defaultPlan = (): Plan => ({
-  sessions: ['A', 'B', 'C', 'D'].map((l) => ({ id: `s${l}`, name: `Session ${l}`, days: [], exercises: [] })),
+/** The 7-day program (see program.ts / GYM_PLAN.md). */
+export const programPlan = (): Plan => ({
+  sessions: PROGRAM.map((d) => ({
+    id: `p${d.dow}`, name: d.name, days: [d.dow], kind: d.kind, blurb: d.blurb,
+    exercises: d.exercises.map((e) => ({ id: uidp(), name: e.name, sets: e.sets, reps: e.reps, unit: e.unit, demo: e.demo, text: e.text, note: e.note, one: e.one })),
+  })),
 });
+export const defaultPlan = programPlan;
 export function loadPlan(): Plan {
   try {
     const raw = localStorage.getItem(PLAN_KEY);
-    if (raw) { const p = JSON.parse(raw) as Plan; if (Array.isArray(p.sessions)) return p; }
+    if (raw) {
+      const p = JSON.parse(raw) as Plan;
+      // the old empty placeholder plan (no exercises anywhere) is replaced by the program; anything the user edited is kept
+      if (Array.isArray(p.sessions) && p.sessions.some((s) => s.exercises.length > 0)) return p;
+    }
   } catch { /* ignore */ }
-  return defaultPlan();
+  return programPlan();
 }
 export function savePlan(p: Plan) { try { localStorage.setItem(PLAN_KEY, JSON.stringify(p)); } catch { /* ignore */ } }
 
