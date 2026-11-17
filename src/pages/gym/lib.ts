@@ -1,6 +1,7 @@
 import type { Workout, WorkoutSet, BodyEntry, QueueItem } from '../../types';
 import { fromISO } from '../../lib/dates';
 import { PROGRAM } from './program';
+import { synced } from '../../lib/synced';
 
 export type Unit = WorkoutSet['unit'];
 export type PRType = 'weight' | 'reps' | 'hold';
@@ -116,7 +117,7 @@ export const programPlan = (): Plan => ({
 export const defaultPlan = programPlan;
 export function loadPlan(): Plan {
   try {
-    const raw = localStorage.getItem(PLAN_KEY);
+    const raw = synced.getItem(PLAN_KEY);
     if (raw) {
       const p = JSON.parse(raw) as Plan;
       // the old empty placeholder plan (no exercises anywhere) is replaced by the program; anything the user edited is kept
@@ -125,7 +126,7 @@ export function loadPlan(): Plan {
   } catch { /* ignore */ }
   return programPlan();
 }
-export function savePlan(p: Plan) { try { localStorage.setItem(PLAN_KEY, JSON.stringify(p)); } catch { /* ignore */ } }
+export function savePlan(p: Plan) { try { synced.setItem(PLAN_KEY, JSON.stringify(p)); } catch { /* ignore */ } }
 
 /** Downscale an image file to a JPEG data URL (max 800px, quality 0.7). */
 export function downscale(file: File, max = 800): Promise<string> {

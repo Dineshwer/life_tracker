@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type {
-  Habit, HabitLog, Task, TimeBlock, Workout, BodyEntry, JournalEntry, Reward, XPEvent, Settings, WakeLog, Book, Conversation, Rejection, Video, Channel, OneLog, OneId, ISODate,
+  Habit, HabitLog, Task, TimeBlock, Workout, BodyEntry, JournalEntry, Reward, XPEvent, Settings, WakeLog, Book, Conversation, Rejection, Video, Channel, OneLog, OneId, KV, ISODate,
 } from './types';
 import { addDays, today, isWeekend, fromISO, weekDays } from './lib/dates';
 import { MISSED_PENALTY, TASK_XP } from './lib/xp';
@@ -15,7 +15,7 @@ interface State {
   tasks: Task[]; blocks: TimeBlock[];
   workouts: Workout[]; body: BodyEntry[];
   journal: JournalEntry[]; rewards: Reward[]; xp: XPEvent[];
-  wake: WakeLog[]; books: Book[]; conversations: Conversation[]; rejections: Rejection[]; videos: Video[]; channels: Channel[]; oneLogs: OneLog[];
+  wake: WakeLog[]; books: Book[]; conversations: Conversation[]; rejections: Rejection[]; videos: Video[]; channels: Channel[]; oneLogs: OneLog[]; kv: KV[];
   settings: Settings; settledThrough: ISODate;
 
   // generic helpers
@@ -36,6 +36,7 @@ interface State {
   addVideo: (ytId: string, title: string, tag: Video['tag']) => void;
   setVideoWatched: (id: string, watched: boolean) => void;
   removeVideo: (id: string) => void;
+  setKV: (id: string, value: string) => void;
   addChannel: (handle: string, topic: Channel['topic']) => void;
   removeChannel: (id: string) => void;
   logWatched: (ytId: string, title: string, tag?: Video['tag']) => void;
@@ -45,7 +46,7 @@ interface State {
   importAll: (json: string) => void;
 }
 
-type CollectionKey = 'habits' | 'habitLogs' | 'tasks' | 'blocks' | 'workouts' | 'body' | 'journal' | 'rewards' | 'xp' | 'books' | 'conversations' | 'rejections' | 'videos' | 'channels' | 'oneLogs';
+type CollectionKey = 'habits' | 'habitLogs' | 'tasks' | 'blocks' | 'workouts' | 'body' | 'journal' | 'rewards' | 'xp' | 'books' | 'conversations' | 'rejections' | 'videos' | 'channels' | 'oneLogs' | 'kv';
 
 const isScheduled = (h: Habit, date: ISODate): boolean => {
   if (h.cadence.type === 'daily') return true;
@@ -191,6 +192,7 @@ export const useStore = create<State>()(
         return !id || s.channels.some((c) => c.id === id) ? s : { channels: [...s.channels, { id, handle: clean, topic }] };
       }),
       removeChannel: (id) => set((s) => ({ channels: s.channels.filter((c) => c.id !== id) })),
+      setKV: (id, value) => set((s) => (s.kv.find((k) => k.id === id)?.value === value ? s : { kv: s.kv.some((k) => k.id === id) ? s.kv.map((k) => (k.id === id ? { ...k, value } : k)) : [...s.kv, { id, value }] })),
       removeVideo: (id) => set((s) => ({ videos: s.videos.filter((v) => v.id !== id) })),
 
       claimReward: (id) => set((s) => ({ rewards: s.rewards.map((r) => (r.id === id ? { ...r, claimedAt: new Date().toISOString() } : r)) })),

@@ -4,10 +4,11 @@ import { Button, SectionHeader } from '../../components/ui';
 import type { Channel } from '../../types';
 import HackerTubeTab from './HackerTubeTab';
 import { channelId, channelVideos } from '../../lib/mirror';
+import { synced } from '../../lib/synced';
 
 const HIDE = 'ledger-feed-hidden';
 const ago = (ms: number) => { const d = Math.floor((Date.now() - ms) / 86400000); return d <= 0 ? 'today' : d === 1 ? 'yesterday' : `${d} days ago`; };
-const readHidden = (): string[] => { try { return JSON.parse(localStorage.getItem(HIDE) || '[]'); } catch { return []; } };
+const readHidden = (): string[] => { try { return JSON.parse(synced.getItem(HIDE) || '[]'); } catch { return []; } };
 
 /* ---- My YouTube: only the channels you picked, newest first, listed through public mirror servers ---------- */
 type CV = { ytId: string; title: string; at: number; dur: number; channel: string; topic: Channel['topic'] };
@@ -96,7 +97,7 @@ export function ChannelFeed({ onPlay }: { onPlay: (ytId: string, title: string) 
     .sort((a, b) => b.at - a.at)
     .filter((v, i, all) => all.findIndex((x) => x.ytId === v.ytId) === i) // collabs appear on several channels; React keys must stay unique
     .slice(0, 80), [items, hidden, known, topic]);
-  const hide = (id: string) => { const n = [...hidden, id]; setHidden(n); try { localStorage.setItem(HIDE, JSON.stringify(n.slice(-800))); } catch { /* */ } };
+  const hide = (id: string) => { const n = [...hidden, id]; setHidden(n); try { synced.setItem(HIDE, JSON.stringify(n.slice(-800))); } catch { /* */ } };
   const mins = (s: number) => (s >= 3600 ? `${Math.floor(s / 3600)} h ${Math.round((s % 3600) / 60)} min` : `${Math.max(1, Math.round(s / 60))} min`);
   const allFailed = !busy && items.length === 0 && failed.length > 0;
 
@@ -151,8 +152,8 @@ export function ChannelFeed({ onPlay }: { onPlay: (ytId: string, title: string) 
 
 /** The Entertainment feed: HackerTube's curated library, and your own YouTube channels. */
 export default function Feed({ onPlay }: { onPlay: (ytId: string, title: string) => void }) {
-  const [src, setSrcState] = useState<'ht' | 'mine'>(() => (location.hash === '#mine' ? 'mine' : localStorage.getItem('ledger-feed-tab') === 'mine' ? 'mine' : 'ht'));
-  const setSrc = (v: 'ht' | 'mine') => { setSrcState(v); try { localStorage.setItem('ledger-feed-tab', v); } catch { /* */ } };
+  const [src, setSrcState] = useState<'ht' | 'mine'>(() => (location.hash === '#mine' ? 'mine' : synced.getItem('ledger-feed-tab') === 'mine' ? 'mine' : 'ht'));
+  const setSrc = (v: 'ht' | 'mine') => { setSrcState(v); try { synced.setItem('ledger-feed-tab', v); } catch { /* */ } };
   return (
     <section className="en-feed">
       <SectionHeader label="Your feed" right={<span className="en-filter">

@@ -3,9 +3,10 @@ import { useStore } from '../../store';
 import { today } from '../../lib/dates';
 import { MOBILITY } from './program';
 import { DemoBody } from './demos';
+import { synced } from '../../lib/synced';
 
 const key = (d: string) => `ledger-mobility-${d}`;
-const read = (d: string): string[] => { try { return JSON.parse(localStorage.getItem(key(d)) ?? '[]'); } catch { return []; } };
+const read = (d: string): string[] => { try { return JSON.parse(synced.getItem(key(d)) ?? '[]'); } catch { return []; } };
 
 /** Mobility drills as expandable rows. Open one, see how to do it, tick it. Shares progress with the Mobility tab. */
 export default function DrillRows({ routineId, openId, setOpenId }: { routineId: string; openId: string | null | undefined; setOpenId: (id: string | null | undefined) => void }) {
@@ -19,7 +20,7 @@ export default function DrillRows({ routineId, openId, setOpenId }: { routineId:
   const openKey = openId === undefined ? (firstOpen >= 0 ? `d:${firstOpen}` : null) : openId;
 
   const set = (arr: string[]) => {
-    setDone(arr); try { localStorage.setItem(key(d), JSON.stringify(arr)); } catch { /* ignore */ }
+    setDone(arr); try { synced.setItem(key(d), JSON.stringify(arr)); } catch { /* ignore */ }
     const full = r.items.every((_, j) => arr.includes(did(j)));
     const ref = `mob:${r.id}:${d}`;
     if (full && !xp.some((e) => e.ref === ref)) addXP({ date: d, stat: 'body', amount: r.minutes >= 30 ? 20 : 8, reason: `${r.name} done`, ref });

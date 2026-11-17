@@ -9,12 +9,13 @@ import Heatmap from './habits/Heatmap';
 import HabitSheet from './habits/HabitSheet';
 import { cadenceText, isSched, logSet, streak, weekly } from './habits/stats';
 import './habits/habits.css';
+import { synced } from '../lib/synced';
 
 type Metric = 'streaks' | 'heatmap' | 'percentage';
 const KEY = 'ledger-habit-view';
 const ALL: Metric[] = ['streaks', 'heatmap', 'percentage'];
 const loadView = (): Metric[] => {
-  try { const v = JSON.parse(localStorage.getItem(KEY) ?? ''); if (Array.isArray(v)) return v.filter((x) => ALL.includes(x)); } catch { /* ignore */ }
+  try { const v = JSON.parse(synced.getItem(KEY) ?? ''); if (Array.isArray(v)) return v.filter((x) => ALL.includes(x)); } catch { /* ignore */ }
   return ALL;
 };
 
@@ -29,7 +30,7 @@ export default function Habits() {
   const toggle = (m: Metric) => {
     const next = view.includes(m) ? view.filter((x) => x !== m) : ALL.filter((x) => x === m || view.includes(x));
     setView(next);
-    try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
+    try { synced.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
   };
   const show = (m: Metric) => view.includes(m);
 

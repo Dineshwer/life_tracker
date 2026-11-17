@@ -3,9 +3,10 @@ import { useStore } from '../../store';
 import { today } from '../../lib/dates';
 import { SKILLS } from './program';
 import { DemoThumb } from './demos';
+import { synced } from '../../lib/synced';
 
 const KEY = 'ledger-gym-skills';
-const read = (): Record<string, number> => { try { return JSON.parse(localStorage.getItem(KEY) ?? '{}'); } catch { return {}; } };
+const read = (): Record<string, number> => { try { return JSON.parse(synced.getItem(KEY) ?? '{}'); } catch { return {}; } };
 
 /** Skill ladders: tick a step when you pass its gate. Each unlock gives Skill XP once. */
 export default function SkillsTab({ onDemo }: { onDemo: (k: string) => void }) {
@@ -14,7 +15,7 @@ export default function SkillsTab({ onDemo }: { onDemo: (k: string) => void }) {
   const xp = useStore((s) => s.xp);
   const set = (id: string, n: number) => {
     const next = { ...prog, [id]: n }; setProg(next);
-    try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
+    try { synced.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
   };
   const unlock = (id: string, name: string, i: number) => {
     const cur = prog[id] ?? 0;

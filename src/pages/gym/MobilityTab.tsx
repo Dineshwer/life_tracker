@@ -4,9 +4,10 @@ import { useStore } from '../../store';
 import { today } from '../../lib/dates';
 import { MOBILITY, type MobRoutine } from './program';
 import { DemoThumb } from './demos';
+import { synced } from '../../lib/synced';
 
 const key = (d: string) => `ledger-mobility-${d}`;
-const read = (d: string): string[] => { try { return JSON.parse(localStorage.getItem(key(d)) ?? '[]'); } catch { return []; } };
+const read = (d: string): string[] => { try { return JSON.parse(synced.getItem(key(d)) ?? '[]'); } catch { return []; } };
 
 export default function MobilityTab({ onDemo }: { onDemo: (k: string) => void }) {
   const d = today();
@@ -20,7 +21,7 @@ export default function MobilityTab({ onDemo }: { onDemo: (k: string) => void })
   const toggle = (r: MobRoutine, i: number) => {
     const id = `${r.id}:${i}`;
     const next = done.includes(id) ? done.filter((x) => x !== id) : [...done, id];
-    setDone(next); try { localStorage.setItem(key(d), JSON.stringify(next)); } catch { /* ignore */ }
+    setDone(next); try { synced.setItem(key(d), JSON.stringify(next)); } catch { /* ignore */ }
     // once all items of a routine are ticked, award a little Body XP for the day (never twice)
     const full = r.items.every((_, j) => next.includes(`${r.id}:${j}`));
     const ref = `mob:${r.id}:${d}`;

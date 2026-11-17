@@ -19,7 +19,7 @@ function syncLabel(s: SyncStatus, at?: Date, err?: string) {
   return 'Signed in. Waiting to sync.';
 }
 
-const LISTS = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'wake', 'books', 'conversations', 'rejections', 'videos', 'channels', 'oneLogs'] as const;
+const LISTS = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'wake', 'books', 'conversations', 'rejections', 'videos', 'channels', 'oneLogs', 'kv'] as const;
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 /** Parse and validate a backup. Returns the known keys only, or throws with a readable reason. Missing keys are left untouched. */

@@ -12,6 +12,7 @@ import { BAND_NAMES, BAND_UNLOCK_LINE } from './tiers';
 import { bandFor } from '../../lib/titles';
 import type { AvatarRig, AvatarState, Band, GearHandle, LookHandle, Materials } from './types';
 import './avatar3d.css';
+import { synced } from '../../lib/synced';
 
 type Mode = 'dark' | 'light';
 const SEEN_KEY = 'ledger-avatar-seen';
@@ -23,8 +24,8 @@ const readMode = (): Mode => {
   if (t === 'light' || t === 'dark') return t;
   return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
 };
-const lsGet = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
-const lsSet = (k: string, v: string) => { try { localStorage.setItem(k, v); } catch { /* ignore */ } };
+const lsGet = (k: string) => { try { return synced.getItem(k); } catch { return null; } };
+const lsSet = (k: string, v: string) => { try { synced.setItem(k, v); } catch { /* ignore */ } };
 const ease = (x: number) => (x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2);
 
 interface Built { mats: Materials; rig: AvatarRig; gear: GearHandle; look: LookHandle; setting: GearHandle; companion: GearHandle; scene: THREE.Scene }

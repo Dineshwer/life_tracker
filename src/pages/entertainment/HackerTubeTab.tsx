@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../../store';
 import { Button } from '../../components/ui';
+import { synced } from '../../lib/synced';
 
 /* HackerTube's open dataset (https://hackertube.org/data, ODC-BY): 6,454 YouTube videos that Hacker News readers
    keep recommending, with topics, summaries and the reason HN likes each. It ships with the app as public/hackertube.json
@@ -17,8 +18,8 @@ const PAGE = 24;
 
 let cache: Promise<Data> | null = null;
 const load = () => (cache ??= fetch('/hackertube.json').then((r) => { if (!r.ok) throw new Error('load'); return r.json() as Promise<Data>; }));
-const readList = (k: string, d: string[]): string[] => { try { const v = JSON.parse(localStorage.getItem(k) || 'null'); return Array.isArray(v) ? v : d; } catch { return d; } };
-const save = (k: string, v: string[]) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* */ } };
+const readList = (k: string, d: string[]): string[] => { try { const v = JSON.parse(synced.getItem(k) || 'null'); return Array.isArray(v) ? v : d; } catch { return d; } };
+const save = (k: string, v: string[]) => { try { synced.setItem(k, JSON.stringify(v)); } catch { /* */ } };
 
 export default function HackerTubeTab({ onPlay }: { onPlay: (ytId: string, title: string) => void }) {
   const videos = useStore((s) => s.videos);

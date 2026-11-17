@@ -7,9 +7,10 @@ import { programPlan } from './lib';
 import { TARGETS } from './program';
 import { DemoThumb } from './demos';
 import { useState } from 'react';
+import { synced } from '../../lib/synced';
 
 const START_KEY = 'ledger-gym-start';
-const startDate = (): string => { try { const v = localStorage.getItem(START_KEY); if (v) return v; localStorage.setItem(START_KEY, today()); } catch { /* ignore */ } return today(); };
+const startDate = (): string => { try { const v = synced.getItem(START_KEY); if (v) return v; synced.setItem(START_KEY, today()); } catch { /* ignore */ } return today(); };
 
 const DAYS = [1, 2, 3, 4, 5, 6, 0];
 const DL: Record<number, string> = { 0: 'S', 1: 'M', 2: 'T', 3: 'W', 4: 'T', 5: 'F', 6: 'S' };
@@ -20,7 +21,7 @@ export default function PlanTab({ plan, setPlan, onStart, onDemo, onOpenMobility
   const days = Math.floor((new Date(today().replace(/-/g, '/')).getTime() - new Date(start.replace(/-/g, '/')).getTime()) / 86400000);
   const wk = Math.min(12, Math.max(1, Math.floor(days / 7) + 1));
   const tgt = TARGETS[wk - 1];
-  const restart = () => { try { localStorage.setItem(START_KEY, today()); } catch { /* ignore */ } setStart(today()); };
+  const restart = () => { try { synced.setItem(START_KEY, today()); } catch { /* ignore */ } setStart(today()); };
   const patch = (id: string, f: (s: PlanSession) => PlanSession) => setPlan({ sessions: plan.sessions.map((s) => (s.id === id ? f(s) : s)) });
   const patchEx = (sid: string, eid: string, p: Partial<PlanExercise>) => patch(sid, (s) => ({ ...s, exercises: s.exercises.map((e) => (e.id === eid ? { ...e, ...p } : e)) }));
   const todayDow = new Date(today().replace(/-/g, '/')).getDay();

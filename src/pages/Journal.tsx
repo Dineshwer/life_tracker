@@ -5,6 +5,7 @@ import { useStore, uid } from '../store';
 import { fmtLong, fromISO, today, weekStart } from '../lib/dates';
 import { Conversations, Dots, Sparkline } from './journal/Parts';
 import './journal/journal.css';
+import { synced } from '../lib/synced';
 
 const PROMPTS = [
   'What deserves your attention today, and what can wait?',
@@ -74,7 +75,7 @@ function useEntry(kind: JournalEntry['kind'], date: string) {
 }
 
 const serifKey = 'lt-journal-serif';
-const readSerif = () => { try { return localStorage.getItem(serifKey) === '1'; } catch { return false; } };
+const readSerif = () => { try { return synced.getItem(serifKey) === '1'; } catch { return false; } };
 
 function Daily() {
   const d = today();
@@ -83,7 +84,7 @@ function Daily() {
   const [mood, setMood] = useState(entry?.mood);
   const [energy, setEnergy] = useState(entry?.energy);
   const [serif, setSerif] = useState(readSerif);
-  const toggleSerif = () => { const n = !serif; setSerif(n); try { localStorage.setItem(serifKey, n ? '1' : '0'); } catch { /* ignore */ } };
+  const toggleSerif = () => { const n = !serif; setSerif(n); try { synced.setItem(serifKey, n ? '1' : '0'); } catch { /* ignore */ } };
   const words = body.trim() ? body.trim().split(/\s+/).length : 0;
   return (
     <div className="paper card j-fx" style={{ ['--i' as string]: 1 }}>

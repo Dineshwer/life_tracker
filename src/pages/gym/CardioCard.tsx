@@ -3,10 +3,11 @@ import { useStore, uid } from '../../store';
 import { today, weekDays } from '../../lib/dates';
 import { CARDIO } from './program';
 import { DemoThumb } from './demos';
+import { synced } from '../../lib/synced';
 
 interface Log { id: string; date: string; what: string; minutes: number }
 const KEY = 'ledger-cardio';
-const read = (): Log[] => { try { return JSON.parse(localStorage.getItem(KEY) ?? '[]'); } catch { return []; } };
+const read = (): Log[] => { try { return JSON.parse(synced.getItem(KEY) ?? '[]'); } catch { return []; } };
 
 /** Optional cardio: never required, earns a little bonus XP. */
 export default function CardioCard({ onDemo }: { onDemo: (k: string) => void }) {
@@ -17,7 +18,7 @@ export default function CardioCard({ onDemo }: { onDemo: (k: string) => void }) 
   const mins = logs.filter((l) => wk.has(l.date)).reduce((a, l) => a + l.minutes, 0);
   const add = (what: string, minutes: number) => {
     const id = uid(); const next = [...logs, { id, date: today(), what, minutes }];
-    setLogs(next); try { localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
+    setLogs(next); try { synced.setItem(KEY, JSON.stringify(next)); } catch { /* ignore */ }
     addXP({ date: today(), stat: 'body', amount: 12, reason: `Cardio: ${what}`, ref: `cardio:${id}` });
     setOpen(false);
   };

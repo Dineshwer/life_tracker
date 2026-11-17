@@ -95,3 +95,6 @@ export interface Channel { id: string; handle: string; /** YouTube channel id, i
 /** One entry for the daily "one exercise" minimum (the 1-10 method). Workout-session sets are counted separately, straight from `workouts`. */
 export type OneId = 'pullups' | 'dips' | 'pushups' | 'rows' | 'pikes' | 'squats' | 'splits' | 'rdls';
 export interface OneLog { id: string; date: ISODate; exercise: OneId; sets: number; reps: number; /** 1-10 */ effort?: number }
+
+/** A small synced setting or progress value (gym plan, mobility ticks, feed preferences...). `value` is a string (usually JSON). */
+export interface KV { id: string; value: string }
