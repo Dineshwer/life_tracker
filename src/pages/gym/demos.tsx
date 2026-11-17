@@ -46,7 +46,7 @@ export function DemoBody({ k, autoVideo = false }: { k: string | null | undefine
   const showVideo = !!d.yt && (video || (!d.gif && autoVideo));
   return (
     <div className="demo-body">
-      {d.gif && <img className="demo-gif" src={gifUrl(d)} alt={`${d.name} form, two positions`} />}
+      {d.gif && <img className="demo-gif" src={gifUrl(d)} alt={`${d.name} form, two positions`} loading="lazy" decoding="async" width={360} height={240} />}
       {d.muscles && d.muscles.length > 0 && <div className="label">Works: {d.muscles.join(', ')}</div>}
       {d.steps && d.steps.length > 0 && <ol className="demo-steps">{d.steps.map((s, i) => <li key={i}>{s}</li>)}</ol>}
       {d.yt && (showVideo

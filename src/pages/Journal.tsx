@@ -51,7 +51,10 @@ function useEntry(kind: JournalEntry['kind'], date: string) {
     window.clearTimeout(timer.current);
     if (!pending.current) return;
     pending.current = false;
-    const cur = useStore.getState().journal.find((e) => e.id === idRef.current);
+    const journal = useStore.getState().journal;
+    // an entry for this day may have arrived from the cloud after mount: edit it instead of creating a duplicate
+    const cur = journal.find((e) => e.id === idRef.current) ?? journal.find((e) => e.kind === kind && e.date === date);
+    if (cur) idRef.current = cur.id;
     upsert('journal', { body: '', ...cur, ...latest.current, id: idRef.current, date, kind } as JournalEntry);
     setSaved(true);
   };
@@ -61,7 +64,12 @@ function useEntry(kind: JournalEntry['kind'], date: string) {
     window.clearTimeout(timer.current);
     if (immediate) flush(); else timer.current = window.setTimeout(flush, 800);
   };
-  useEffect(() => () => flush(), []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    // flush on unmount (navigating away) and when the page is hidden/closed/reloaded within the debounce window
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', flush);
+    return () => { window.removeEventListener('pagehide', flush); document.removeEventListener('visibilitychange', flush); flush(); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return { entry: existing, save, flush, saved };
 }
 
@@ -121,7 +129,7 @@ function Archive() {
   const [open, setOpen] = useState<string | null>(null);
   const list = useMemo(() => {
     const n = q.trim().toLowerCase();
-    return journal.filter((e) => e.body.trim() && (!n || e.body.toLowerCase().includes(n))).sort((a, b) => b.date.localeCompare(a.date) || a.kind.localeCompare(b.kind));
+    return journal.filter((e) => (e.kind === 'weekly' ? e.body.replace(/^## .*$/gm, '') : e.body).trim() && (!n || e.body.toLowerCase().includes(n))).sort((a, b) => b.date.localeCompare(a.date) || a.kind.localeCompare(b.kind));
   }, [journal, q]);
   return (
     <section>

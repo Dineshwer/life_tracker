@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useStore, uid } from '../store';
 import type { Reward } from '../types';
 import { Bar, Button, Field, Page, SectionHeader, Sheet } from '../components/ui';
@@ -10,11 +10,12 @@ function Form({ reward, onClose }: { reward: Reward | null; onClose: () => void 
   const { upsert, remove } = useStore();
   const [title, setTitle] = useState(reward?.title ?? '');
   const [cost, setCost] = useState(reward?.cost ?? 1000);
-  const valid = title.trim() && cost > 0;
+  const MAX = 1e12;
+  const valid = !!title.trim() && Number.isFinite(cost) && Math.round(cost) >= 1 && cost <= MAX;
   return (
     <form onSubmit={(e) => { e.preventDefault(); if (!valid) return; upsert('rewards', { ...reward, id: reward?.id ?? uid(), title: title.trim(), cost: Math.round(cost) }); onClose(); }}>
       <Field label="Reward"><input value={title} onChange={(e) => setTitle(e.target.value)} autoFocus placeholder="Something worth grinding for" /></Field>
-      <Field label="Cost (total XP)"><input type="number" min={1} value={cost} onChange={(e) => setCost(+e.target.value)} /></Field>
+      <Field label="Cost (total XP)"><input type="number" min={1} max={MAX} step="any" inputMode="numeric" value={cost} onChange={(e) => setCost(+e.target.value)} /></Field>
       <div className="rw-actions">
         {reward ? <Button type="button" variant="ghost" onClick={() => { remove('rewards', reward.id); onClose(); }}>Remove</Button> : <span />}
         <Button type="submit" disabled={!valid}>Save</Button>
@@ -30,6 +31,9 @@ export default function Rewards() {
   const total = overallXP(xp);
   const [editing, setEditing] = useState<Reward | null>(null);
   const [open, setOpen] = useState(false);
+  const lastClaim = useRef(0);
+  // The claimed card leaves the list and the next one slides under the finger: a double tap must not claim two rewards.
+  const claimOnce = (id: string) => { const t = Date.now(); if (t - lastClaim.current < 700) return; lastClaim.current = t; claim(id); };
   const edit = (r: Reward | null) => { setEditing(r); setOpen(true); };
 
   const pending = rewards.filter((r) => !r.claimedAt).sort((a, b) => a.cost - b.cost);
@@ -40,7 +44,7 @@ export default function Rewards() {
 
   return (
     <Page title="Rewards" kicker="Earned, then enjoyed" actions={<Button variant="ghost" onClick={() => edit(null)}><IconPlus size={14} style={{ verticalAlign: '-2px', marginRight: 6 }} />Add</Button>}>
-      <section className="card rw-head rise" style={{ ['--i' as string]: 0 }}>
+      <section className="card rw-head rw-rise-in" style={{ ['--i' as string]: 0 }}>
         <div>
           <div className="label">Total XP banked</div>
           <div className="display rw-big">{total.toLocaleString()}</div>
@@ -56,7 +60,7 @@ export default function Rewards() {
             const pct = Math.min(1, total / r.cost);
             const state = ok ? 'open' : pct >= 0.5 ? 'almost' : 'locked';
             return (
-              <li className={`card rw-card rw-${state} rise`} key={r.id} style={{ ['--i' as string]: 1 + Math.min(i, 8) }}>
+              <li className={`card rw-card rw-${state} rw-rise-in`} key={r.id} style={{ ['--i' as string]: 1 + Math.min(i, 8) }}>
                 <div className="rw-top">
                   <div className="rw-arc" role="img" aria-label={`${Math.floor(pct * 100)} percent`}>
                     <svg viewBox="0 0 72 72">
@@ -70,7 +74,7 @@ export default function Rewards() {
                 <button className="display rw-title" onClick={() => edit(r)}>{r.title}</button>
                 <div className="rw-foot">
                   <div><div className="display rw-costn">{r.cost.toLocaleString()}</div><div className="label">{ok ? 'XP, covered' : `${(r.cost - total).toLocaleString()} XP to go`}</div></div>
-                  {ok && <Button onClick={() => claim(r.id)}>Claim</Button>}
+                  {ok && <Button onClick={() => claimOnce(r.id)}>Claim</Button>}
                 </div>
                 {!ok && <Bar pct={pct} color="var(--accent-2)" height={3} />}
               </li>

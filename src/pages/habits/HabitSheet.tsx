@@ -25,7 +25,7 @@ function Form({ habit, onSave, onClose }: { habit: Habit | null; onSave: (h: Hab
 
   const save = (archived?: boolean) => {
     const cadence: Habit['cadence'] = kind === 'daily' ? { type: 'daily' } : kind === 'weekly' ? { type: 'weekly', perWeek: Math.min(7, Math.max(1, per)) } : { type: 'days', days: [...days].sort() };
-    onSave({ id: habit?.id ?? uid(), name: name.trim(), stat, cadence, xp: Math.max(1, xp), minimum: min.trim() || undefined, unit: ul.trim() && ut > 0 ? { label: ul.trim(), target: ut } : undefined, archived: archived ?? habit?.archived });
+    onSave({ id: habit?.id ?? uid(), name: name.trim(), stat, cadence, xp: Math.min(1000, Math.max(1, Math.round(xp) || 1)), minimum: min.trim() || undefined, unit: ul.trim() && ut > 0 ? { label: ul.trim(), target: ut } : undefined, archived: archived ?? habit?.archived });
     onClose();
   };
 
@@ -37,16 +37,16 @@ function Form({ habit, onSave, onClose }: { habit: Habit | null; onSave: (h: Hab
       {kind === 'weekly' && <Field label="Times per week"><input type="number" min={1} max={7} value={per} onChange={(e) => setPer(+e.target.value)} /></Field>}
       {kind === 'days' && (
         <div className="field"><span className="label">Days</span>
-          <div className="chips">{DAYS.map((d, i) => <button type="button" key={d} className="chip" aria-pressed={days.includes(i)} onClick={() => setDays(days.includes(i) ? days.filter((x) => x !== i) : [...days, i])}>{d}</button>)}</div>
+          <div className="hb-chips">{DAYS.map((d, i) => <button type="button" key={d} className="hb-chip" aria-pressed={days.includes(i)} onClick={() => setDays(days.includes(i) ? days.filter((x) => x !== i) : [...days, i])}>{d}</button>)}</div>
         </div>
       )}
       <Field label="XP for full completion"><input type="number" min={1} value={xp} onChange={(e) => setXp(+e.target.value)} /></Field>
       <Field label="Minimum version"><input value={min} placeholder="What still counts on a bad day" onChange={(e) => setMin(e.target.value)} /></Field>
-      <div className="row2">
+      <div className="hb-row2">
         <Field label="Unit (optional)"><input value={ul} placeholder="minutes" onChange={(e) => setUl(e.target.value)} /></Field>
         <Field label="Target"><input type="number" min={0} value={ut} onChange={(e) => setUt(+e.target.value)} /></Field>
       </div>
-      <div className="sheet-actions">
+      <div className="hb-sheet-actions">
         {habit ? <Button type="button" variant="ghost" onClick={() => save(!habit.archived)}>{habit.archived ? 'Restore' : 'Archive'}</Button> : <span />}
         <Button type="submit" disabled={!valid}>Save</Button>
       </div>

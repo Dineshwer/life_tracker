@@ -93,7 +93,9 @@ export function ChannelFeed({ onPlay }: { onPlay: (ytId: string, title: string) 
   const known = useMemo(() => new Set(videos.map((v) => v.ytId)), [videos]);
   const shown = useMemo(() => items
     .filter((v) => !hidden.includes(v.ytId) && !known.has(v.ytId) && v.dur >= MIN_LEN && (topic === 'all' || tabOf(v.topic) === topic))
-    .sort((a, b) => b.at - a.at).slice(0, 80), [items, hidden, known, topic]);
+    .sort((a, b) => b.at - a.at)
+    .filter((v, i, all) => all.findIndex((x) => x.ytId === v.ytId) === i) // collabs appear on several channels; React keys must stay unique
+    .slice(0, 80), [items, hidden, known, topic]);
   const hide = (id: string) => { const n = [...hidden, id]; setHidden(n); try { localStorage.setItem(HIDE, JSON.stringify(n.slice(-800))); } catch { /* */ } };
   const mins = (s: number) => (s >= 3600 ? `${Math.floor(s / 3600)} h ${Math.round((s % 3600) / 60)} min` : `${Math.max(1, Math.round(s / 60))} min`);
   const allFailed = !busy && items.length === 0 && failed.length > 0;

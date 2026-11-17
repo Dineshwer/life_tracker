@@ -51,8 +51,8 @@ export default function LineChart({ data, unit, decimals = 0, id = 'c' }: { data
           <linearGradient id={`gA-${id}`} x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="var(--body)" stopOpacity="0.32" /><stop offset="1" stopColor="var(--body)" stopOpacity="0" /></linearGradient>
           <filter id={`gG-${id}`} x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="4" /></filter>
         </defs>
-        {ticks.map((t) => (
-          <g key={t}>
+        {ticks.map((t, ti) => (
+          <g key={ti}>
             <line x1={L} x2={w - R} y1={Y(t)} y2={Y(t)} stroke="var(--line)" strokeWidth={0.5} />
             <text x={L - 8} y={Y(t) + 3.5} textAnchor="end" className="gym-axis">{Number.isInteger(t) ? t : t.toFixed(1)}</text>
           </g>
@@ -62,7 +62,7 @@ export default function LineChart({ data, unit, decimals = 0, id = 'c' }: { data
         ))}
         {data.length > 1 && <path d={`${path} L${X(data[data.length - 1].date).toFixed(1)},${H - B} L${X(data[0].date).toFixed(1)},${H - B} Z`} fill={`url(#gA-${id})`} />}
         <path d={path} fill="none" stroke="var(--body)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-        {data.map((d, i) => i !== cur && <circle key={d.date} cx={X(d.date)} cy={Y(d.value)} r={2.4} fill="var(--bg)" stroke="var(--body)" strokeWidth={1.4} />)}
+        {data.map((d, i) => i !== cur && <circle key={i} cx={X(d.date)} cy={Y(d.value)} r={2.4} fill="var(--bg)" stroke="var(--body)" strokeWidth={1.4} />)}
         <circle cx={X(c.date)} cy={Y(c.value)} r={9} fill="var(--body)" opacity={0.7} filter={`url(#gG-${id})`} />
         <circle cx={X(c.date)} cy={Y(c.value)} r={4.5} fill="var(--body)" stroke="var(--bg)" strokeWidth={2} />
       </svg>

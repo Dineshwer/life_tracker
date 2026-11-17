@@ -62,7 +62,7 @@ export default function Habits() {
 
   return (
     <Page title="Habits" kicker={`${active.length} active`} actions={<Button variant="ghost" onClick={() => edit(null)}><IconPlus size={14} style={{ verticalAlign: '-2px', marginRight: 6 }} />Add</Button>}>
-      <section className="card hb-hero rise" style={{ ['--i' as string]: 0 }}>
+      <section className="card hb-hero hb-rise" style={{ ['--i' as string]: 0 }}>
         <div className="hb-score">
           <div className="hb-ringw" role="img" aria-label={`Weekly score ${Math.round(overall * 100)} percent`}>
             <svg viewBox="0 0 150 150">
@@ -75,7 +75,7 @@ export default function Habits() {
             <div className="label">Weekly score</div>
             <h2 className="display hb-lede">{overall >= 0.8 ? 'Locked in.' : overall >= 0.5 ? 'Holding steady.' : 'Room to grow.'}</h2>
             <div className="hb-metrics" role="group" aria-label="Metrics shown">
-              {ALL.map((m) => <button key={m} className="chip" aria-pressed={show(m)} onClick={() => toggle(m)}>{m}</button>)}
+              {ALL.map((m) => <button key={m} className="hb-chip" aria-pressed={show(m)} onClick={() => toggle(m)}>{m}</button>)}
             </div>
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function Habits() {
             <SectionHeader label={STAT_LABEL[s]} right={<><i className="hb-dot" style={{ background: color }} />{g.length}</>} />
             <div className="hb-list">
             {g.map(({ h, m, st, wk }) => (
-              <div className="card hb-row rise" key={h.id} style={{ ['--c' as string]: color, ['--i' as string]: 1 + Math.min(n++, 10) }}>
+              <div className="card hb-row hb-rise" key={h.id} style={{ ['--c' as string]: color, ['--i' as string]: 1 + Math.min(n++, 10) }}>
                 <div className="hb-id">
                   <button className="name" onClick={() => edit(h)}>{h.name}</button>
                   <div className="hb-cad">{cadenceText(h)} &middot; {h.xp} XP</div>

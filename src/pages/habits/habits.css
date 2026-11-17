@@ -1,12 +1,12 @@
 @keyframes hb-rise { from { opacity: 0; transform: translateY(12px); } }
-.rise { animation: hb-rise .55s var(--ease) both; animation-delay: calc(var(--i, 0) * 60ms); }
+.hb-rise { animation: hb-rise .55s var(--ease) both; animation-delay: min(calc(var(--i, 0) * 60ms), 360ms); }
 
 .hb-hero { margin-top: 16px; padding: 24px; display: grid; gap: 24px; background: radial-gradient(420px 260px at 10% 30%, var(--glow), transparent 70%), var(--card); }
 @media (min-width: 860px) { .hb-hero { grid-template-columns: 1.2fr 1fr; align-items: center; padding: 32px 40px; gap: 48px; } }
 .hb-hero > * { min-width: 0; }
 .hb-score > div:last-child { min-width: 0; }
 .hb-score { display: flex; align-items: center; gap: 16px; }
-@media (min-width: 480px) { .hb-score { gap: 24px; } .chip { padding: 5px 8px; font-size: .64rem; letter-spacing: calc(var(--label-tracking) * .8); } }
+@media (min-width: 480px) { .hb-score { gap: 24px; } .hb-chip { padding: 5px 8px; font-size: .64rem; letter-spacing: calc(var(--label-tracking) * .8); } }
 .hb-ringw { position: relative; width: 104px; height: 104px; flex: none; filter: drop-shadow(0 0 14px var(--glow)); }
 .hb-ringw svg { width: 100%; height: 100%; display: block; }
 .hb-ringw .c { position: absolute; inset: 0; display: grid; place-content: center; }
@@ -16,9 +16,9 @@
 @media (min-width: 480px) { .hb-ringw { width: 132px; height: 132px; } .hb-big { font-size: 2.9rem; } }
 .display.hb-lede { font-style: var(--em-style); font-size: 1.9rem; line-height: 1.1; margin: 4px 0 0; }
 .hb-metrics { display: inline-flex; gap: 2px; margin-top: 16px; padding: 3px; border-radius: var(--r-control); background: color-mix(in srgb, var(--text) 5%, transparent); border: 1px solid var(--line); flex-wrap: wrap; max-width: 100%; }
-.chip { border: 0; background: transparent; color: var(--faint); border-radius: calc(var(--r-control) * .7); padding: 5px 6px; font-size: .62rem; font-weight: var(--label-weight); text-transform: var(--label-transform); letter-spacing: calc(var(--label-tracking) * .4); transition: all .18s var(--ease); }
-.chip:hover { color: var(--muted); }
-.chip[aria-pressed='true'] { color: var(--text); background: color-mix(in srgb, var(--accent) 18%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent) inset; }
+.hb-chip { border: 0; background: transparent; color: var(--muted); border-radius: calc(var(--r-control) * .7); padding: 5px 6px; font-size: .62rem; font-weight: var(--label-weight); text-transform: var(--label-transform); letter-spacing: calc(var(--label-tracking) * .4); transition: all .18s var(--ease); }
+.hb-chip:hover { color: var(--text); }
+.hb-chip[aria-pressed='true'] { color: var(--text); background: color-mix(in srgb, var(--accent) 18%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent) inset; }
 .hb-aside { display: grid; gap: 16px; }
 .hb-best { display: flex; gap: 32px; }
 .hb-best .n { font-size: 2.2rem; line-height: 1; }
@@ -58,10 +58,19 @@
 .hb-d-off { border-color: transparent; background: var(--line); width: 4px; height: 4px; margin: 3px; }
 .hb-d.hb-now { outline: 1px solid var(--line-strong); outline-offset: 2px; }
 
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.sheet-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
+.hb-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.hb-row2, .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.hb-sheet-actions { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
 .hb-empty { color: var(--muted); padding: 24px 0; font-size: .9rem; }
 .hb-arch { margin-top: 24px; }
-.hb-arow { padding: 12px 16px; opacity: .6; }
+.hb-arow { padding: 12px 16px; } /* archived: dimmed with the muted text colour, not opacity, so it stays readable */
+.hb-arow .name, .hb-arow .hb-cad { color: var(--muted); }
 .hb-arow .name { font-family: var(--font-display); font-size: 1.1rem; background: none; border: 0; padding: 0; text-align: left; }
+
+/* touch comfort: the metric toggles and weekday chips must be real tap targets (32px+) */
+.hb-chip { min-height: 32px; padding-inline: 10px; font-size: .68rem; }
+.hb-chips .hb-chip { border: 1px solid var(--line); min-width: 40px; }
+.hb-chips .hb-chip[aria-pressed='true'] { border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+
+/* the name button clips its overflow (ellipsis), which also clips the invisible ::before hit area from touch.css, so pad it for real */
+.hb-row .name, .hb-arow .name { padding-block: 10px; margin-block: -10px; }

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { Book, Conversation, JournalEntry } from '../../types';
+import type { Conversation, JournalEntry } from '../../types';
 import { Button, SectionHeader } from '../../components/ui';
 import { useStore, uid } from '../../store';
 import { addDays, fromISO, today } from '../../lib/dates';
@@ -39,39 +39,6 @@ export function Sparkline({ entries }: { entries: JournalEntry[] }) {
       </svg>
       <div className="legend"><span><i style={{ background: 'var(--mind)' }} />Mood</span><span><i style={{ background: 'var(--skill)' }} />Energy</span><span style={{ marginLeft: 'auto' }}>30 days</span></div>
     </div>
-  );
-}
-
-const BOOK_STATUS: Book['status'][] = ['queued', 'reading', 'done'];
-const nextStatus = (s: Book['status']) => BOOK_STATUS[(BOOK_STATUS.indexOf(s) + 1) % BOOK_STATUS.length];
-
-export function Books() {
-  const books = useStore((s) => s.books);
-  const upsert = useStore((s) => s.upsert);
-  const remove = useStore((s) => s.remove);
-  const [title, setTitle] = useState('');
-  const add = () => { const t = title.trim(); if (!t) return; upsert('books', { id: uid(), title: t, status: 'queued' }); setTitle(''); };
-  const order = { reading: 0, queued: 1, done: 2 };
-  return (
-    <section>
-      <SectionHeader label="Books" right={books.length || undefined} />
-      <form className="mini-form" onSubmit={(e) => { e.preventDefault(); add(); }}>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Add a title" aria-label="Book title" />
-        <Button variant="ghost" type="submit">Add</Button>
-      </form>
-      {books.length === 0 ? <p className="j-empty">An empty shelf, waiting.</p> : (
-        <div className="shelf">
-          {[...books].sort((a, b) => order[a.status] - order[b.status]).map((b, i) => (
-            <div className={`spine spine-${b.status} j-fx`} key={b.id} style={{ ['--i' as string]: i, ['--h' as string]: `${176 + ((i * 17) % 5) * 8}px` }}>
-              <button className="spine-status" onClick={() => upsert('books', { ...b, status: nextStatus(b.status) })} aria-label={`${b.title}: ${b.status}. Change status`} title={`${b.status} (tap to change)`}><i /></button>
-              <span className="spine-title display">{b.title}</span>
-              <button className="spine-x" onClick={() => remove('books', b.id)} aria-label={`Remove ${b.title}`}>&times;</button>
-            </div>
-          ))}
-        </div>
-      )}
-      <div className="shelf-legend"><span className="lg-reading">Reading</span><span className="lg-queued">Queued</span><span className="lg-done">Done</span></div>
-    </section>
   );
 }
 

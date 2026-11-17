@@ -50,7 +50,7 @@ function Shelf({ kind }: { kind: Kind }) {
             <li className="bk-item bk-now" key={b.id}>
               <div className="bk-main"><div className="bk-title">{b.title}</div>{b.author && <div className="bk-by">{b.author}</div>}</div>
               <div className="bk-prog">
-                <label className="bk-pg">Page <input type="number" min={0} value={b.page ?? 0} onChange={(e) => setPage(b, e.target.value)} aria-label={`Current page of ${b.title}`} />{b.pages ? <span>of {b.pages}</span> : null}</label>
+                <label className="bk-pg">Page <input type="number" min={0} max={b.pages || undefined} inputMode="numeric" value={b.page ?? 0} onChange={(e) => setPage(b, e.target.value)} aria-label={`Current page of ${b.title}`} />{b.pages ? <span>of {b.pages}</span> : null}</label>
                 {b.pages ? <Bar pct={(b.page ?? 0) / b.pages} height={4} /> : null}
               </div>
               <div className="bk-act"><Button variant="ghost" onClick={() => finish(b)}>Finished</Button><Button variant="text" onClick={() => upsert('books', { ...b, status: 'queued' })}>Pause</Button></div>
@@ -84,7 +84,7 @@ function Shelf({ kind }: { kind: Kind }) {
             <li className="bk-item is-done" key={b.id}>
               <div className="bk-main"><div className="bk-title">{b.title}</div><div className="bk-by">{[b.author, b.finishedAt].filter(Boolean).join(' · ')}</div></div>
               <div className="bk-stars" role="group" aria-label={`Rate ${b.title}`}>{[1, 2, 3, 4, 5].map((r) => <button key={r} className={(b.rating ?? 0) >= r ? 'on' : ''} onClick={() => rate(b, r)} aria-label={`${r} star${r > 1 ? 's' : ''}`}>★</button>)}</div>
-              <div className="bk-act"><Button variant="text" onClick={() => upsert('books', { ...b, status: 'queued', finishedAt: undefined })}>Reread</Button><Button variant="text" onClick={() => remove('books', b.id)} aria-label={`Remove ${b.title}`}>Remove</Button></div>
+              <div className="bk-act"><Button variant="text" onClick={() => upsert('books', { ...b, status: 'queued', finishedAt: undefined, startedAt: undefined, page: 0 })}>Reread</Button><Button variant="text" onClick={() => remove('books', b.id)} aria-label={`Remove ${b.title}`}>Remove</Button></div>
             </li>
           ))}
         </ul>

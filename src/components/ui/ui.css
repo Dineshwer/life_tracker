@@ -42,3 +42,35 @@
 .page { padding: 36px 0 48px; }
 .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 10px; }
 .page-title { font-size: clamp(2.4rem, 6vw, 3.9rem); line-height: 1; font-weight: var(--display-weight); }
+
+/* ---- shared vocabulary added by the cohesion pass ---------------------------------------------------------------- */
+/* Every text control, even outside .field, looks like the app (zero specificity: page rules and .field still win) */
+:where(input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='color']), select, textarea) { background-color: color-mix(in srgb, var(--bg) 70%, transparent); border: 1px solid var(--line-strong); border-radius: var(--r-control); color: var(--text); }
+:where(input, textarea)::placeholder { color: var(--faint); opacity: 1; }
+/* native number spinners and select chrome are replaced everywhere (a chevron is drawn for selects) */
+input[type='number'] { -moz-appearance: textfield; appearance: textfield; }
+input[type='number']::-webkit-inner-spin-button, input[type='number']::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+select { -webkit-appearance: none; appearance: none; padding-right: 2.1em; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 17px) 52%, calc(100% - 12px) 52%; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+select option { background: var(--surface); color: var(--text); }
+input[type='checkbox'], input[type='radio'] { accent-color: var(--accent); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.btn-text { text-decoration: none; }
+/* hover states are for pointers only: on touch they stick after a tap */
+@media (hover: none) {
+  .btn-solid:hover { filter: none; }
+  .btn-ghost:hover { border-color: var(--line-strong); background: color-mix(in srgb, var(--text) 3%, transparent); }
+  .btn-text:hover { color: var(--muted); }
+  .ring:hover { border-color: var(--line-strong); box-shadow: none; }
+}
+
+/* Canonical segmented control + chip + empty state. Pages that duplicated these (en-seg, bk-tabs, tpk-seg, t-seg, j-seg) can
+   migrate to them; the legacy classes keep working. */
+.seg { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line-strong); border-radius: var(--r-control); background: color-mix(in srgb, var(--text) 3%, transparent); }
+.seg > button, .seg > a { background: transparent; border: 0; border-radius: calc(var(--r-control) - 2px); padding: 7px 14px; font-size: .82rem; font-weight: 600; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: color .15s var(--ease), background .15s var(--ease); }
+.seg > .on, .seg > [aria-pressed='true'], .seg > [aria-selected='true'] { background: var(--accent); color: var(--btn-ink); }
+.ui-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border: 1px solid var(--line-strong); border-radius: var(--r-pill); background: transparent; color: var(--muted); font-size: .74rem; font-weight: 600; }
+.ui-chip.on, .ui-chip[aria-pressed='true'] { color: var(--text); border-color: color-mix(in srgb, var(--accent) 60%, transparent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+.empty { display: grid; justify-items: center; gap: 8px; text-align: center; padding: 40px 0; color: var(--muted); }
+@media (pointer: coarse) { .seg > button, .seg > a, .ui-chip { min-height: 40px; } }
+/* any chip-like button (chip, tk-chip, hb-chip, ...) gets a thumb-sized hit area on touch screens */
+@media (pointer: coarse) { button[class*='chip'], button[class*='-seg'] > button, .tk-chip { min-height: 40px; display: inline-flex; align-items: center; } }

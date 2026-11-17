@@ -118,7 +118,9 @@ export default function Avatar3D({ className }: { className?: string }) {
     let renderer: THREE.WebGLRenderer;
     try {
       const probe = document.createElement('canvas');
-      if (!(probe.getContext('webgl2') || probe.getContext('webgl'))) throw new Error('no webgl');
+      const gl = (probe.getContext('webgl2') || probe.getContext('webgl')) as WebGLRenderingContext | null;
+      if (!gl) throw new Error('no webgl');
+      gl.getExtension('WEBGL_lose_context')?.loseContext(); // release the probe: browsers cap live contexts (~16)
       renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
     } catch { setFailed(true); return; }
     renderer.setClearColor(0x000000, 0);
@@ -343,6 +345,8 @@ export default function Avatar3D({ className }: { className?: string }) {
       canvas.removeEventListener('webglcontextlost', onLost);
       if (built) { endFx(built.scene); disposeBuilt(built); built = null; }
       renderer.dispose();
+      // a real unmount detaches the canvas: free its GPU context now instead of waiting for GC (StrictMode's fake unmount keeps it attached and reuses it)
+      setTimeout(() => { if (!canvas.isConnected) renderer.forceContextLoss(); }, 0);
       api.current = null;
     };
   }, []);

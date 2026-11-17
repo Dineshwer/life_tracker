@@ -4,25 +4,10 @@ import { Button, Field, Page, SectionHeader } from '../components/ui';
 import type { Video } from '../types';
 import Feed from './entertainment/Feed';
 import { mirrorBase } from '../lib/mirror';
+import { parseYouTubeId } from './entertainment/parse';
 import './entertainment/entertainment.css';
 
-/** Pull the 11-character video id out of any common YouTube link (watch, youtu.be, shorts, embed, live). */
-export function parseYouTubeId(input: string): string | null {
-  const t = input.trim();
-  if (/^[\w-]{11}$/.test(t)) return t;
-  try {
-    const u = new URL(t.startsWith('http') ? t : `https://${t}`);
-    const host = u.hostname.replace(/^www\.|^m\./, '');
-    if (host === 'youtu.be') return u.pathname.slice(1, 12) || null;
-    if (host.endsWith('youtube.com') || host.endsWith('youtube-nocookie.com')) {
-      const v = u.searchParams.get('v');
-      if (v) return v.slice(0, 11);
-      const m = u.pathname.match(/\/(?:shorts|embed|live|v)\/([\w-]{11})/);
-      if (m) return m[1];
-    }
-  } catch { /* not a URL */ }
-  return null;
-}
+export { parseYouTubeId };
 
 const thumb = (id: string) => `https://i.ytimg.com/vi/${id}/mqdefault.jpg`;
 

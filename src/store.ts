@@ -93,7 +93,9 @@ export const useStore = create<State>()(
         // recurring: spawn the next occurrence when completed
         if (done && t.recurrence) {
           const step = t.recurrence.every === 'day' ? t.recurrence.interval : t.recurrence.every === 'week' ? 7 * t.recurrence.interval : 30 * t.recurrence.interval;
-          tasks = [...tasks, { ...t, id: uid(), done: false, doneAt: undefined, date: addDays(t.date ?? today(), step) }];
+          const nextDate = addDays(t.date && t.date > today() ? t.date : today(), step); // overdue: restart from today, never spawn an already-overdue copy
+          // undo + redo must not spawn a second copy of the same next occurrence
+          if (!tasks.some((x) => x.id !== id && !x.done && x.title === t.title && x.date === nextDate && x.parentId === t.parentId && x.recurrence)) tasks = [...tasks, { ...t, id: uid(), done: false, doneAt: undefined, date: nextDate }];
         }
         set({ tasks, xp });
       },
@@ -195,7 +197,14 @@ export const useStore = create<State>()(
       setTheme: (theme) => set((s) => ({ settings: { ...s.settings, theme } })),
       setSkin: (skin, theme) => set((s) => ({ settings: { ...s.settings, skin, theme } })),
       exportAll: () => JSON.stringify(get(), null, 2),
-      importAll: (json) => set(JSON.parse(json)),
+      importAll: (json) => {
+        const j = JSON.parse(json);
+        if (!j || typeof j !== 'object' || Array.isArray(j)) throw new Error('not a Ledger backup');
+        const st = get() as unknown as Record<string, unknown>;
+        const known = Object.fromEntries(Object.entries(j).filter(([k]) => k in st && typeof st[k] !== 'function'));
+        if (!Object.keys(known).length) throw new Error('not a Ledger backup');
+        set(known as Partial<State>);
+      },
     }),
     {
       name: 'life-tracker-v1', version: 2,

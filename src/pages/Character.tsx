@@ -154,7 +154,7 @@ export default function Character() {
           <SectionHeader label="14 days" />
           <div className="card ch-sparkcard">
             <Spark values={series} />
-            <div className="ch-spark-meta label"><span>{fromISO(days[0]).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span><span style={{ color: net < 0 ? 'var(--danger)' : 'var(--accent-2)' }}>Net {fmt(net)}</span></div>
+            <div className="ch-spark-meta label"><span>{fromISO(days[0]).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span><span style={{ color: net < 0 ? 'var(--danger)' : 'color-mix(in srgb, var(--accent-2) 50%, var(--text))' }}>Net {fmt(net)}</span></div>
           </div>
           <SectionHeader label="The rules" />
           <div className="ch-note display">

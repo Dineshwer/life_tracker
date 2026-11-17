@@ -10,8 +10,8 @@
   --edge: transparent;
   --text: #0d0d0d;
   --muted: #5c5c58;
-  --faint: #8a8a85;
-  --accent: #e30613;
+  --faint: #696965;
+  --accent: #d6000f;
   --accent-2: #0d0d0d;
   --accent-ink: #ffffff;
   --glow: transparent;
@@ -19,7 +19,7 @@
   --danger: #c4000f;
   --body: #d4000f;
   --mind: #0b4fbf;
-  --skill: #8a6d00;
+  --skill: #826800;
   --discipline: #0a7a3b;
   --scrim: rgba(13, 13, 13, 0.5);
   --shadow: none;
@@ -37,7 +37,7 @@
   --edge: transparent;
   --text: #ffffff;
   --muted: #a8a8a4;
-  --faint: #6e6e6a;
+  --faint: #7c7c78;
   --accent: #ff2a36;
   --accent-2: #ffffff;
   --accent-ink: #000000;

@@ -38,12 +38,12 @@ export function freeMinutesLeft(blocks: TimeBlock[], wake: string, nowMin: numbe
   const from = Math.max(nowMin, minutes(wake));
   const to = minutes(SLEEP);
   if (from >= to) return 0;
-  let busy = 0;
-  for (const b of blocks) {
-    if (!(b.fixed || b.kind === 'fixed' || b.kind === 'agency')) continue;
-    const s = Math.max(from, minutes(b.start)); const e = Math.min(to, minutes(b.end));
-    if (e > s) busy += e - s;
-  }
+  // merge the busy intervals first so overlapping blocks (e.g. job and agency) are not subtracted twice
+  const spans = blocks.filter((b) => b.fixed || b.kind === 'fixed' || b.kind === 'agency')
+    .map((b) => [Math.max(from, minutes(b.start)), Math.min(to, minutes(b.end))] as const)
+    .filter(([s, e]) => e > s).sort((x, y) => x[0] - y[0]);
+  let busy = 0, end = -1;
+  for (const [s, e] of spans) { if (e > end) { busy += e - Math.max(s, end); end = e; } }
   return Math.max(0, to - from - busy);
 }
 

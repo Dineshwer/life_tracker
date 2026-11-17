@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useState } from 'react';
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { useStore } from './store';
@@ -59,11 +59,19 @@ export default function App() {
   const [moreOpen, setMoreOpen] = useState(false);
   const location = useLocation();
   useEffect(() => { setMoreOpen(false); }, [location.pathname]);
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMoreOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [moreOpen]);
+  // each route starts at the top (the page scrolls, not an inner container)
+  useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
   const onMore = !MOBILE.includes(location.pathname);
   const [session, setSession] = useState<Session | null | undefined>(supabase ? undefined : null);
 
-  useEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
-  useEffect(() => { document.documentElement.dataset.skin = skin; setActiveSkin(skin); loadSkinFonts(skin); }, [skin]);
+  useLayoutEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
+  useLayoutEffect(() => { document.documentElement.dataset.skin = skin; setActiveSkin(skin); loadSkinFonts(skin); }, [skin]);
   useEffect(() => { settle(); }, [settle]);
 
   useEffect(() => {
@@ -125,6 +133,7 @@ export default function App() {
           <Route path="/character" element={<Character />} />
           <Route path="/rewards" element={<Rewards />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<Navigate to="/today" replace />} />
         </Routes>
       </main>
       <nav className="tabbar">

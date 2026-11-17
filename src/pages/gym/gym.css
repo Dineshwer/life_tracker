@@ -3,7 +3,7 @@
 .gym-tabs-thumb { position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / var(--n)); border-radius: var(--r-control); background: var(--card); border: 1px solid var(--edge); box-shadow: var(--shadow), 0 0 22px -8px var(--body); transform: translateX(calc(var(--i) * 100%)); transition: transform .34s cubic-bezier(.3,1.25,.5,1); }
 .gym-tabs button { position: relative; z-index: 1; background: none; border: 0; padding: 11px 0; min-height: 44px; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.02em; color: var(--muted); transition: color .2s var(--ease); }
 .gym-tabs button:hover { color: var(--text); }
-.gym-tabs button.on { color: var(--body); }
+.gym-tabs button.on { color: var(--text); font-weight: 700; }
 .gym-body { max-width: 760px; min-width: 0; }
 .gym-body > * { animation: gymrise .4s var(--ease) both; }
 .gym-stack { display: grid; gap: 8px; grid-template-columns: minmax(0, 1fr); }
@@ -12,7 +12,7 @@
 @keyframes gymrise { from { opacity: 0; transform: translateY(10px); } }
 
 .gym-muted { color: var(--muted); font-size: 0.9rem; }
-.gym-empty { color: var(--faint); font-size: 0.9rem; padding: 16px; text-align: center; border: 1px dashed var(--line-strong); border-radius: calc(var(--r-card) * .8); }
+.gym-empty { color: var(--muted); font-size: 0.9rem; padding: 16px; text-align: center; border: 1px dashed var(--line-strong); border-radius: calc(var(--r-card) * .8); }
 
 /* ---------- buttons / inputs ---------- */
 .gym-btn { background: linear-gradient(180deg, color-mix(in srgb, var(--body) 88%, white), var(--body)); color: var(--accent-ink); border: 1px solid transparent; border-radius: var(--r-control); padding: 10px 18px; font-size: 0.9rem; font-weight: 650; min-height: 44px; box-shadow: 0 1px 0 color-mix(in srgb, white 30%, transparent) inset, 0 10px 22px -12px var(--body); transition: transform .12s var(--ease), box-shadow .18s var(--ease), opacity .18s var(--ease); }
@@ -104,11 +104,11 @@
 .gym-design::before { content: ''; position: absolute; left: -60px; bottom: -80px; width: 240px; height: 240px; background: radial-gradient(closest-side, var(--glow-2), transparent); }
 .gym-design-k { color: var(--body); }
 .gym-design-t { font-family: var(--font-display); font-style: var(--em-style); font-variation-settings: 'SOFT' 100, 'WONK' 1; font-size: clamp(1.7rem, 5vw, 2.3rem); line-height: 1.1; margin: 8px 0; position: relative; }
-.gym-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); overflow: hidden; }
+.gym-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); overflow: clip; }
 .gym-week-day { padding: 12px 4px; border-right: 1px solid var(--line); display: grid; gap: 4px; justify-items: center; text-align: center; align-content: start; min-height: 72px; min-width: 0; }
 .gym-week-day:last-child { border-right: 0; }
 .gym-week-day.today { background: color-mix(in srgb, var(--body) 12%, transparent); }
-.gym-week-day.today .label { color: var(--body); }
+.gym-week-day.today .label { color: var(--text); font-weight: 700; }
 .gym-week-s { font-size: 0.72rem; color: var(--muted); overflow-wrap: anywhere; line-height: 1.25; }
 .gym-sessions { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
 .gym-session { padding: 24px; }
@@ -170,7 +170,7 @@
 .demo-thumb:hover { border-color: var(--body); }
 .demo-play { color: var(--body); font-size: 1.1rem; }
 .demo-body { display: grid; gap: 14px; }
-.demo-gif { width: 100%; max-width: 420px; border-radius: var(--r-control); border: 1px solid var(--line); justify-self: center; background: #fff; }
+.demo-gif { width: 100%; max-width: 420px; height: auto; aspect-ratio: 3 / 2; object-fit: contain; border-radius: var(--r-control); border: 1px solid var(--line); justify-self: center; background: #fff; }
 .demo-steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: .9rem; color: var(--text); }
 .demo-video { position: relative; aspect-ratio: 16 / 9; border-radius: var(--r-control); overflow: hidden; background: #000; }
 .demo-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
@@ -190,7 +190,7 @@
 .plan-preview li { display: flex; gap: 12px; align-items: center; }
 
 /* ---------- mobility + skills ---------- */
-.mob, .skill { padding: 0; overflow: hidden; }
+.mob, .skill { padding: 0; overflow: clip; }
 .mob-head { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; background: none; border: 0; padding: 18px 20px; text-align: left; }
 .mob-name { display: block; font-size: 1.4rem; line-height: 1.15; }
 .mob-when { display: block; margin-top: 4px; }
@@ -198,16 +198,16 @@
 .mob-blurb { padding: 0 20px 4px; }
 .mob-list, .skill-steps { list-style: none; margin: 0; padding: 8px 20px 18px; display: grid; gap: 14px; }
 .mob-list li, .skill-step { display: flex; gap: 12px; align-items: center; }
-.mob-check { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--line-strong); background: none; display: grid; place-items: center; font-size: .8rem; color: var(--accent-ink); }
+.mob-check { flex: none; width: 36px; height: 36px; padding: 0; border-radius: 50%; border: 1.5px solid var(--line-strong); background: none; display: grid; place-items: center; font-size: .8rem; color: var(--accent-ink); }
 .mob-list li.on .mob-check, .skill-step.done .mob-check { background: var(--body); border-color: var(--body); }
 .mob-list li.on .mob-title { color: var(--muted); text-decoration: line-through; }
 .skill-step.now .mob-check { border-color: var(--body); color: var(--body); }
-.skill-step.next { opacity: .55; }
+.skill-step.next .mob-title { color: var(--muted); font-weight: 500; }
 .mob-main { flex: 1; min-width: 0; display: grid; gap: 3px; }
 .mob-title { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-weight: 600; }
 .mob-dose { color: var(--muted); font-size: .78rem; font-weight: 400; }
 .mob-note { font-size: .8rem; color: var(--muted); }
-.mob-src { font-size: .66rem; color: var(--faint); }
+.mob-src { font-size: .66rem; color: var(--muted); }
 .skill { padding: 18px 20px 6px; }
 .skill-head { display: flex; justify-content: space-between; align-items: baseline; }
 .skill-name { font-size: 1.5rem; }
@@ -222,3 +222,4 @@
 .cardio-name { flex: 1; display: grid; gap: 2px; font-size: .92rem; }
 .cardio-note { font-size: .78rem; color: var(--muted); display: block !important; }
 @media (max-width: 560px) { .gym-tabs button { font-size: .72rem; } }
+

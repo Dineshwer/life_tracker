@@ -13,7 +13,7 @@ import './log.css';
 const volumeOf = (w?: Workout) => (w ? w.sets.reduce((a, s) => a + (s.unit === 'kg' ? s.weight * s.reps : 0), 0) : 0);
 const fmtVol = (n: number) => (n >= 10000 ? `${(n / 1000).toFixed(1)}k` : Math.round(n).toLocaleString('en-IN'));
 const UNIT_LABEL: Record<Unit, string> = { kg: 'Weighted', bw: 'Bodyweight', sec: 'Hold' };
-const num0 = (v: string) => Number(v.replace(/[^0-9.]/g, '')) || 0;
+const num0 = (v: string) => Math.min(9999, Math.round(Number(v.replace(/[^0-9.]/g, ''))) || 0);
 const rxOf = (q: QueueItem) => q.text ?? `${q.sets} × ${q.reps}${q.unit === 'sec' ? ' s' : ''}`;
 
 /** Today's plan, loaded automatically. Open an exercise, log its sets, and the how-to sits below. */
@@ -81,7 +81,15 @@ function Day({ workout, todays, finished, plan, setPlan, dow, onFinish, onReopen
   const latest = () => useStore.getState().workouts.find((w) => w.id === workout.id) ?? workout;
   const saveWorkout = (patch: Partial<Workout>) => upsert('workouts', { ...latest(), ...patch });
   const setQueue = (qs: QueueItem[]) => saveWorkout({ queue: qs });
-  const patchItem = (id: string, p: Partial<QueueItem>) => setQueue(queue.map((q) => (q.id === id ? { ...q, ...p } : q)));
+  const patchItem = (id: string, p: Partial<QueueItem>) => {
+    const cur = queue.find((q) => q.id === id);
+    const nextQ = queue.map((q) => (q.id === id ? { ...q, ...p } : q));
+    // renaming an exercise carries its logged sets along (sets are matched by name)
+    if (cur && p.name !== undefined && norm(p.name) !== norm(cur.name)) {
+      const w = latest();
+      saveWorkout({ queue: nextQ, sets: w.sets.map((s) => (norm(s.exercise) === norm(cur.name) ? { ...s, exercise: p.name as string } : s)) });
+    } else setQueue(nextQ);
+  };
   const flashMsg = (m: string, ms = 3500) => { setFlash(m); window.setTimeout(() => setFlash(null), ms); };
 
   const awardPRs = (set: WorkoutSet) => {

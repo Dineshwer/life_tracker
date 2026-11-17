@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../store';
+import type { Settings } from '../types';
 import { supabase } from '../lib/supabase';
 import { onSyncStatus, syncNow, type SyncStatus } from '../sync';
 import { Button, Field, Page } from '../components/ui';
@@ -16,6 +17,34 @@ function syncLabel(s: SyncStatus, at?: Date, err?: string) {
   if (s === 'synced') return `Synced${at ? ` at ${at.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })}` : ''}. Phone and laptop share this data.`;
   if (s === 'error') return `Sync paused: ${err ?? 'unknown error'}. Your data is safe on this device and will retry.`;
   return 'Signed in. Waiting to sync.';
+}
+
+const LISTS = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'wake', 'books', 'conversations', 'rejections', 'videos', 'channels', 'oneLogs'] as const;
+const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+/** Parse and validate a backup. Returns the known keys only, or throws with a readable reason. Missing keys are left untouched. */
+export function parseBackup(text: string, current: { settings: Settings }): Record<string, unknown> {
+  let j: unknown;
+  try { j = JSON.parse(text); } catch { throw new Error('not valid JSON'); }
+  if (!j || typeof j !== 'object' || Array.isArray(j)) throw new Error('not a Ledger backup');
+  const o = j as Record<string, unknown>; const out: Record<string, unknown> = {};
+  for (const k of LISTS) {
+    if (!(k in o)) continue;
+    if (!Array.isArray(o[k]) || (o[k] as unknown[]).some((x) => !x || typeof x !== 'object' || Array.isArray(x))) throw new Error(`"${k}" is invalid`);
+    out[k] = o[k];
+  }
+  if ('settings' in o) {
+    const st = o.settings as Partial<Settings> | null;
+    if (!st || typeof st !== 'object' || Array.isArray(st)) throw new Error('"settings" is invalid');
+    if (st.theme !== undefined && st.theme !== 'dark' && st.theme !== 'light') throw new Error('"settings.theme" is invalid');
+    if (st.wakeTime !== undefined && !TIME.test(st.wakeTime)) throw new Error('"settings.wakeTime" is invalid');
+    if (st.weekendWake !== undefined && !TIME.test(st.weekendWake)) throw new Error('"settings.weekendWake" is invalid');
+    if (st.name !== undefined && typeof st.name !== 'string') throw new Error('"settings.name" is invalid');
+    out.settings = { ...current.settings, ...st };
+  }
+  if ('settledThrough' in o && typeof o.settledThrough === 'string') out.settledThrough = o.settledThrough;
+  if (!Object.keys(out).length) throw new Error('not a Ledger backup');
+  return out;
 }
 
 export default function Settings() {
@@ -41,7 +70,9 @@ export default function Settings() {
 
   const restore = async (file?: File) => {
     if (!file) return;
-    try { importAll(await file.text()); setMsg('Backup restored.'); } catch { setMsg('That file could not be read.'); }
+    try { importAll(JSON.stringify(parseBackup(await file.text(), useStore.getState()))); setMsg('Backup restored.'); }
+    catch (e) { setMsg(`That file could not be restored: ${e instanceof Error ? e.message : 'unreadable'}.`); }
+    if (fileRef.current) fileRef.current.value = ''; // allow choosing the same file again
   };
 
   return (
@@ -57,7 +88,7 @@ export default function Settings() {
           <div className="set-head"><h2 className="display set-h">Rhythm</h2></div>
           <div className="set-grid">
             <div className="wide"><Field label="Your name"><input value={settings.name} onChange={(e) => patch({ name: e.target.value })} /></Field></div>
-            <Field label="Wake time, weekdays"><input type="time" value={settings.wakeTime} onChange={(e) => patch({ wakeTime: e.target.value })} /></Field>
+            <Field label="Wake time, weekdays"><input type="time" value={settings.wakeTime} onChange={(e) => { if (TIME.test(e.target.value)) patch({ wakeTime: e.target.value }); }} /></Field>
             <Field label="Weekends (optional)"><input type="time" value={settings.weekendWake ?? ''} onChange={(e) => patch({ weekendWake: e.target.value || undefined })} /></Field>
           </div>
           <p className="set-note">Tapping "I'm up" within 15 minutes of this time earns full Discipline XP.</p>
@@ -67,7 +98,7 @@ export default function Settings() {
           <section className="card set-card" style={{ ['--d' as string]: '120ms' }}>
             <div className="set-head">
               <h2 className="display set-h">Account and sync</h2>
-              <span className={`pill ${sync.status}`} style={{ ['--c' as string]: PILL[sync.status].c }}><span className="pill-dot" />{PILL[sync.status].t}</span>
+              <span className={`set-pill ${sync.status}`} style={{ ['--c' as string]: PILL[sync.status].c }}><span className="set-pill-dot" />{PILL[sync.status].t}</span>
             </div>
             <p className="set-note" role="status" style={{ marginTop: 0 }}>{syncLabel(sync.status, sync.at, sync.err)}</p>
             <div className="set-actions">

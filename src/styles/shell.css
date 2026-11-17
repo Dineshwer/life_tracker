@@ -1,6 +1,6 @@
 .shell { min-height: 100%; display: grid; grid-template-columns: 1fr; }
 .rail { display: none; }
-.main { padding: 0 var(--gutter) 96px; max-width: var(--maxw); width: 100%; margin: 0 auto; }
+.main { padding: 0 max(var(--gutter), env(safe-area-inset-right, 0px)) calc(124px + env(safe-area-inset-bottom, 0px)) max(var(--gutter), env(safe-area-inset-left, 0px)); max-width: var(--maxw); width: 100%; margin: 0 auto; }
 
 .tabbar { position: fixed; bottom: 10px; left: 10px; right: 10px; display: grid; grid-template-columns: repeat(5, 1fr); background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(14px); border: 1px solid var(--line-strong); border-radius: var(--r-card); border-width: var(--card-bw); box-shadow: var(--shadow); padding: 6px 4px; margin-bottom: env(safe-area-inset-bottom); z-index: 20; }
 .tab { display: grid; justify-items: center; gap: 3px; padding: 7px 0; border-radius: var(--r-control); color: var(--faint); text-decoration: none; font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; transition: color .18s var(--ease), background .18s var(--ease); }

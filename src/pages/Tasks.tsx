@@ -33,7 +33,7 @@ const relDue = (d: string) => {
 function Arc({ done, total }: { done: number; total: number }) {
   const r = 6.5, c = 2 * Math.PI * r;
   return (
-    <span className="t-arc" title={`${done} of ${total} steps`}>
+    <span className="tk-arc" title={`${done} of ${total} steps`}>
       <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
         <circle cx="9" cy="9" r={r} fill="none" stroke="var(--line-strong)" strokeWidth="2" />
         <circle cx="9" cy="9" r={r} fill="none" stroke="var(--accent)" strokeWidth="2" strokeLinecap="round" strokeDasharray={`${c * (done / total)} ${c}`} transform="rotate(-90 9 9)" />
@@ -46,7 +46,7 @@ function Arc({ done, total }: { done: number; total: number }) {
 function Sketch({ kind }: { kind: 'desk' | 'horizon' | 'seed' | 'stack' | 'ahead' }) {
   const p = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   return (
-    <svg className="t-sketch" viewBox="0 0 120 72" width="120" height="72" aria-hidden="true">
+    <svg className="tk-sketch" viewBox="0 0 120 72" width="120" height="72" aria-hidden="true">
       {kind === 'desk' && <g {...p}><path d="M10 58 C40 56 80 60 110 57" /><path d="M44 57 L47 38 C47 36 69 36 69 38 L72 57" /><path d="M69 42 C77 42 78 52 70 52" /><path d="M54 33 C52 26 58 22 56 15" opacity=".6" /><path d="M62 33 C60 28 65 25 63 19" opacity=".6" /><path d="M92 57 C92 46 90 40 96 32 C102 40 98 48 92 57 Z" /><path d="M92 50 L96 42" /></g>}
       {kind === 'ahead' && <g {...p}><path d="M8 52 C30 44 50 56 72 48 C90 42 100 46 112 40" /><circle cx="84" cy="22" r="9" /><path d="M84 8 V4 M97 22 H101 M70 22 H66 M94 12 L97 9 M74 12 L71 9" /><path d="M20 62 C44 58 76 64 104 60" opacity=".5" /></g>}
       {kind === 'horizon' && <g {...p}><path d="M6 56 L38 28 L56 44 L74 22 L114 56 Z" /><path d="M74 22 L68 32 L74 30 L80 34" opacity=".6" /><circle cx="26" cy="16" r="6" /></g>}
@@ -56,7 +56,7 @@ function Sketch({ kind }: { kind: 'desk' | 'horizon' | 'seed' | 'stack' | 'ahead
   );
 }
 const Empty = ({ kind, children }: { kind: Parameters<typeof Sketch>[0]['kind']; children: string }) => (
-  <div className="t-empty"><Sketch kind={kind} /><p>{children}</p></div>
+  <div className="tk-empty"><Sketch kind={kind} /><p>{children}</p></div>
 );
 
 function Row({ task, subs, onEdit, onComplete, i }: { task: Task; subs: Task[]; onEdit: (t: Task) => void; onComplete: (id: string) => void; i: number }) {
@@ -73,31 +73,31 @@ function Row({ task, subs, onEdit, onComplete, i }: { task: Task; subs: Task[]; 
     toggle(task.id);
   };
   return (
-    <div className={`t-row fx${task.done ? ' done' : ''}`} style={{ ['--i' as string]: i }}>
+    <div className={`tk-row tk-fx${task.done ? ' done' : ''}`} style={{ ['--i' as string]: i }}>
       <Ring state={task.done ? 'full' : 'none'} label={`Complete ${task.title}`} onClick={complete} color={CTX_COLOR[task.context]} />
-      <div className="t-main">
-        <button className="t-hit" onClick={() => onEdit(task)}>
-          <span className="t-title"><span className="t-text">{task.title}</span></span>
-          <span className="t-meta">
-            <span className="t-ctx" style={{ ['--c' as string]: CTX_COLOR[task.context] }}>{task.context}</span>
-            {task.date && <span className={`t-due${overdue ? ' over' : ''}`}>{relDue(task.date)}</span>}
+      <div className="tk-main">
+        <button className="tk-hit" onClick={() => onEdit(task)}>
+          <span className="tk-title"><span className="tk-text">{task.title}</span></span>
+          <span className="tk-meta">
+            <span className="tk-ctx" style={{ ['--c' as string]: CTX_COLOR[task.context] }}>{task.context}</span>
+            {task.date && <span className={`tk-due${overdue ? ' over' : ''}`}>{relDue(task.date)}</span>}
             {subs.length > 0 && <Arc done={doneSubs} total={subs.length} />}
-            {task.recurrence && <span className="t-rec">Every {task.recurrence.interval > 1 ? task.recurrence.interval + ' ' : ''}{task.recurrence.every}{task.recurrence.interval > 1 ? 's' : ''}</span>}
-            {task.tags.map((g) => <span className="t-tag" key={g}>#{g}</span>)}
+            {task.recurrence && <span className="tk-rec">Every {task.recurrence.interval > 1 ? task.recurrence.interval + ' ' : ''}{task.recurrence.every}{task.recurrence.interval > 1 ? 's' : ''}</span>}
+            {task.tags.map((g) => <span className="tk-tag" key={g}>#{g}</span>)}
           </span>
         </button>
         {subs.length > 0 && (
-          <div className="t-sub">
+          <div className="tk-sub">
             {subs.map((s) => (
-              <div className={`t-subrow${s.done ? ' done' : ''}`} key={s.id}>
+              <div className={`tk-subrow${s.done ? ' done' : ''}`} key={s.id}>
                 <Ring state={s.done ? 'full' : 'none'} label={`Complete ${s.title}`} onClick={() => toggle(s.id)} color={CTX_COLOR[task.context]} />
-                <span className="t-text">{s.title}</span>
+                <span className="tk-text">{s.title}</span>
               </div>
             ))}
           </div>
         )}
       </div>
-      {xp && <span className="t-xp" aria-hidden="true">+{TASK_XP[task.effort]} XP</span>}
+      {xp && <span className="tk-xp" aria-hidden="true">+{TASK_XP[task.effort]} XP</span>}
     </div>
   );
 }
@@ -144,7 +144,7 @@ export default function Tasks() {
     setDraft('');
   };
   const edit = (t: Task) => { setEditing(t); setSheet(true); };
-  const renderRows = (list: Task[]) => <div className="t-list card">{list.map((t, i) => <Row key={t.id} i={i} task={t} subs={subsOf.get(t.id) ?? []} onEdit={edit} onComplete={onComplete} />)}</div>;
+  const renderRows = (list: Task[]) => <div className="tk-list card">{list.map((t, i) => <Row key={t.id} i={i} task={t} subs={subsOf.get(t.id) ?? []} onEdit={edit} onComplete={onComplete} />)}</div>;
 
   const groups: [string, Task[]][] = [];
   upcoming.forEach((t) => {
@@ -156,15 +156,15 @@ export default function Tasks() {
 
   return (
     <Page title="Tasks" kicker="Work, in order" actions={<Button variant="ghost" onClick={() => { setEditing(null); setSheet(true); }}><IconPlus size={14} style={{ verticalAlign: '-2px', marginRight: 6 }} />New</Button>}>
-      <div className="composer card fx" style={{ ['--i' as string]: 0 }}>
-        <span className="composer-plus"><IconPlus size={18} /></span>
+      <div className="tk-composer card tk-fx" style={{ ['--i' as string]: 0 }}>
+        <span className="tk-composer-plus"><IconPlus size={18} /></span>
         <input value={draft} placeholder={view === 'goals' ? 'Name a goal worth chasing' : 'What needs doing?'} aria-label="Capture a task"
           onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') capture(); }} />
-        <button className="kbd" onClick={capture} disabled={!draft.trim()} aria-label="Add task"><kbd>Enter</kbd><span>to add</span></button>
+        <button className="tk-kbd" onClick={capture} disabled={!draft.trim()} aria-label="Add task"><kbd>Enter</kbd><span>to add</span></button>
       </div>
 
-      <div className="t-seg fx" style={{ ['--i' as string]: 1, ['--n' as string]: VIEWS.length, ['--k' as string]: VIEWS.findIndex((v) => v.id === view) }} role="tablist">
-        <span className="t-seg-thumb" aria-hidden="true" />
+      <div className="tk-seg tk-fx" style={{ ['--i' as string]: 1, ['--n' as string]: VIEWS.length, ['--k' as string]: VIEWS.findIndex((v) => v.id === view) }} role="tablist">
+        <span className="tk-seg-thumb" aria-hidden="true" />
         {VIEWS.map((v) => (
           <button key={v.id} role="tab" aria-selected={view === v.id} className={view === v.id ? 'on' : ''} onClick={() => setView(v.id)}>
             {v.label}{counts[v.id] > 0 && <sup>{counts[v.id]}</sup>}
@@ -172,38 +172,38 @@ export default function Tasks() {
         ))}
       </div>
 
-      <div className="chips fx" style={{ ['--i' as string]: 2 }}>
-        <button className={`chip${!ctx ? ' on' : ''}`} onClick={() => setCtx(null)}>All</button>
-        {CONTEXTS.map((c) => <button key={c} className={`chip${ctx === c ? ' on' : ''}`} style={{ ['--c' as string]: CTX_COLOR[c] }} onClick={() => setCtx(ctx === c ? null : c)}><i />{c}</button>)}
-        {tags.length > 0 && <span className="sep" />}
-        {tags.map((g) => <button key={g} className={`chip tagchip${tag === g ? ' on' : ''}`} onClick={() => setTag(tag === g ? null : g)}>#{g}</button>)}
+      <div className="tk-chips tk-fx" style={{ ['--i' as string]: 2 }}>
+        <button className={`tk-chip${!ctx ? ' on' : ''}`} onClick={() => setCtx(null)}>All</button>
+        {CONTEXTS.map((c) => <button key={c} className={`tk-chip${ctx === c ? ' on' : ''}`} style={{ ['--c' as string]: CTX_COLOR[c] }} onClick={() => setCtx(ctx === c ? null : c)}><i />{c}</button>)}
+        {tags.length > 0 && <span className="tk-sep" />}
+        {tags.map((g) => <button key={g} className={`tk-chip tk-tagchip${tag === g ? ' on' : ''}`} onClick={() => setTag(tag === g ? null : g)}>#{g}</button>)}
       </div>
 
-      <div key={view} className="t-view">
+      <div key={view} className="tk-view">
       {view === 'today' && (
         todayList.length === 0 ? <Empty kind="desk">Nothing due. A clear desk.</Empty> : (
           <>
-            {overdue.length > 0 && <section className="t-group"><h3 className="over">Overdue<small>{overdue.length}</small></h3>{renderRows(overdue)}</section>}
-            {dueToday.length > 0 && <section className="t-group"><h3>Today<small>{dueToday.length}</small></h3>{renderRows(dueToday)}</section>}
+            {overdue.length > 0 && <section className="tk-group"><h3 className="over">Overdue<small>{overdue.length}</small></h3>{renderRows(overdue)}</section>}
+            {dueToday.length > 0 && <section className="tk-group"><h3>Today<small>{dueToday.length}</small></h3>{renderRows(dueToday)}</section>}
           </>
         )
       )}
 
       {view === 'upcoming' && (
         groups.length === 0 ? <Empty kind="ahead">Nothing scheduled ahead. Open road.</Empty> :
-          groups.map(([d, list]) => <section className="t-group" key={d}><h3>{dateHeading(d)}<small>{shortDate(d)}</small></h3>{renderRows(list)}</section>)
+          groups.map(([d, list]) => <section className="tk-group" key={d}><h3>{dateHeading(d)}<small>{shortDate(d)}</small></h3>{renderRows(list)}</section>)
       )}
 
       {view === 'goals' && (
         goals.length === 0 ? <Empty kind="seed">No goals yet. Plant one above.</Empty> : (
           (['short', 'long'] as const).map((h) => {
             const l = goals.filter((t) => t.horizon === h);
-            return l.length ? <section className="t-group" key={h}><h3>{h === 'short' ? 'Short horizon' : 'Long horizon'}<small>{l.length}</small></h3>{renderRows(l)}</section> : null;
+            return l.length ? <section className="tk-group" key={h}><h3>{h === 'short' ? 'Short horizon' : 'Long horizon'}<small>{l.length}</small></h3>{renderRows(l)}</section> : null;
           })
         )
       )}
 
-      {view === 'done' && (done.length === 0 ? <Empty kind="stack">Completed work will gather here.</Empty> : <section className="t-group">{renderRows(done)}</section>)}
+      {view === 'done' && (done.length === 0 ? <Empty kind="stack">Completed work will gather here.</Empty> : <section className="tk-group">{renderRows(done)}</section>)}
       </div>
 
       <TaskSheet open={sheet} task={editing} onClose={() => setSheet(false)}

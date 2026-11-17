@@ -5,7 +5,7 @@ body { overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; }
 button, a, input, select, textarea, summary { touch-action: manipulation; }
 
 /* side gutters respect landscape notches; the bottom padding clears the floating tab bar plus the gesture bar */
-.main { padding-left: max(var(--gutter), env(safe-area-inset-left, 0px)); padding-right: max(var(--gutter), env(safe-area-inset-right, 0px)); padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
+.main { padding-left: max(var(--gutter), env(safe-area-inset-left, 0px)); padding-right: max(var(--gutter), env(safe-area-inset-right, 0px)); padding-bottom: calc(124px + env(safe-area-inset-bottom, 0px)); }
 .tabbar { left: max(10px, env(safe-area-inset-left, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); bottom: calc(10px + env(safe-area-inset-bottom, 0px)); margin-bottom: 0; }
 @media (min-width: 860px) { .main { padding-bottom: 48px; } }
 /* sheets and dialogs never run past the visible area on phones with dynamic browser bars */
@@ -27,7 +27,7 @@ button, a, input, select, textarea, summary { touch-action: manipulation; }
   input, select, textarea { font-size: 16px; }
   input:not([type='checkbox']):not([type='radio']), select { min-height: 44px; }
   .btn { min-height: 44px; }
-  button.chip, .minbtn, .tpk-seg button, .bk-tabs button, .en-seg button, .en-filter button, .en-cat, .set-seg button { min-height: 40px; display: inline-flex; align-items: center; }
+  button.chip, .tk-chip, .hb-chip, .minbtn, .tpk-seg button, .bk-tabs button, .en-seg button, .en-filter button, .en-cat, .set-seg button { min-height: 40px; display: inline-flex; align-items: center; }
   .en-filter button, .en-seg button { padding-top: 6px; padding-bottom: 6px; }
 
   /* small visual controls keep their look; an invisible padded area makes them easy to hit */

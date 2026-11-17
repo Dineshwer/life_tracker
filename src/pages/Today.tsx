@@ -17,12 +17,15 @@ const nowMinutes = () => { const d = new Date(); return d.getHours() * 60 + d.ge
 
 export default function Today() {
   const s = useStore();
-  const { habits, habitLogs: logs, tasks, blocks, xp, wake, settings, logHabit, toggleTask, tapWake } = s;
+  const { habits, habitLogs: logs, tasks, blocks, xp, wake, settings, logHabit, toggleTask, tapWake, settle } = s;
   const d = todayISO();
   const [nowMin, setNow] = useState(nowMinutes);
   const rejTotal = useStore((st) => st.rejections.length);
   const rejToday = useStore((st) => st.rejections.filter((r) => r.date === d).length);
   useEffect(() => { const t = window.setInterval(() => setNow(nowMinutes()), 60000); return () => window.clearInterval(t); }, []);
+
+  // the page may stay open past midnight: settle yesterday's missed habits as soon as the date changes (idempotent)
+  useEffect(() => { settle(); }, [d, settle]);
 
   const hr = Math.floor(nowMin / 60);
   const greet = hr < 5 ? 'Still up' : hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
@@ -109,7 +112,7 @@ export default function Today() {
                     </div>
                   </div>
                   {level === 'none' && <button className="minbtn" onClick={() => logHabit(h.id, d, 'min')}>min</button>}
-                  <span className="chip mono">+{h.xp}</span>
+                  <span className="t-chip mono">+{h.xp}</span>
                 </li>
               ))}
             </ul>
@@ -120,7 +123,7 @@ export default function Today() {
             <div className="qw rise" style={rise()}>
               {quick.map((q) => (
                 <button className="qw-item card" key={q.key} onClick={q.run} style={{ ['--c' as string]: q.color }} aria-label={`Complete ${q.title}`}>
-                  <span className="qw-top"><i className="sdot" /><span className="chip mono">+{q.cost}</span></span>
+                  <span className="qw-top"><i className="sdot" /><span className="t-chip mono">+{q.cost}</span></span>
                   <span className="qw-t">{q.title}</span>
                   {q.hint && <span className="hl-sub">{q.hint}</span>}
                 </button>
@@ -140,7 +143,7 @@ export default function Today() {
                       <div className={`hl-name${t.done ? ' done' : ''}`}><i className="sdot" />{t.title}</div>
                       <div className="hl-sub">{t.context}{subs.length ? ` · ${subs.filter((x) => x.done).length} of ${subs.length} subtasks` : ''}</div>
                     </div>
-                    <span className="chip mono">+{[0, 10, 20, 40][t.effort]}</span>
+                    <span className="t-chip mono">+{[0, 10, 20, 40][t.effort]}</span>
                   </li>
                 );
               })}
@@ -152,14 +155,14 @@ export default function Today() {
           <SectionHeader label="XP today" />
           <div className="card rail-block rise" style={rise()}>
             <div className="xp-big display">{todayXP >= 0 ? '+' : ''}{todayXP}<small>xp</small></div>
-            <Bar pct={todayXP / 150} color="var(--accent-2)" height={4} />
+            <Bar pct={Math.max(0, todayXP) / 150} color="var(--accent-2)" height={4} />
             <div className="hl-sub" style={{ marginTop: 10 }}>{todayXP > 0 ? 'Earned so far today.' : 'Nothing earned yet. One small thing is enough to start.'}</div>
             <div className="lvs">
               {STATS.map((st) => {
                 const l = levelFromXP(byStat[st]);
                 return (
                   <div className="lv" key={st}>
-                    <div className="lv-top"><span className="label" style={{ color: statVar(st) }}>{STAT_LABEL[st]}</span><span className="lv-n display">{l.level}</span></div>
+                    <div className="lv-top"><span className="label" style={{ color: `color-mix(in srgb, ${statVar(st)} 60%, var(--text))` }}>{STAT_LABEL[st]}</span><span className="lv-n display">{l.level}</span></div>
                     <Bar pct={l.pct} color={statVar(st)} height={3} />
                   </div>
                 );

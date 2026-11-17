@@ -1,4 +1,5 @@
-.one-link { color: var(--accent); text-decoration: none; }
+.one-link { color: var(--accent); text-decoration: none; display: inline-flex; align-items: center; min-height: 36px; padding: 0 6px; margin: -8px -6px; }
+.one-link:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--r-control); }
 .one-ok { color: var(--accent); }
 .one-name { font-size: 1.9rem; line-height: 1.1; margin: 4px 0 6px; }
 .one-name.big { font-size: clamp(2rem, 6vw, 2.8rem); }
@@ -25,8 +26,8 @@
 .one-map-name:hover { color: var(--accent); }
 .one-cell { height: 30px; border-radius: 5px; display: grid; place-content: center; font-size: .72rem; font-family: var(--font-mono); background: var(--line); color: var(--text); }
 .one-cell.l1 { background: color-mix(in srgb, var(--c) 24%, transparent); }
-.one-cell.l2 { background: color-mix(in srgb, var(--c) 44%, transparent); }
-.one-cell.l3 { background: color-mix(in srgb, var(--c) 68%, transparent); }
+.one-cell.l2 { background: color-mix(in srgb, var(--c) 34%, transparent); }
+.one-cell.l3 { background: color-mix(in srgb, var(--c) 82%, var(--bg)); color: var(--bg); }
 .one-cell.l4 { background: var(--c); color: var(--bg); }
 
 .one-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
@@ -43,3 +44,7 @@
 .one-recent { list-style: none; margin: 0; padding: 4px 16px; }
 .one-recent li { display: grid; grid-template-columns: 1fr auto auto auto; gap: 14px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
 .one-recent li:last-child { border-bottom: 0; }
+
+
+/* two-column row used by the log sheet (kept here so this page does not rely on another page's css) */
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }

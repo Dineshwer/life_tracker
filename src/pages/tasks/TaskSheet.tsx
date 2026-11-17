@@ -68,7 +68,7 @@ function Form({ task, onClose, defaults }: { task: Task | null; onClose: () => v
   return (
     <form onSubmit={(e) => { e.preventDefault(); save(); }}>
       <Field label="Title"><input value={title} onChange={(e) => setTitle(e.target.value)} autoFocus={!task} /></Field>
-      <div className="form-row">
+      <div className="tk-form-row">
         <Field label="Date"><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
         <Field label="Context">
           <select value={context} onChange={(e) => setContext(e.target.value as TaskContext)}>
@@ -80,15 +80,15 @@ function Form({ task, onClose, defaults }: { task: Task | null; onClose: () => v
 
       <div className="field">
         <span className="label">Effort</span>
-        <div className="opts" role="group" aria-label="Effort">
+        <div className="tk-opts" role="group" aria-label="Effort">
           {([1, 2, 3] as const).map((n) => (
             <button type="button" key={n} className={effort === n ? 'on' : ''} onClick={() => setEffort(n)}>{n} · {TASK_XP[n]} XP</button>
           ))}
         </div>
       </div>
-      <p className="hint">Light 10 XP, solid 20 XP, heavy 40 XP. Awarded to the stat below when completed.</p>
+      <p className="tk-hint">Light 10 XP, solid 20 XP, heavy 40 XP. Awarded to the stat below when completed.</p>
 
-      <div className="form-row">
+      <div className="tk-form-row">
         <Field label="Stat">
           <select value={stat} onChange={(e) => setStat(e.target.value as Stat)}>
             {STATS.map((s) => <option key={s} value={s}>{STAT_LABEL[s]}</option>)}
@@ -101,7 +101,7 @@ function Form({ task, onClose, defaults }: { task: Task | null; onClose: () => v
         </Field>
       </div>
 
-      <div className="form-row">
+      <div className="tk-form-row">
         <Field label="Repeat">
           <select value={rec} onChange={(e) => setRec(e.target.value as typeof rec)}>
             <option value="none">Never</option><option value="day">Every N days</option><option value="week">Every N weeks</option><option value="month">Every N months</option>
@@ -115,20 +115,20 @@ function Form({ task, onClose, defaults }: { task: Task | null; onClose: () => v
       <div className="field">
         <span className="label">Subtasks</span>
         {subs.map((s) => (
-          <div className="sub-edit" key={s.id}>
+          <div className="tk-sub-edit" key={s.id}>
             <span>{s.title}</span>
             <Button type="button" variant="text" onClick={() => setSubs(subs.filter((x) => x.id !== s.id))}>Remove</Button>
           </div>
         ))}
-        <div className="sub-add">
+        <div className="tk-sub-add">
           <input value={subDraft} placeholder="Add a step" onChange={(e) => setSubDraft(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addSub(); } }} />
           <Button type="button" variant="ghost" onClick={addSub}>Add</Button>
         </div>
       </div>
 
-      <div className="form-actions">
-        {task ? <Button type="button" variant="text" className="danger-text" onClick={del}>Delete</Button> : <span />}
+      <div className="tk-form-actions">
+        {task ? <Button type="button" variant="text" className="tk-danger-text" onClick={del}>Delete</Button> : <span />}
         <Button type="submit" disabled={!title.trim()}>Save</Button>
       </div>
     </form>
