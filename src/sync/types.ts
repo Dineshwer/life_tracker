@@ -84,3 +84,41 @@ export interface SyncInfo {
   conflicts: ConflictEntry[];        // most recent first, capped at 100 (kept locally; diagnostic)
   deviceId: string;
 }
+
+/* ---- the engine's dependencies: injected so the engine runs in Node (unit tests) and in the browser ---- */
+export type Item = { id?: string; date?: string; [k: string]: unknown };
+
+/** The local store as the engine sees it. `read()` returns every synced collection (including 'meta' = [{ id: 'settings', ...settings }] ).
+    `write(patch)` replaces whole collections atomically (the engine passes the merged lists) and must notify subscribers like a normal change. */
+export interface StoreAdapter {
+  read(): Record<string, Item[]>;
+  write(patch: Record<string, Item[]>): void;
+  subscribe(cb: () => void): () => void;
+}
+export interface KeyValueStorage { getItem(k: string): string | null; setItem(k: string, v: string): void; removeItem(k: string): void }
+export interface EngineDeps {
+  remote: Remote;
+  store: StoreAdapter;
+  storage: KeyValueStorage;          // per-user sync metadata (cursor, per-item base versions) is kept here: a disposable cache
+  userId: string;
+  deviceId: string;
+  now?: () => number;                // default Date.now
+  /** timers are injectable so tests can run on a fake clock */
+  setTimeout?: (fn: () => void, ms: number) => unknown;
+  clearTimeout?: (h: unknown) => void;
+  /** run `fn` while holding a cross-tab lock (navigator.locks in the browser); default: just run it */
+  withLock?: <T>(name: string, fn: () => Promise<T>) => Promise<T>;
+  /** per-item validation of rows coming from the server (src/lib/validate.ts); invalid rows are quarantined, never applied */
+  validate?: (collection: string, item: unknown) => boolean;
+}
+export interface SyncEngine {
+  start(): void;                     // load metadata, first sync, subscribe to realtime + local changes, schedule polling
+  stop(): void;
+  syncNow(): Promise<void>;          // one full cycle: push local changes, pull remote changes, merge, push merge results
+  flush(): Promise<void>;            // resolves when there are no pending local changes (or rejects after a timeout / when offline)
+  info(): SyncInfo;
+  subscribe(cb: (i: SyncInfo) => void): () => void;
+  resetLocalCache(): Promise<void>;  // drop the local copy and sync metadata and rebuild everything from the server (proves the cache is disposable)
+  restoreConflict(e: ConflictEntry): void; // put the losing local value from a conflict entry back into the store (it then syncs as a normal edit)
+  idOf(collection: string, item: Item): string;
+}
