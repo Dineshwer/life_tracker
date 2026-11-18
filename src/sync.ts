@@ -1,142 +1,74 @@
 import { supabase } from './lib/supabase';
+import { zustandStoreAdapter } from './lib/storeAdapter';
 import { useStore } from './store';
+import { seed } from './seed';
+import { validateItem, coerceItem } from './lib/validate';
+import { purgeLegacyArchive } from './lib/synced';
+import { createSyncEngine } from './sync/engine';
+import { createSupabaseRemote } from './sync/remote';
+import { addInfoListener, clearRuntime, getDeviceId, getEngine, setRuntime } from './sync/runtime';
+import type { StoreAdapter, SyncStatus } from './sync/types';
 
-/* Item-level sync. Each item (habit, task, set...) is one row in public.records.
-   Rules:
-   - First sync on a device: if the cloud has data, the cloud wins (so seed data never overwrites it);
-     if the cloud is empty, local data is uploaded.
-   - After that: an item changed locally is pushed; an item unchanged locally takes the cloud version.
-   - Deletes are tombstones (deleted = true). */
+/* Facade over the sync engine (src/sync/*): wires the real store, Supabase client and browser events.
+   The database is the source of truth; the persisted store plus the sync metadata in localStorage are a disposable cache. */
 
-const LISTS = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'books', 'conversations', 'rejections', 'videos', 'channels', 'oneLogs', 'kv', 'wake'] as const;
-type Item = { id?: string; date?: string };
+export type { SyncStatus };
 
-const idOf = (col: string, it: Item) => (col === 'wake' ? `wake:${it.date}` : (it.id as string));
+const storeAdapter: StoreAdapter = zustandStoreAdapter();
 
-export type SyncStatus = 'off' | 'syncing' | 'synced' | 'error';
-let status: SyncStatus = 'off';
-const listeners = new Set<(s: SyncStatus, at?: Date, err?: string) => void>();
-let lastAt: Date | undefined; let lastErr: string | undefined;
-const setStatus = (s: SyncStatus, err?: string) => { status = s; lastErr = err; if (s === 'synced') lastAt = new Date(); listeners.forEach((l) => l(s, lastAt, lastErr)); };
-export const onSyncStatus = (l: (s: SyncStatus, at?: Date, err?: string) => void) => { listeners.add(l); l(status, lastAt, lastErr); return () => { listeners.delete(l); }; };
-
-type Snapshot = Map<string, string>;
-function flatten(): Map<string, { col: string; id: string; json: string; data: unknown }> {
-  const st = useStore.getState() as unknown as Record<string, unknown>;
-  const out = new Map<string, { col: string; id: string; json: string; data: unknown }>();
-  for (const col of LISTS) for (const it of st[col] as Item[]) {
-    const id = idOf(col, it); out.set(`${col}/${id}`, { col, id, json: JSON.stringify(it), data: it });
-  }
-  out.set('meta/settings', { col: 'meta', id: 'settings', json: JSON.stringify(st.settings), data: st.settings });
-  return out;
-}
+const withLock = async <T,>(name: string, fn: () => Promise<T>): Promise<T> => {
+  const locks = typeof navigator !== 'undefined' ? (navigator as Navigator & { locks?: LockManager }).locks : undefined;
+  if (!locks) return fn();
+  return locks.request(name, fn) as Promise<T>;
+};
 
 let userId: string | null = null;
-let synced: Snapshot = new Map();
-let firstSync = true;
-let busy = false; let again = false;
-let timer: ReturnType<typeof setTimeout> | undefined;
-let unsub: (() => void) | undefined;
-let poll: ReturnType<typeof setInterval> | undefined;
-
-const snapKey = () => `ledger-sync-${userId}`;
-function loadSnap() { try { const raw = localStorage.getItem(snapKey()); if (raw) { synced = new Map(JSON.parse(raw)); firstSync = false; } } catch { /* ignore */ } }
-function saveSnap() { try { localStorage.setItem(snapKey(), JSON.stringify([...synced])); } catch { /* ignore */ } }
-
-type Row = { collection: string; id: string; data: unknown; deleted: boolean };
-
-async function fetchAll(): Promise<Row[]> {
-  const rows: Row[] = []; const size = 1000;
-  for (let from = 0; ; from += size) {
-    const { data, error } = await supabase!.from('records').select('collection,id,data,deleted').order('updated_at').range(from, from + size - 1);
-    if (error) throw error;
-    rows.push(...(data as Row[]));
-    if (!data || data.length < size) break;
-  }
-  return rows;
-}
-
-function applyRemote(rows: Row[], replaceAll: boolean) {
-  const st = useStore.getState() as unknown as Record<string, unknown>;
-  const local = flatten();
-  const lists: Record<string, Map<string, Item>> = {};
-  for (const col of LISTS) {
-    lists[col] = new Map();
-    if (!replaceAll) for (const it of st[col] as Item[]) lists[col].set(idOf(col, it) as string, it);
-  }
-  let settings: unknown = replaceAll ? undefined : st.settings;
-  for (const r of rows) {
-    const key = `${r.collection}/${r.id}`;
-    const cur = local.get(key);
-    const unmodified = replaceAll || !cur || cur.json === synced.get(key);
-    if (!unmodified) continue; // local edit wins and will be pushed
-    if (r.collection === 'meta') { if (r.id === 'settings' && !r.deleted) { settings = r.data; synced.set(key, JSON.stringify(r.data)); } continue; }
-    if (!lists[r.collection]) continue;
-    if (r.deleted) { lists[r.collection].delete(r.id); synced.delete(key); }
-    else { lists[r.collection].set(r.id, r.data as Item); synced.set(key, JSON.stringify(r.data)); }
-  }
-  const patch: Record<string, unknown> = {};
-  for (const col of LISTS) patch[col] = [...lists[col].values()];
-  if (settings) patch.settings = settings;
-  useStore.setState(patch as never);
-}
-
-async function push() {
-  const local = flatten();
-  const rows: Record<string, unknown>[] = [];
-  const now = new Date().toISOString();
-  for (const [key, v] of local) if (synced.get(key) !== v.json) rows.push({ user_id: userId, collection: v.col, id: v.id, data: v.data, deleted: false, updated_at: now });
-  for (const key of synced.keys()) if (!local.has(key)) { const [col, ...rest] = key.split('/'); rows.push({ user_id: userId, collection: col, id: rest.join('/'), data: {}, deleted: true, updated_at: now }); }
-  for (let i = 0; i < rows.length; i += 500) {
-    const { error } = await supabase!.from('records').upsert(rows.slice(i, i + 500), { onConflict: 'user_id,collection,id' });
-    if (error) throw error;
-  }
-  for (const r of rows) { const key = `${r.collection}/${r.id}`; if (r.deleted) synced.delete(key); else synced.set(key, local.get(key)!.json); }
-  saveSnap();
-}
-
-async function cycle() {
-  if (!supabase || !userId) return;
-  if (busy) { again = true; return; }
-  busy = true; setStatus('syncing');
-  try {
-    const rows = await fetchAll();
-    if (firstSync) {
-      if (rows.length > 0) applyRemote(rows, true); // cloud wins on a fresh device
-      firstSync = false;
-    } else {
-      applyRemote(rows, false);
-    }
-    await push();
-    setStatus('synced');
-  } catch (e) {
-    setStatus('error', e instanceof Error ? e.message : String((e as { message?: string })?.message ?? e));
-  } finally {
-    busy = false;
-    if (again) { again = false; schedule(300); }
-  }
-}
-
-function schedule(ms = 700) { clearTimeout(timer); timer = setTimeout(cycle, ms); }
+let unwire: (() => void) | undefined;
 
 export function startSync(uid: string) {
-  stopSync(); userId = uid; synced = new Map(); firstSync = true; loadSnap();
-  unsub = useStore.subscribe(() => schedule());
-  // coming back (or the network returning) pulls changes; leaving the app pushes anything not yet uploaded, right away
-  const wake = () => { schedule(document.visibilityState === 'visible' ? 200 : 0); };
-  const leave = () => schedule(0);
-  document.addEventListener('visibilitychange', wake); window.addEventListener('online', wake); window.addEventListener('pagehide', leave);
-  poll = setInterval(() => schedule(0), 60_000);
-  const prevUnsub = unsub; unsub = () => { prevUnsub?.(); document.removeEventListener('visibilitychange', wake); window.removeEventListener('online', wake); window.removeEventListener('pagehide', leave); };
-  schedule(0);
+  stopSync();
+  if (!supabase) return;
+  userId = uid;
+  // the persisted data belongs to ANOTHER account (sign-out / sign-in as someone else): never upload it to this account, start from the seed
+  const owner = useStore.getState().syncCache?.owner;
+  if (owner && owner !== uid) useStore.setState({ ...seed(), syncCache: undefined } as never);
+  // until this device completed its first cloud sync the local dates are provisional: do not settle days yet (the cloud knows how far they were settled)
+  if (!useStore.getState().syncCache?.ready) useStore.setState({ holdSettle: true });
+  const offHold = useStore.subscribe((s, prev) => { if (prev.holdSettle && !s.holdSettle) s.settle(); });
+  const remote = createSupabaseRemote(supabase, uid);
+  const engine = createSyncEngine({ remote, store: storeAdapter, storage: localStorage, userId: uid, deviceId: getDeviceId(), withLock, validate: (c, it) => validateItem(c, it), coerce: (c, it) => coerceItem(c, it) });
+  setRuntime(engine, remote);
+  const wake = () => { void engine.syncNow(); };
+  const visible = wake; // visible: pull; hidden: flush right away
+  document.addEventListener('visibilitychange', visible);
+  window.addEventListener('online', wake); window.addEventListener('offline', wake); window.addEventListener('pagehide', wake);
+  unwire = () => { offHold(); document.removeEventListener('visibilitychange', visible); window.removeEventListener('online', wake); window.removeEventListener('offline', wake); window.removeEventListener('pagehide', wake); };
+  const offArchive = engine.subscribe((i) => { if (i.status === 'synced' && i.pending === 0) purgeLegacyArchive(); }); // browser originals of migrated prefs are kept until the first successful sync
+  const prevUnwire = unwire; unwire = () => { offArchive(); prevUnwire?.(); };
+  engine.start();
 }
 
-export function stopSync() { unsub?.(); unsub = undefined; clearInterval(poll); clearTimeout(timer); userId = null; setStatus('off'); }
-export const syncNow = () => schedule(0);
+export function stopSync() {
+  unwire?.(); unwire = undefined;
+  if (useStore.getState().holdSettle) useStore.setState({ holdSettle: false });
+  getEngine()?.stop();
+  clearRuntime();
+  userId = null;
+}
+
+export const syncNow = () => { void getEngine()?.syncNow(); };
 /** How many items changed on this device but are not in the cloud yet. */
+let pendingMemo = { at: 0, n: 0 };
+addInfoListener(() => { pendingMemo.at = 0; }); // any sync status change invalidates the memo
 export function pendingCount(): number {
-  let n = 0; const local = flatten();
-  for (const [key, v] of local) if (synced.get(key) !== v.json) n++;
-  for (const key of synced.keys()) if (!local.has(key)) n++;
-  return n;
+  if (!userId) return 0;
+  // the sync banner asks on every store change: recompute at most every 300 ms (cheap debounce)
+  const t = Date.now();
+  if (t - pendingMemo.at > 300) pendingMemo = { at: t, n: getEngine()?.info().pending ?? 0 };
+  return pendingMemo.n;
+}
+
+/** Compatibility: (status, lastSyncAt, error) listener used by the sync banner. */
+export function onSyncStatus(l: (s: SyncStatus, at?: Date, err?: string) => void): () => void {
+  return addInfoListener((i) => l(i.status, i.lastSyncAt ? new Date(i.lastSyncAt) : undefined, i.error));
 }

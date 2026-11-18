@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # The app runs without Supabase in tests (?demo=1 loads sample data); never put real keys in CI.
+      VITE_SUPABASE_URL: ''
+      VITE_SUPABASE_PUBLISHABLE_KEY: ''
+      PW_CHANNEL: ''          # use Playwright's bundled chromium instead of local Google Chrome
+      PW_WORKERS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Type check
+        run: npx tsc -b
+      - name: Migration bundle is up to date
+        run: node scripts/db-bundle.mjs --check
+      - name: Unit tests
+        run: npm run test:unit
+      - name: Build
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: E2E smoke (3 themes x 2 modes, phone)
+        env:
+          SKINS: canopy,paper,cyberpunk
+          MODES: dark,light
+        run: npx playwright test --project=phone tests/e2e/smoke.spec.ts
+      - name: E2E flows (phone)
+        run: >
+          npx playwright test --project=phone
+          tests/e2e/today.spec.ts
+          tests/e2e/habits-tasks.spec.ts
+          tests/e2e/rejections-journal-books.spec.ts
+          tests/e2e/gym.flows.spec.ts
+          tests/e2e/entertainment-rewards-settings.spec.ts
+      - name: CSP probe (built app served with the vercel.json headers)
+        run: |
+          node scripts/serve-with-headers.mjs dist 4173 &
+          sleep 2
+          BASE_URL=http://localhost:4173 PW_CHANNEL= node scripts/csp-probe.mjs
+      - name: npm audit (production dependencies; informational, see SECURITY.md for the accepted findings)
+        continue-on-error: true
+        run: npm audit --omit=dev
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-artifacts
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  sync-e2e:
+    # Multi-device sync tests: two browser contexts against a mock Supabase (PGlite running the real migrations).
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install Google Chrome (tests/e2e-sync/playwright.config.ts uses channel 'chrome')
+        run: npx playwright install --with-deps chrome
+      - name: Multi-device sync E2E
+        run: npx playwright test -c tests/e2e-sync/playwright.config.ts
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: sync-e2e-artifacts
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore

@@ -1,7 +1,6 @@
 import { defineConfig } from '@playwright/test';
 
-/** E2E tests run against a local dev server with NO Supabase (so `?demo=1` loads sample data) and use the installed Google Chrome,
-    so no browser download is needed. Filter with env vars: SKINS=canopy,paper MODES=dark ROUTES=/gym,/today
+/** E2E tests run against a local dev server with NO Supabase (so `?demo=1` loads sample data) and use the installed Google Chrome (PW_CHANNEL='' selects Playwright's bundled chromium: used in CI). Filter with env vars: SKINS=canopy,paper MODES=dark ROUTES=/gym,/today
     Run:  npx playwright test tests/e2e/<file>.spec.ts --project=phone      (projects: desktop, phone, phone-small) */
 const PORT = 5188;
 export default defineConfig({
@@ -13,7 +12,7 @@ export default defineConfig({
   workers: Number(process.env.PW_WORKERS ?? 2),
   retries: 0,
   reporter: [['list']],
-  use: { baseURL: process.env.BASE_URL ?? `http://localhost:${PORT}`, channel: 'chrome', trace: 'off', screenshot: 'off', video: 'off', launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] } },
+  use: { baseURL: process.env.BASE_URL ?? `http://localhost:${PORT}`, channel: (process.env.PW_CHANNEL ?? 'chrome') || undefined, trace: 'off', screenshot: 'off', video: 'off', launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] } },
   projects: [
     { name: 'desktop', use: { viewport: { width: 1440, height: 900 } } },
     { name: 'phone', use: { viewport: { width: 393, height: 852 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true } },

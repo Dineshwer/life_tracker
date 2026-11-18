@@ -1,6 +1,19 @@
 {
-  "rewrites": [{ "source": "/((?!assets/|sw.js|workbox-|manifest.webmanifest|hackertube.json|icon-).*)", "destination": "/index.html" }],
+  "rewrites": [{ "source": "/((?!assets/|sw.js|workbox-|registerSW.js|manifest.webmanifest|hackertube.json|icon-|avatar/|demos/).*)", "destination": "/index.html" }],
   "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https://i.ytimg.com; media-src 'self' blob: data:; frame-src https://www.youtube-nocookie.com https://www.youtube.com; connect-src 'self' blob: data: https://*.supabase.co wss://*.supabase.co https://www.youtube.com https://api.invidious.io https:; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=(), encrypted-media=(self \"https://www.youtube-nocookie.com\" \"https://www.youtube.com\"), picture-in-picture=(self \"https://www.youtube-nocookie.com\" \"https://www.youtube.com\"), fullscreen=(self \"https://www.youtube-nocookie.com\" \"https://www.youtube.com\")" },
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
+        { "key": "X-Frame-Options", "value": "DENY" }
+      ]
+    },
+    { "source": "/(index.html|registerSW.js|manifest.webmanifest)", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
     { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
     { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] }
   ]

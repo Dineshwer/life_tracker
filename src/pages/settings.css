@@ -17,3 +17,4 @@
 .set-pill.syncing .set-pill-dot { animation: pillpulse 1.1s ease-in-out infinite; }
 @keyframes pillpulse { 50% { opacity: .25; transform: scale(.7); } }
 .set-msg { color: var(--accent); }
+.set-card { min-width: 0; }

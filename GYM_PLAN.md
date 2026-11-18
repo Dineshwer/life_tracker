@@ -1,6 +1,6 @@
 # Gym plan: strength, size, tendons, skills (12 weeks)
 
-Status: DRAFT for approval. Nothing below is built in the app yet.
+Status: BUILT. This plan is implemented in the app (src/pages/gym/program.ts, the Gym page tabs Log, Plan, Mobility, Skills, Progress, Body, and The One at /one). This file stays as the written reference for the reasoning behind the program.
 
 ## 1. Goals
 - Strength for bodyweight: bench, deadlift, pull-ups so heavy that basics feel like warm-ups.

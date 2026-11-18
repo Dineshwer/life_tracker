@@ -1,2 +1,6 @@
-.sync-banner { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin: 10px 0 0; padding: 10px 14px; border: 1px solid var(--danger); border-radius: var(--r-control); background: color-mix(in srgb, var(--danger) 10%, var(--card)); font-size: .84rem; color: var(--text); }
-.sync-banner button { background: none; border: 0; color: var(--accent); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; padding: 6px 4px; }
+.sync-banner { display: flex; gap: 8px 12px; align-items: center; justify-content: space-between; margin: 10px 0 0; padding: 10px 14px; border: 1px solid var(--accent-2); border-radius: var(--r-control); background: color-mix(in srgb, var(--accent-2) 10%, var(--bg)); font-size: .84rem; line-height: 1.4; color: var(--text); }
+.sync-banner.error { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, var(--bg)); }
+.sync-banner-text { flex: 1 1 200px; min-width: 0; overflow-wrap: anywhere; }
+.sync-banner-btn { flex: none; min-height: 40px; padding: 6px 16px; }
+@media (max-width: 480px) { .sync-banner { padding: 8px 12px; font-size: .8rem; } }
+.sync-banner .btn.sync-banner-btn { color: var(--text); background: var(--bg); border-color: var(--line-strong); opacity: 1; }

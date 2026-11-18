@@ -28,6 +28,7 @@ import Books from './pages/Books';
 import OneExercise from './pages/OneExercise';
 // warm the 3D character (code + model files) when the user is about to open the Character screen
 const warm = (to: string) => { if (to === '/character') import('./components/avatar/Avatar3D').then((m) => (m as { warmAvatar?: () => void }).warmAvatar?.()).catch(() => {}); };
+const SyncUiLab = lazy(() => import('./pages/SyncUiLab')); // QA page: the Data & sync UI with fake data
 const AvatarLab = lazy(() => import('./pages/AvatarLab')); // QA page: keeps three.js out of the main bundle
 import SyncBanner from './components/SyncBanner';
 import './styles/shell.css';
@@ -126,6 +127,7 @@ export default function App() {
           <Route path="/rejections" element={<Rejections />} />
           <Route path="/books" element={<Books />} />
           <Route path="/avatar-lab" element={<Suspense fallback={null}><AvatarLab /></Suspense>} />
+          <Route path="/sync-ui-lab" element={<Suspense fallback={null}><SyncUiLab /></Suspense>} />
           <Route path="/entertainment" element={<Entertainment />} />
           <Route path="/gym" element={<Gym />} />
           <Route path="/one" element={<OneExercise />} />

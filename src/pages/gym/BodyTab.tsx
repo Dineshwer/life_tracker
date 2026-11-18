@@ -25,7 +25,7 @@ export default function BodyTab() {
   const delM = (k: string) => { const m = { ...(entry?.measurements ?? {}) }; delete m[k]; save({ measurements: m }); };
   const onFile = async (f?: File) => {
     if (!f) return; setBusy(true);
-    try { save({ photo: await downscale(f, 800) }); } catch { /* ignore bad image */ }
+    try { save({ photo: await downscale(f, 600, 0.6) }); } catch { /* ignore bad image */ }
     setBusy(false); if (fileRef.current) fileRef.current.value = '';
   };
 

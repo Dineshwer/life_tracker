@@ -4,3 +4,19 @@ dist
 .env.local
 test-results
 playwright-report
+
+# local env / secrets (only .env.example is committed)
+.env.*
+!.env.example
+*.pem
+*.key
+service_role*
+supabase/.temp
+supabase/.branches
+.vercel
+
+# tooling output
+coverage
+*.log
+*.tsbuildinfo
+.DS_Store

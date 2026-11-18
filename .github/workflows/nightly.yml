@@ -1,0 +1,48 @@
+name: Nightly full theme matrix
+
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [phone, desktop]
+    env:
+      VITE_SUPABASE_URL: ''
+      VITE_SUPABASE_PUBLISHABLE_KEY: ''
+      PW_CHANNEL: ''
+      PW_WORKERS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx tsc -b
+      - run: npm run test:unit
+      - run: npx playwright install --with-deps chromium
+      - name: Full matrix (all themes x light/dark x all routes, plus flows and a11y)
+        run: npx playwright test --project=${{ matrix.project }}
+      - name: Audit (production dependencies)
+        if: matrix.project == 'phone'
+        continue-on-error: true
+        run: npm audit --omit=dev
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-artifacts-${{ matrix.project }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
+          if-no-files-found: ignore

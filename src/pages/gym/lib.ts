@@ -129,7 +129,7 @@ export function loadPlan(): Plan {
 export function savePlan(p: Plan) { try { synced.setItem(PLAN_KEY, JSON.stringify(p)); } catch { /* ignore */ } }
 
 /** Downscale an image file to a JPEG data URL (max 800px, quality 0.7). */
-export function downscale(file: File, max = 800): Promise<string> {
+export function downscale(file: File, max = 800, quality = 0.7): Promise<string> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
@@ -141,7 +141,7 @@ export function downscale(file: File, max = 800): Promise<string> {
       if (!ctx) { URL.revokeObjectURL(url); reject(new Error('canvas')); return; }
       ctx.drawImage(img, 0, 0, c.width, c.height);
       URL.revokeObjectURL(url);
-      resolve(c.toDataURL('image/jpeg', 0.7));
+      resolve(c.toDataURL('image/jpeg', quality));
     };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('image')); };
     img.src = url;

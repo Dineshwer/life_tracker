@@ -26,6 +26,10 @@ test('legacy browser-only data is migrated into the synced store at startup', as
   expect(JSON.parse(k['ledger-mobility-2026-11-01'])).toEqual(['primer:0']);
   expect(JSON.parse(k['ledger-ht-topics'])).toEqual(['security-hacking']);
   expect(k['ledger-mirror-ids']).toBeUndefined();
+  // caches stay in the browser untouched; migrated originals are removed once safely in the store
+  const ls = await page.evaluate(() => ({ cache: localStorage.getItem('ledger-mirror-ids'), old: localStorage.getItem('ledger-gym-start') }));
+  expect(ls.cache).toBe('{}');
+  expect(ls.old).toBeNull();
 });
 
 test('ticking a mobility drill and picking feed topics write to the synced store', async ({ page }) => {

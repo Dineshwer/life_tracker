@@ -39,6 +39,7 @@ async function mockNet(page: Page, net: Net = {}) {
 const hash = (t: string) => [...t].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 1e9, 7);
 const defaultVideos = (ucid: string) => ({ videos: [0, 1, 2].map((i) => ({ videoId: ID(hash(ucid) * 10 + i), title: `${ucid} video ${i}`, published: Math.floor(Date.now() / 1000) - i * 86400, lengthSeconds: 600 + i, author: ucid })) });
 
+async function kvGet(page: Page, id: string): Promise<string | null> { const st = await getStore(page); return ((st?.kv ?? []) as { id: string; value: string }[]).find((x) => x.id === id)?.value ?? null; }
 async function getStore(page: Page) { return page.evaluate((k) => JSON.parse(localStorage.getItem(k) || '{}').state, KEY); }
 /** Patch the persisted zustand state, then reload so the app hydrates it. */
 async function patchStore(page: Page, patch: Record<string, unknown>) {
@@ -224,7 +225,7 @@ test.describe('Entertainment: HackerTube', () => {
     const t2 = (await page.locator('.en-card .en-title').first().textContent())!;
     await page.locator('.en-card').first().getByRole('button', { name: 'Not for me' }).click();
     await expect(page.locator('.en-feed-list .en-title', { hasText: t2 })).toHaveCount(0);
-    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ledger-feed-hidden')!).length)).toBe(1);
+    expect(JSON.parse((await kvGet(page, 'ledger-feed-hidden'))!).length).toBe(1); // preferences live in the synced store (kv), not only in localStorage
     await page.reload({ waitUntil: 'load' });
     await expect(page.locator('.en-card').first()).toBeVisible();
     await expect(page.locator('.en-feed-list .en-title', { hasText: t2 })).toHaveCount(0);
@@ -240,7 +241,7 @@ test.describe('Entertainment: HackerTube', () => {
     await expect(page.getByText('0 picked')).toBeVisible();
     await expect(page.getByText('Showing everything')).toBeVisible();
     const first = cats.first(); await first.click(); await expect(first).toHaveAttribute('aria-pressed', 'true');
-    expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ledger-ht-topics')!).length)).toBe(1);
+    expect(JSON.parse((await kvGet(page, 'ledger-ht-topics'))!).length).toBe(1);
     await page.reload({ waitUntil: 'load' });
     await page.getByRole('button', { name: 'Pick topics' }).click();
     await expect(page.getByText('1 picked')).toBeVisible();
@@ -527,7 +528,9 @@ test.describe('Settings', () => {
     expect(dl.suggestedFilename()).toMatch(/^ledger-backup-\d{4}-\d{2}-\d{2}\.json$/);
     const txt = await (await import('node:fs/promises')).readFile((await dl.path())!, 'utf8');
     const j = JSON.parse(txt);
-    for (const k of ['habits', 'tasks', 'xp', 'rewards', 'videos', 'settings']) expect(j, k).toHaveProperty(k);
+    expect(j).toMatchObject({ format: 'ledger-backup', version: 2 });
+    for (const k of ['habits', 'tasks', 'xp', 'rewards', 'videos']) expect(j.collections, k).toHaveProperty(k);
+    expect(j, 'settings').toHaveProperty('settings');
     await expect(page.getByText('Backup downloaded.')).toBeVisible();
   });
 
@@ -541,6 +544,7 @@ test.describe('Settings', () => {
     const txt = await (await import('node:fs/promises')).readFile((await dl.path())!, 'utf8');
     await patchStore(page, { xp: [], rewards: [] });
     await upload(page, txt);
+    await page.getByRole('dialog', { name: 'Restore from this file?' }).getByRole('button', { name: 'Restore', exact: true }).click();
     await expect(page.getByText('Backup restored.')).toBeVisible();
     const s = await getStore(page); expect(s.rewards[0].title).toBe('Backed up'); expect(s.xp[0].amount).toBe(77);
   });
@@ -568,6 +572,7 @@ test.describe('Settings', () => {
     const w = watch(page);
     await empty(page, '/settings'); await patchStore(page, { xp: [xpEvent(77)] });
     await upload(page, JSON.stringify({ rewards: [{ id: 'old', title: 'Old backup reward', cost: 10 }], xp: [], settings: { theme: 'light', wakeTime: '06:00', name: 'Old' } }));
+    await page.getByRole('dialog', { name: 'Restore from this file?' }).getByRole('button', { name: 'Restore', exact: true }).click();
     await expect(page.getByText('Backup restored.')).toBeVisible();
     for (const r of ['/today', '/habits', '/tasks', '/gym', '/journal', '/books', '/entertainment', '/character', '/rewards', '/settings']) {
       await page.goto(r, { waitUntil: 'load' }); await expect(page.locator('.main, .page').first()).toBeVisible();
