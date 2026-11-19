@@ -20,7 +20,7 @@ async function open(page: Page, route: string, skin = 'canopy', mode = 'dark') {
   await page.waitForLoadState('load').catch(() => {});
   await expect(page.locator('.page-title')).toBeVisible();
 }
-const store = (page: Page) => page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? '{}').state ?? {}, KEY);
+const store = (page: Page) => page.evaluate((k) => { window.dispatchEvent(new Event('pagehide')); return JSON.parse(localStorage.getItem(k) ?? '{}').state ?? {}; }, KEY);
 const rejRows = (n: number, dayOffset = 0) => Array.from({ length: n }, (_, i) => ({ id: `r${i}`, date: daysAgo(dayOffset), createdAt: new Date(Date.UTC(2026, 0, 1, 0, 0, i)).toISOString(), what: `Ask number ${i + 1}` }));
 const xpFor = (rejections: { id: string }[]) => rejections.map((r) => ({ id: `x${r.id}`, date: TODAY(), stat: 'discipline', amount: 10, reason: 'Rejection', ref: `rej:${r.id}` }));
 /** Navigate inside the SPA without a page load (what tapping the tab bar does). */
@@ -392,12 +392,16 @@ test.describe('journal flows', () => {
 
   test('an entry that arrives after mount (cloud sync) is edited, not duplicated', async ({ page }) => {
     await open(page, '/journal');
-    await page.evaluate((d) => {
-      // emulate a pull from the cloud adding today's entry with a different id while the page is open
-      const raw = JSON.parse(localStorage.getItem('life-tracker-v1')!);
-      raw.state.journal = [{ id: 'cloud', date: d, kind: 'daily', body: 'from phone' }];
-      localStorage.setItem('life-tracker-v1', JSON.stringify(raw));
-    }, TODAY());
+    const tok = `cloud-${Date.now()}`;
+    await page.addInitScript(([d, t]) => {
+      // emulate a pull from the cloud adding today's entry with a different id (applied at the next load so a flush cannot overwrite it)
+      try {
+        if (sessionStorage.getItem(t as string)) return; sessionStorage.setItem(t as string, '1');
+        const raw = JSON.parse(localStorage.getItem('life-tracker-v1')!);
+        raw.state.journal = [{ id: 'cloud', date: d, kind: 'daily', body: 'from phone' }];
+        localStorage.setItem('life-tracker-v1', JSON.stringify(raw));
+      } catch { /* */ }
+    }, [TODAY(), tok] as const);
     await page.reload();
     await page.getByLabel('Journal entry').fill('from phone, plus more');
     await page.getByLabel('Journal entry').blur();

@@ -30,7 +30,7 @@
 .lg-sets { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .lg-set { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-control); }
 .lg-set.now { border-color: var(--body); background: color-mix(in srgb, var(--body) 6%, transparent); }
-.lg-set.up { opacity: .5; grid-template-columns: 26px 1fr; }
+.lg-set.up { color: var(--muted); grid-template-columns: 26px 1fr; }
 .lg-set.done .lg-logged { text-align: left; background: none; border: 0; padding: 0; display: flex; gap: 10px; align-items: center; font-size: .95rem; }
 .lg-n { color: var(--muted); font-size: .8rem; }
 .lg-target { color: var(--muted); font-size: .88rem; }

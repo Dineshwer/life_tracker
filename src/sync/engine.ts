@@ -31,7 +31,7 @@ const bc = (x: unknown): string => toBase(canon(x));
 const newId = (): string => Math.random().toString(36).slice(2, 12) + Date.now().toString(36);
 
 export interface QuarantineView { invalidRows: QuarantineEntry[]; rejected: { key: string; reason: string; at: string }[] }
-export interface SyncInfoExt extends SyncInfo { warning?: string; quarantined: number }
+export interface SyncInfoExt extends SyncInfo { warning?: string; quarantined: number; pullMode?: 'rpc' | 'table' }
 /** EngineDeps plus an optional `coerce`: cut oversized free text of rows coming from the server (old data valid for the old client) instead of quarantining them. */
 export type EngineDepsExt = EngineDeps & { coerce?: (collection: string, item: Item) => Item };
 export interface SyncEngineExt extends SyncEngine { quarantine(): QuarantineView; info(): SyncInfoExt }
@@ -170,6 +170,7 @@ export function createSyncEngine(deps: EngineDepsExt): SyncEngineExt {
   /* ---------- info / status ---------- */
   function info(): SyncInfoExt {
     const i: SyncInfoExt = { status, live, lastSyncAt: meta.lastSyncAt, pending: started ? pendingCount() : 0, error: errorMsg, conflicts: meta.conflicts, deviceId, quarantined: Object.keys(meta.quarantine).length + Object.keys(meta.rejected).length };
+    const pm = (remote as { pullMode?: () => 'rpc' | 'table' | undefined }).pullMode?.(); if (pm) i.pullMode = pm;
     if (storageFull) i.warning = 'Browser storage is full: sync bookkeeping could not be saved on this device. Free some space; your data is safe in the cloud.';
     return i;
   }

@@ -7,7 +7,7 @@ const KEY = 'life-tracker-v1';
 const lab = (page: Page, q: string, skin = 'canopy', mode = 'dark') => visit(page, `/sync-ui-lab?${q}`, skin, mode);
 const calls = (page: Page) => page.evaluate(() => ((window as unknown as { __lab?: string[] }).__lab ?? []).slice());
 const signedOut = (page: Page) => page.evaluate(() => !!(window as unknown as { __signedOut?: boolean }).__signedOut);
-const getStore = (page: Page) => page.evaluate((k) => JSON.parse(localStorage.getItem(k) || '{}').state, KEY);
+const getStore = (page: Page) => page.evaluate((k) => { window.dispatchEvent(new Event('pagehide')); return JSON.parse(localStorage.getItem(k) || '{}').state; }, KEY);
 
 const STATES = ['synced', 'syncing', 'offline', 'error', 'conflicts', 'local'] as const;
 test.describe('matrix: every state in every theme', () => {

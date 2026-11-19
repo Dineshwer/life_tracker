@@ -14,3 +14,11 @@ describe('mergeThreeWay', () => {
     expect(canon({ a: 1, b: undefined, c: { y: 1, x: 2 } })).toBe(canon({ c: { x: 2, y: 1 }, a: 1 }));
   });
 });
+
+import { world } from './engine/harness';
+describe('info().pullMode', () => {
+  it('is taken from the remote when it reports one', async () => {
+    const w = world(); const d = w.make('A'); (d.remote as unknown as { pullMode: () => string }).pullMode = () => 'table';
+    await d.boot(); expect((d.engine.info() as { pullMode?: string }).pullMode).toBe('table'); d.stop();
+  });
+});

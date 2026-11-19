@@ -71,7 +71,7 @@ describe('S7: new client running BEFORE the SQL is applied', () => {
   it('FIXED DEFECT-D: the message a user would read: real PostgREST errors for a missing column / function', async () => {
     const mk = (pull: unknown, rpc: unknown) => {
       const chain: any = { select: () => chain, gt: () => chain, order: () => chain, limit: async () => pull };
-      return { from: () => chain, rpc: async () => rpc, channel: () => ({ on() { return this; }, subscribe() { return this; } }), removeChannel() {}, auth: { getSession: async () => ({ data: { session: null } }) } } as any;
+      return { from: () => chain, rpc: async (name: string) => (name === 'pull_changes' ? { data: null, error: { code: 'PGRST202', message: 'Could not find the function public.pull_changes in the schema cache', status: 404 } } : rpc), channel: () => ({ on() { return this; }, subscribe() { return this; } }), removeChannel() {}, auth: { getSession: async () => ({ data: { session: null } }) } } as any;
     };
     const cases: [string, any, any][] = [
       ['missing seq column', { data: null, error: { code: '42703', message: 'column records.seq does not exist', status: 400 } }, { data: [], error: null }],

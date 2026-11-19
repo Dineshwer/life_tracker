@@ -4,7 +4,7 @@ import { MODES, SKINS, contrastIssues, expectCleanLayout, layout, shot, visit, w
 /* ---------- helpers ---------- */
 const KEY = 'life-tracker-v1';
 type Persisted = { state: Record<string, any>; version: number };
-const readState = (page: Page) => page.evaluate((k) => JSON.parse(localStorage.getItem(k) || '{}') as Persisted, KEY);
+const readState = (page: Page) => page.evaluate((k) => { window.dispatchEvent(new Event('pagehide')); return JSON.parse(localStorage.getItem(k) || '{}') as Persisted; }, KEY);
 const ymd = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 /** Empty account (no demo) at a fixed local time. */
 async function open(page: Page, at?: string, skin = 'canopy', mode = 'dark') {
@@ -15,11 +15,16 @@ async function open(page: Page, at?: string, skin = 'canopy', mode = 'dark') {
 }
 /** Rewrite the persisted store, then reload so the app boots from it. */
 async function patchState(page: Page, fn: (s: Record<string, any>) => void) {
-  await page.evaluate(([k, src]) => {
-    const p = JSON.parse(localStorage.getItem(k) || '{"state":{},"version":2}');
-    // eslint-disable-next-line no-new-func
-    new Function('s', src)(p.state); localStorage.setItem(k, JSON.stringify(p));
-  }, [KEY, `(${fn.toString()})(s)`] as const);
+  // Applied at the start of the NEXT document so the old page's flush-on-pagehide cannot overwrite it.
+  const token = `patch-${Date.now()}-${Math.random()}`;
+  await page.addInitScript(([k, src, t]) => {
+    try {
+      if (sessionStorage.getItem(t as string)) return; sessionStorage.setItem(t as string, '1');
+      const p = JSON.parse(localStorage.getItem(k as string) || '{"state":{},"version":2}');
+      // eslint-disable-next-line no-new-func
+      new Function('s', src as string)(p.state); localStorage.setItem(k as string, JSON.stringify(p));
+    } catch { /* */ }
+  }, [KEY, `(${fn.toString()})(s)`, token] as const);
   await page.reload();
   await expect(page.locator('.today')).toBeVisible();
 }

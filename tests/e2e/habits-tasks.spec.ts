@@ -12,7 +12,7 @@ async function seedState(page: Page, partial: Record<string, unknown>) {
 }
 /** Form control inside a Field by its label text (labels wrap the control, so accessible-name matching is too loose). */
 const fld = (page: Page, label: string) => page.locator('label.field').filter({ has: page.locator('.label', { hasText: new RegExp('^' + label + '$') }) }).locator('input,select,textarea');
-const stored = (page: Page) => page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? '{}').state ?? {}, KEY);
+const stored = (page: Page) => page.evaluate((k) => { window.dispatchEvent(new Event('pagehide')); return JSON.parse(localStorage.getItem(k) ?? '{}').state ?? {}; }, KEY);
 const open = async (page: Page, route: string, extra = '') => { await page.goto(`${route}?skin=canopy&mode=dark${extra}`); await expect(page.locator('.main').first()).toBeVisible(); };
 const mkTask = (id: string, title: string, over: Record<string, unknown> = {}) => ({ id, title, done: false, context: 'personal', tags: [], effort: 2, stat: 'discipline', date: d(0), ...over });
 const mkHabit = (id: string, name: string, cadence: unknown, over: Record<string, unknown> = {}) => ({ id, name, stat: 'mind', cadence, xp: 15, ...over });

@@ -14,7 +14,7 @@ async function open(page: Page, route = '/gym', day = MON, seed?: Record<string,
   await page.goto(`${route}?skin=canopy&mode=dark`);
   await expect(page.locator('.main')).toBeVisible();
 }
-const store = (page: Page) => page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? '{}').state ?? {}, KEY);
+const store = (page: Page) => page.evaluate((k) => { window.dispatchEvent(new Event('pagehide')); return JSON.parse(localStorage.getItem(k) ?? '{}').state ?? {}; }, KEY);
 const tab = (page: Page, name: string) => page.getByRole('tab', { name, exact: true }).click();
 const row = (page: Page, name: string) => page.locator('.acc-row', { has: page.locator('.acc-name', { hasText: new RegExp(`^${name}$`) }) });
 async function openRow(page: Page, name: string) {
@@ -271,7 +271,16 @@ test.describe('gym: plan tab', () => {
     await page.addInitScript(() => localStorage.setItem('ledger-gym-start', '2026-01-01'));
     await open(page); await tab(page, 'Plan');
     await expect(page.locator('.gym-design-k')).toContainText('Week 12 of 12');
-    await page.addInitScript(() => localStorage.setItem('ledger-gym-start', '2030-01-01')); // start date in the future
+    // the start date is a synced preference now: set it in the store (applied at the next load so the old page's flush cannot overwrite it)
+    await page.addInitScript(() => {
+      try {
+        if (sessionStorage.getItem('gs-2030')) return; sessionStorage.setItem('gs-2030', '1');
+        const raw = JSON.parse(localStorage.getItem('life-tracker-v1') || '{"version":3,"state":{}}');
+        const kv = (raw.state.kv ?? []).filter((k: { id: string }) => k.id !== 'ledger-gym-start');
+        raw.state.kv = [...kv, { id: 'ledger-gym-start', value: '2030-01-01' }];
+        localStorage.setItem('life-tracker-v1', JSON.stringify(raw));
+      } catch { /* */ }
+    });
     await page.reload(); await tab(page, 'Plan');
     await expect(page.locator('.gym-design-k')).toContainText('Week 1 of 12');
   });
