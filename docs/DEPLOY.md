@@ -36,3 +36,10 @@ npm ci && npm run dev
 Step by step with checks: `docs/OWNER_RUNBOOK.md`.
 - The database upgrade (`apply-all.sql`) revokes INSERT/UPDATE/DELETE on `public.records` from signed-in users. The **old** app wrote with direct upserts (`git show HEAD:src/sync.ts`), so after the SQL runs an old build can read but its writes fail. The **new** app calls `push_records()`, so before the SQL runs it shows a sync error (local data stays on the device). Either order therefore leaves a gap until both are done: run the SQL, then deploy right away, then reload the app on every device.
 - Rollback: redeploy a previous deployment from the Vercel dashboard. The service worker auto-updates (`registerType: autoUpdate`), so clients pick it up on next load. **Rolling the app back to the pre-upgrade build does not undo the database**; that build cannot save to the server any more (its edits stay on the device). Roll forward instead, or restore data from a snapshot (`docs/DATA.md`). Migrations are forward-only. (Derived from the code; the deploy-order scenario was not run against a real Supabase project.)
+
+## Refreshing the course snapshot
+
+`public/courses.json` holds the video list of every playlist in `src/entertainment/catalog/courses.*.ts`, so the Courses tab works even when the Invidious mirror is down.
+- Refresh: `npm run snapshot:playlists`, check the printed table (a failed playlist keeps its previous entry), then commit `public/courses.json`.
+- Run it after adding a playlist to the catalog and every month or two; the app also refreshes lists from the mirror in the background.
+- It needs network access, uses at most 3 requests at once, and adds no dependencies. Titles are cut to 160 characters (`SNAPSHOT_TITLE_MAX`).

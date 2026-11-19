@@ -38,6 +38,6 @@ describe('backup', () => {
     expect(({} as Record<string, unknown>).x).toBeUndefined();
   });
   it('buildBackup includes every synced collection', () => {
-    expect(Object.keys(buildBackup().collections).sort()).toEqual(['habitLogs', 'habits', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'wake', 'books', 'conversations', 'rejections', 'videos', 'channels', 'oneLogs', 'kv'].sort());
+    expect(Object.keys(buildBackup().collections).sort()).toEqual(['habitLogs', 'habits', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'wake', 'books', 'conversations', 'rejections', 'videos', 'channels', 'courses', 'oneLogs', 'kv'].sort());
   });
 });

@@ -28,7 +28,7 @@ export async function bases(): Promise<string[]> {
 /** The mirror that last answered (used for the "Open ad-free" link). */
 export const mirrorBase = (): string => read<string | null>(LS.good, null) ?? FALLBACK[0];
 
-async function get<T>(path: string): Promise<T> {
+export async function get<T>(path: string): Promise<T> {
   let last: unknown = new Error('no mirror');
   for (const b of (await bases()).slice(0, 5)) {
     const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 20000);

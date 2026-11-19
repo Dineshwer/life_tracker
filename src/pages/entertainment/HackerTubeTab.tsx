@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useStore } from '../../store';
 import { Button } from '../../components/ui';
 import { synced } from '../../lib/synced';
+import { Thumb } from '../../entertainment/ui/Thumb';
+import { usePlayer } from '../../entertainment/ui/player';
 
 /* HackerTube's open dataset (https://hackertube.org/data, ODC-BY): 6,454 YouTube videos that Hacker News readers
    keep recommending, with topics, summaries and the reason HN likes each. It ships with the app as public/hackertube.json
@@ -21,7 +23,9 @@ const load = () => (cache ??= fetch('/hackertube.json').then((r) => { if (!r.ok)
 const readList = (k: string, d: string[]): string[] => { try { const v = JSON.parse(synced.getItem(k) || 'null'); return Array.isArray(v) ? v : d; } catch { return d; } };
 const save = (k: string, v: string[]) => { try { synced.setItem(k, JSON.stringify(v)); } catch { /* */ } };
 
-export default function HackerTubeTab({ onPlay }: { onPlay: (ytId: string, title: string) => void }) {
+export default function HackerTubeTab() {
+  const { play } = usePlayer();
+  const onPlay = (ytId: string, title: string) => play({ ytId, title });
   const videos = useStore((s) => s.videos);
   const addVideo = useStore((s) => s.addVideo);
   const [data, setData] = useState<Data | null>(null);
@@ -99,9 +103,7 @@ export default function HackerTubeTab({ onPlay }: { onPlay: (ytId: string, title
       <ul className="en-feed-list">
         {list.slice(0, n).map((r) => (
           <li className="en-card" key={r[VID]}>
-            <button className="en-thumb" onClick={() => onPlay(r[VID], r[TITLE])} aria-label={`Play ${r[TITLE]}`}>
-              <img src={`https://i.ytimg.com/vi/${r[VID]}/mqdefault.jpg`} alt="" loading="lazy" /><span className="en-play" aria-hidden>▶</span>
-            </button>
+            <Thumb ytId={r[VID]} title={r[TITLE]} onPlay={() => onPlay(r[VID], r[TITLE])} />
             <div className="en-card-body">
               <div className="en-title">{r[TITLE]}</div>
               <div className="en-feed-meta">{r[CHANNEL]} · {r[RECS]} {r[RECS] === 1 ? 'person' : 'people'} recommend{r[RECS] === 1 ? 's' : ''}</div>

@@ -8,7 +8,7 @@ import { sanitizeState } from './validate';
 export const STORE_VERSION = 3;
 
 type Blob = Record<string, unknown>;
-const LISTS = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'wake', 'books', 'conversations', 'rejections', 'videos', 'channels', 'oneLogs', 'kv'] as const;
+const LISTS = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'wake', 'books', 'conversations', 'rejections', 'videos', 'channels', 'courses', 'oneLogs', 'kv'] as const;
 
 const CONFIG: string[] = ['habits', 'blocks', 'rewards', 'channels'];
 export const MIGRATIONS: Record<number, (s: Blob) => Blob> = {

@@ -82,6 +82,7 @@ Without `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` the app runs purel
 - On start, if Supabase does not answer within 2 s the app opens with the saved login so local data still shows.
 - Edits are always applied to the store first, so the app never waits for the network. They are marked pending and pushed when the connection returns (`online` event, visibility change, backoff timer).
 - Signing out with pending changes asks for confirmation; the sync banner shows the pending count.
+- `public/courses.json` is a build-time snapshot of every catalog course playlist (ids, titles, durations; thumbnails come from the video id), cached NetworkFirst. Courses list from it instantly and `src/lib/yt.ts` refreshes from the Invidious mirror in the background, so a dead mirror no longer breaks the Courses tab. Order: fresh localStorage cache, snapshot, live mirror.
 - Feed and YouTube content need the network and degrade to an empty state.
 
 ## Build and delivery

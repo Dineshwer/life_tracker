@@ -1,12 +1,13 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, type StateStorage } from 'zustand/middleware';
 import type {
-  Habit, HabitLog, Task, TimeBlock, Workout, BodyEntry, JournalEntry, Reward, XPEvent, Settings, WakeLog, Book, Conversation, Rejection, Video, Channel, OneLog, OneId, KV, ISODate,
+  Habit, HabitLog, Task, TimeBlock, Workout, BodyEntry, JournalEntry, Reward, XPEvent, Settings, WakeLog, Book, Conversation, Rejection, Video, Channel, Course, OneLog, OneId, KV, ISODate,
 } from './types';
 import { addDays, today, isWeekend, fromISO, weekDays } from './lib/dates';
 import { MISSED_PENALTY, TASK_XP } from './lib/xp';
 import { REJECTION_XP } from './lib/rejections';
 import { seed } from './seed';
+import type { FinSub } from './entertainment/contract';
 import { COLLECTIONS } from './sync/types';
 import { STORE_VERSION, migratePersisted, loadState } from './lib/migrate';
 import { buildBackup, parseBackup } from './lib/backup';
@@ -28,7 +29,7 @@ interface State {
   tasks: Task[]; blocks: TimeBlock[];
   workouts: Workout[]; body: BodyEntry[];
   journal: JournalEntry[]; rewards: Reward[]; xp: XPEvent[];
-  wake: WakeLog[]; books: Book[]; conversations: Conversation[]; rejections: Rejection[]; videos: Video[]; channels: Channel[]; oneLogs: OneLog[]; kv: KV[];
+  wake: WakeLog[]; books: Book[]; conversations: Conversation[]; rejections: Rejection[]; videos: Video[]; channels: Channel[]; courses: Course[]; oneLogs: OneLog[]; kv: KV[];
   settings: Settings; settledThrough: ISODate;
   /** Sync cache marker (NOT synced data, persisted with the store): proves the persisted store and the sync metadata belong together. See src/sync/engine.ts. */
   syncCache?: { id: string; owner: string; gen: number; ready: boolean };
@@ -54,7 +55,10 @@ interface State {
   setVideoWatched: (id: string, watched: boolean) => void;
   removeVideo: (id: string) => void;
   setKV: (id: string, value: string) => void;
-  addChannel: (handle: string, topic: Channel['topic']) => void;
+  removeKV: (id: string) => void;
+  upsertCourse: (c: Course) => void;
+  removeCourse: (id: string) => void;
+  addChannel: (handle: string, topic: Channel['topic'], sub?: FinSub, cid?: string) => void;
   removeChannel: (id: string) => void;
   logWatched: (ytId: string, title: string, tag?: Video['tag']) => void;
   setTheme: (t: Settings['theme']) => void;
@@ -63,7 +67,7 @@ interface State {
   importAll: (json: string) => SanitizeReport;
 }
 
-type CollectionKey = 'habits' | 'habitLogs' | 'tasks' | 'blocks' | 'workouts' | 'body' | 'journal' | 'rewards' | 'xp' | 'books' | 'conversations' | 'rejections' | 'videos' | 'channels' | 'oneLogs' | 'kv';
+type CollectionKey = 'habits' | 'habitLogs' | 'tasks' | 'blocks' | 'workouts' | 'body' | 'journal' | 'rewards' | 'xp' | 'books' | 'conversations' | 'rejections' | 'videos' | 'channels' | 'courses' | 'oneLogs' | 'kv';
 
 /* Write-behind: the whole store is serialised on every change, which is expensive with thousands of items, so writes are coalesced (200 ms) and
    flushed when the page is hidden/closed. In Node (tests) there is no window and writes are immediate. A failed write (quota) is remembered but
@@ -246,14 +250,17 @@ export const useStore = create<State>()(
         if (s.videos.some((v) => v.ytId === ytId)) return { videos: s.videos.map((v) => (v.ytId === ytId ? { ...v, watchedAt: now } : v)) };
         return { videos: [...s.videos, coerceItem('videos', { id: uid(), ytId, title: title.trim() || 'Untitled video', tag, addedAt: now, watchedAt: now })] };
       }),
-      addChannel: (handle, topic) => set((s) => {
+      addChannel: (handle, topic, sub, cid) => set((s) => {
         const h = handle.trim().replace(/^https?:\/\/(www\.)?youtube\.com\//, '').replace(/\/.*$/, '');
         const clean = h.startsWith('@') ? h : `@${h}`;
         const id = clean.replace(/^@/, '').toLowerCase();
-        return !id || s.channels.some((c) => c.id === id) ? s : { channels: [...s.channels, { id, handle: clean, topic }] };
+        return !id || s.channels.some((c) => c.id === id) ? s : { channels: [...s.channels, { id, handle: clean, topic, ...(sub ? { sub } : {}), ...(cid ? { cid } : {}) }] };
       }),
       removeChannel: (id) => set((s) => ({ channels: s.channels.filter((c) => c.id !== id) })),
       setKV: (id, value) => set((s) => (s.kv.find((k) => k.id === id)?.value === value ? s : { kv: s.kv.some((k) => k.id === id) ? s.kv.map((k) => (k.id === id ? { ...k, value } : k)) : [...s.kv, { id, value }] })),
+      upsertCourse: (c) => get().upsert('courses', c),
+      removeCourse: (id) => get().remove('courses', id),
+      removeKV: (id) => set((s) => (s.kv.some((k) => k.id === id) ? { kv: s.kv.filter((k) => k.id !== id) } : s)),
       removeVideo: (id) => set((s) => ({ videos: s.videos.filter((v) => v.id !== id) })),
 
       claimReward: (id) => set((s) => ({ rewards: s.rewards.map((r) => (r.id === id ? { ...r, claimedAt: new Date().toISOString() } : r)) })),

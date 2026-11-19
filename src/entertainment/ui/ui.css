@@ -1,0 +1,13 @@
+/* Shared Entertainment UI kit. Uses only the app's theme tokens so every skin/theme works. */
+.en-chipwrap { display: grid; gap: 6px; margin: 4px 0 12px; min-width: 0; }
+.en-chiprow { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.en-chiprow::-webkit-scrollbar { display: none; }
+.en-chiprow button { flex: none; padding: 6px 13px; border-radius: var(--r-pill); border: 1px solid var(--line-strong); background: transparent; color: var(--muted); font: inherit; font-size: .8rem; cursor: pointer; white-space: nowrap; min-height: 34px; }
+.en-chiprow button.on { background: var(--btn-bg); color: var(--btn-ink); border-color: transparent; font-weight: 600; }
+.en-subrow button { font-size: .76rem; padding: 4px 11px; min-height: 30px; }
+.en-segmented { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--card); width: 100%; max-width: 420px; }
+.en-segmented button { flex: 1; display: inline-flex; gap: 7px; align-items: center; justify-content: center; padding: 8px 10px; border: 0; border-radius: var(--r-pill); background: transparent; color: var(--muted); font: inherit; font-size: .84rem; cursor: pointer; min-height: 38px; }
+.en-segmented button.on { background: var(--btn-bg); color: var(--btn-ink); font-weight: 600; }
+.en-count { font-size: .72rem; font-variant-numeric: tabular-nums; }
+.en-done-badge { position: absolute; top: 6px; right: 6px; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; background: var(--btn-bg); color: var(--btn-ink); font-size: .7rem; }
+.en-chiprow button:focus-visible, .en-segmented button:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }

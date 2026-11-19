@@ -10,7 +10,8 @@ The database is the source of truth for all tracked data; the browser holds a di
 | `migrations/0002_records_upgrade.sql` | adds `version`, `seq`, `created_at`, `device_id`; backfills; constraints; trigger owning `seq`/`updated_at`/`version`; revokes direct writes; realtime |
 | `migrations/0003_push_records.sql` | `push_records()`, the only write path |
 | `migrations/0004_backups.sql` | `record_backups`, backup/restore/purge functions, pg_cron schedules |
-| `migrations/0005_report.sql` | read-only report (constraint validity, row/seq counts, client privileges); its result is what the SQL editor shows after `apply-all.sql` |
+| `migrations/0006_courses_collection.sql` | adds `courses` to the collection allow-list (CHECK, `push_records`, `_item_valid`) |
+| `migrations/0007_report.sql` | read-only report (constraint validity, row/seq counts, client privileges); its result is what the SQL editor shows after `apply-all.sql` |
 | `apply-all.sql` | all migrations concatenated, one paste |
 | `schema.sql` | current full schema (same content as `apply-all.sql`) |
 
@@ -58,6 +59,11 @@ Pull (plain select, RLS applies, index `(user_id, seq)`):
 Service/cron only: `run_nightly_backup() -> integer` (users backed up; deletes backups older than 14 days), `purge_tombstones() -> integer` (deletes tombstones older than 90 days that a later daily backup already covers).
 
 `record_backups` has a surrogate `id` PK plus `kind`, with a unique index on `(user_id, taken_on) where kind = 'daily'`, so safety copies never overwrite each other.
+
+## Migration order
+Files run in file-name order. The report migration must always be the LAST file (its result is what the SQL editor displays), so new migrations take the number before it: add `0007_x.sql` by renaming the report to the next free number (currently `0007_report.sql` follows `0006_courses_collection.sql`).
+
+**Upgrade note (courses):** run `apply-all.sql` in the SQL Editor BEFORE deploying the app version that syncs `courses`. Until then the server rejects that collection and the engine treats an unknown collection as a permanent `rejected`.
 
 ## Behaviour notes
 - Errors: only validation-class errors (LD001, SQLSTATE 22xxx, 23xxx) become `rejected`; any other error (serialization failure, lock timeout, ...) fails the whole `push_records` call so the client retries.

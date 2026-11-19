@@ -8,7 +8,7 @@ import { sanitizeState, type SanitizeReport } from './validate';
 export const BACKUP_FORMAT = 'ledger-backup';
 export const BACKUP_VERSION = 2;
 const MAX_BYTES = 60 * 1024 * 1024;
-export const BACKUP_LISTS = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'wake', 'books', 'conversations', 'rejections', 'videos', 'channels', 'oneLogs', 'kv'] as const;
+export const BACKUP_LISTS = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'wake', 'books', 'conversations', 'rejections', 'videos', 'channels', 'courses', 'oneLogs', 'kv'] as const;
 
 export interface Backup {
   format: typeof BACKUP_FORMAT; version: number; exportedAt: string;

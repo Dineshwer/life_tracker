@@ -1,5 +1,5 @@
 {
-  "rewrites": [{ "source": "/((?!assets/|sw.js|workbox-|registerSW.js|manifest.webmanifest|hackertube.json|icon-|avatar/|demos/).*)", "destination": "/index.html" }],
+  "rewrites": [{ "source": "/((?!assets/|sw.js|workbox-|registerSW.js|manifest.webmanifest|hackertube.json|courses.json|icon-|avatar/|demos/).*)", "destination": "/index.html" }],
   "headers": [
     {
       "source": "/(.*)",
@@ -14,6 +14,7 @@
       ]
     },
     { "source": "/(index.html|registerSW.js|manifest.webmanifest)", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
+    { "source": "/courses.json", "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600, must-revalidate" }] },
     { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
     { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] }
   ]

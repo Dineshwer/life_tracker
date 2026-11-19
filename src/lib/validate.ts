@@ -1,10 +1,12 @@
 import { COLLECTIONS, type Item } from '../sync/types';
+import { TOPICS } from '../entertainment/contract';
 
 /* Item validation for every synced collection, plus `sanitizeState` (used when the persisted store is loaded and when a backup is
    imported): invalid items are dropped and reported, never loaded. Rules: required fields and primitive types, bounded sizes,
    enums, real ISO dates, finite numbers. Optional fields (see src/types.ts) may be absent or undefined but, when present, must
    have the right type, so old data that lacks newer optional fields (Book.kind...) is accepted. Unknown extra fields are kept. */
 
+const MAX_VIDEOS = 500, MAX_VIDEO_TITLE = 300;
 const MAX_ID = 200, MAX_STR = 2_000, MAX_TEXT = 200_000, MAX_PHOTO = 400_000, MAX_XP = 100_000;
 type R = Record<string, unknown>;
 const isObj = (v: unknown): v is R => !!v && typeof v === 'object' && !Array.isArray(v);
@@ -95,7 +97,12 @@ const SCHEMAS: Record<string, Schema> = {
   conversations: { id: ID, date: D, who: S(300), note: opt(S(MAX_TEXT)) },
   rejections: { id: ID, date: D, createdAt: TS, what: S(MAX_TEXT), who: opt(S(500)), note: opt(S(MAX_TEXT)) },
   videos: { id: ID, ytId: S(64, 1), title: S(500), tag: E('learn', 'fun'), addedAt: TS, watchedAt: opt(TS) },
-  channels: { id: ID, handle: S(200, 1), cid: opt(S(100)), topic: E('sec', 'psy', 'per', 'biz', 'sci', 'code') },
+  channels: { id: ID, handle: S(200, 1), cid: opt(S(100)), topic: E(...TOPICS.map((t) => t.id), 'sec', 'per', 'code'), sub: opt(E('stocks', 'investing', 'saving')), name: opt(S(200)), about: opt(S(500)), list: opt(E('mine', 'suggested', 'hidden')), origin: opt(E('pick', 'suggest', 'custom')) },
+  courses: {
+    id: ID, kind: E('playlist', 'link'), title: S(300, 1), by: opt(S(200)), topic: E(...TOPICS.map((t) => t.id)), sub: opt(E('stocks', 'investing', 'saving')),
+    list: E('mine', 'suggested', 'hidden'), origin: E('pick', 'suggest', 'custom'), url: opt(S(500)), count: opt(N(0, 100_000)), about: opt(S(500)),
+    videos: opt(arrOf((x) => Array.isArray(x) && x.length === 3 && str(x[0], 64, 1) && str(x[1], MAX_VIDEO_TITLE) && num(x[2], 0, 1e7), MAX_VIDEOS)), videosAt: opt(N(0, 1e15)),
+  },
   oneLogs: { id: ID, date: D, exercise: E('pullups', 'dips', 'pushups', 'rows', 'pikes', 'squats', 'splits', 'rdls'), sets: N(0, 1000), reps: N(0, 100_000), effort: opt(N(0, 10)) },
   kv: { id: ID, value: S(MAX_TEXT) },
   wake: { date: D, time: T },
@@ -116,6 +123,12 @@ export function coerceItem<T>(collection: string, item: T): T {
   for (const k in s) {
     const max = s[k].max, v = (item as R)[k];
     if (max !== undefined && typeof v === 'string' && v.length > max) { out = out ?? { ...(item as R) }; out[k] = v.slice(0, max); }
+  }
+  if (collection === 'courses' && Array.isArray((item as R).videos)) {
+    // lecture lists: at most MAX_VIDEOS entries, titles clamped (cut, never dropped)
+    const vs = (item as R).videos as unknown[];
+    const fixed = vs.slice(0, MAX_VIDEOS).map((x) => (Array.isArray(x) && typeof x[1] === 'string' && x[1].length > MAX_VIDEO_TITLE ? [x[0], x[1].slice(0, MAX_VIDEO_TITLE), ...x.slice(2)] : x));
+    if (vs.length > MAX_VIDEOS || fixed.some((x, i) => x !== vs[i])) { out = out ?? { ...(item as R) }; out.videos = fixed; }
   }
   return (out ?? item) as T;
 }

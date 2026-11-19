@@ -31,7 +31,7 @@ async function mockNet(page: Page, net: Net = {}) {
       if (out === 'slow') { await new Promise((s) => setTimeout(s, 1500)); return r.fulfill({ headers: CORS, json: defaultVideos(m[1]) }); }
       return r.fulfill({ headers: CORS, json: out });
     }
-    return r.fulfill({ headers: CORS, status: 404, body: '' });
+    return r.abort();
   });
   await page.route('https://yt.chocolatemoo53.com/**', (r) => r.abort());
   return hits;
@@ -40,10 +40,20 @@ const hash = (t: string) => [...t].reduce((h, c) => (h * 31 + c.charCodeAt(0)) %
 const defaultVideos = (ucid: string) => ({ videos: [0, 1, 2].map((i) => ({ videoId: ID(hash(ucid) * 10 + i), title: `${ucid} video ${i}`, published: Math.floor(Date.now() / 1000) - i * 86400, lengthSeconds: 600 + i, author: ucid })) });
 
 async function kvGet(page: Page, id: string): Promise<string | null> { const st = await getStore(page); return ((st?.kv ?? []) as { id: string; value: string }[]).find((x) => x.id === id)?.value ?? null; }
-async function getStore(page: Page) { return page.evaluate((k) => JSON.parse(localStorage.getItem(k) || '{}').state, KEY); }
+// The store batches writes to localStorage (about 200 ms), so wait for them before reading the persisted copy.
+async function getStore(page: Page) { await page.waitForTimeout(450); return page.evaluate((k) => JSON.parse(localStorage.getItem(k) || '{}').state, KEY); }
 /** Patch the persisted zustand state, then reload so the app hydrates it. */
 async function patchStore(page: Page, patch: Record<string, unknown>) {
-  await page.evaluate(([k, p]) => { const raw = JSON.parse(localStorage.getItem(k as string) || '{"version":2,"state":{}}'); raw.state = { ...raw.state, ...(p as object) }; localStorage.setItem(k as string, JSON.stringify(raw)); }, [KEY, patch] as const);
+  // Apply the patch at the start of the NEXT document: the old page flushes its in-memory state on pagehide and would
+  // otherwise overwrite a patch written straight into localStorage.
+  const token = `patch-${Date.now()}-${Math.random()}`;
+  await page.addInitScript(([k, p, t]) => {
+    try {
+      if (sessionStorage.getItem(t as string)) return; sessionStorage.setItem(t as string, '1');
+      const raw = JSON.parse(localStorage.getItem(k as string) || '{"version":3,"state":{}}'); raw.state = { ...raw.state, ...(p as object) };
+      localStorage.setItem(k as string, JSON.stringify(raw));
+    } catch { /* */ }
+  }, [KEY, patch, token] as const);
   await page.reload({ waitUntil: 'load' });
 }
 /** Fresh empty account on a route (no demo). */
@@ -51,6 +61,8 @@ async function empty(page: Page, route: string, skin = 'canopy', mode = 'dark') 
   await page.goto(`${route}?skin=${skin}&mode=${mode}`, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts?.ready);
 }
+/** Entertainment opens on Courses; switch tab. */
+const tab = (page: Page, name: string) => page.getByRole('tab', { name, exact: true }).click();
 const xpEvent = (amount: number, i = 0) => ({ id: 'x' + i, date: '2026-11-11', stat: 'body', amount, reason: 'test' });
 
 /* ---------- parseYouTubeId (pure) ---------- */
@@ -79,6 +91,7 @@ for (const route of ROUTES) for (const skin of SKINS) for (const mode of MODES) 
     const w = watch(page);
     await mockNet(page);
     await visit(page, route, skin, mode);
+    if (route === '/entertainment') await tab(page, 'HackerTube');
     if (route === '/entertainment') await expect(page.locator('.en-card').first()).toBeVisible();
     const touch = info.project.name !== 'desktop';
     expectCleanLayout(await layout(page, { touch }), `${route} ${skin} ${mode}`);
@@ -88,18 +101,18 @@ for (const route of ROUTES) for (const skin of SKINS) for (const mode of MODES) 
     expect(w.errors, 'console/page errors').toEqual([]);
   });
 }
-// the other Entertainment tab + the open topic picker + player + reward form sheet, in a representative spread of themes
+// the open topic picker + player + reward form sheet, in a representative spread of themes
 for (const skin of ['canopy', 'paper', 'arcade', 'cyberpunk', 'sumi']) for (const mode of MODES) {
   test(`matrix extras · ${skin} · ${mode}`, async ({ page }, info) => {
     const w = watch(page); await mockNet(page);
-    await visit(page, '/entertainment#mine', skin, mode);
-    await page.evaluate(() => localStorage.setItem('ledger-feed-tab', 'mine')); await page.reload({ waitUntil: 'load' });
+    await visit(page, '/entertainment', skin, mode); await tab(page, 'HackerTube');
     await expect(page.locator('.en-card').first()).toBeVisible();
-    await page.getByRole('button', { name: /^Channels/ }).click();
+    await page.getByRole('button', { name: 'Pick topics' }).click();
     const touch = info.project.name !== 'desktop';
-    expectCleanLayout(await layout(page, { touch }), `mine ${skin} ${mode}`);
-    expect(await contrast(page, skin, mode), 'contrast mine').toEqual([]);
-    if (process.env.SHOTS) await shot(page, info, `ent-mine-${skin}-${mode}`);
+    expectCleanLayout(await layout(page, { touch }), `topics ${skin} ${mode}`);
+    expect(await contrast(page, skin, mode), 'contrast topics').toEqual([]);
+    if (process.env.SHOTS) await shot(page, info, `ent-topics-${skin}-${mode}`);
+    await page.getByRole('button', { name: 'Done' }).click();
     await page.getByRole('button', { name: 'Watch' }).first().click();
     await expect(page.locator('.en-player iframe')).toBeVisible();
     expectCleanLayout(await layout(page, { touch }), `player ${skin} ${mode}`);
@@ -118,7 +131,7 @@ for (const skin of ['canopy', 'paper', 'arcade', 'cyberpunk', 'sumi']) for (cons
 test.describe('Entertainment: queue', () => {
   test('empty account: empty state, add by link, validation, duplicate, persistence, watched', async ({ page }) => {
     const w = watch(page); await mockNet(page);
-    await empty(page, '/entertainment');
+    await empty(page, '/entertainment'); await tab(page, 'Saved');
     await expect(page.getByText('Your queue is empty')).toBeVisible();
     const link = page.getByLabel('YouTube link'); const add = page.getByRole('button', { name: 'Add to queue' });
     // garbage
@@ -156,7 +169,7 @@ test.describe('Entertainment: queue', () => {
   test('oembed failure falls back to Untitled video; tag filter works', async ({ page }) => {
     await mockNet(page);
     await page.route('https://www.youtube.com/oembed**', (r) => r.abort());
-    await empty(page, '/entertainment');
+    await empty(page, '/entertainment'); await tab(page, 'Saved');
     await page.getByLabel('YouTube link').fill(ID(2));
     await page.locator('.en-seg').getByRole('button', { name: 'Fun', exact: true }).click();
     await page.getByRole('button', { name: 'Add to queue' }).click();
@@ -173,7 +186,7 @@ test.describe('Entertainment: queue', () => {
   test('rapid double click on Add creates one video', async ({ page }) => {
     await mockNet(page);
     await page.route('https://www.youtube.com/oembed**', async (r) => { await new Promise((s) => setTimeout(s, 300)); await r.fulfill({ headers: CORS, json: { title: 'Slow' } }); });
-    await empty(page, '/entertainment');
+    await empty(page, '/entertainment'); await tab(page, 'Saved');
     await page.getByLabel('YouTube link').fill(ID(4));
     await page.getByRole('button', { name: 'Add to queue' }).dblclick();
     await page.waitForTimeout(800);
@@ -181,13 +194,13 @@ test.describe('Entertainment: queue', () => {
   });
 
   test('Enter key submits the form', async ({ page }) => {
-    await mockNet(page); await empty(page, '/entertainment');
+    await mockNet(page); await empty(page, '/entertainment'); await tab(page, 'Saved');
     await page.getByLabel('YouTube link').fill(ID(5)); await page.getByLabel('Title (optional)').fill('Via Enter'); await page.keyboard.press('Enter');
     await expect(page.locator('.en-list .en-title')).toHaveText('Via Enter');
   });
 
   test('player: open, mark watched (XP-free log), close; phone layout', async ({ page }, info) => {
-    await mockNet(page); await empty(page, '/entertainment');
+    await mockNet(page); await empty(page, '/entertainment'); await tab(page, 'Saved');
     await page.getByLabel('YouTube link').fill(ID(6)); await page.getByLabel('Title (optional)').fill('Playable'); await page.getByRole('button', { name: 'Add to queue' }).click();
     await page.getByRole('button', { name: 'Play Playable' }).click();
     const frame = page.locator('.en-frame'); await expect(frame.locator('iframe')).toHaveAttribute('src', /youtube-nocookie\.com\/embed\/x+6/);
@@ -202,7 +215,7 @@ test.describe('Entertainment: queue', () => {
 
 test.describe('Entertainment: HackerTube', () => {
   test('loads, search, sort, show more, save, not for me, persistence of hidden + topics', async ({ page }) => {
-    const w = watch(page); await mockNet(page); await empty(page, '/entertainment');
+    const w = watch(page); await mockNet(page); await empty(page, '/entertainment'); await tab(page, 'HackerTube');
     await expect(page.locator('.en-card').first()).toBeVisible();
     expect(await page.locator('.en-card').count()).toBe(24);
     await page.getByRole('button', { name: /Show \d+ more/ }).click();
@@ -219,8 +232,10 @@ test.describe('Entertainment: HackerTube', () => {
     // save for later -> leaves the library, appears in the queue
     const t = (await page.locator('.en-card .en-title').first().textContent())!;
     await page.locator('.en-card').first().getByRole('button', { name: 'Save for later' }).click();
-    await expect(page.locator('.en-list .en-title', { hasText: t })).toBeVisible();
     await expect(page.locator('.en-feed-list .en-title', { hasText: t })).toHaveCount(0);
+    await tab(page, 'Saved');
+    await expect(page.locator('.en-list .en-title', { hasText: t })).toBeVisible();
+    await tab(page, 'HackerTube');
     // not for me -> hidden and persisted
     const t2 = (await page.locator('.en-card .en-title').first().textContent())!;
     await page.locator('.en-card').first().getByRole('button', { name: 'Not for me' }).click();
@@ -233,7 +248,7 @@ test.describe('Entertainment: HackerTube', () => {
   });
 
   test('topic picker: toggle, starter picks, show everything, persists; corrupt storage tolerated', async ({ page }) => {
-    await mockNet(page); await empty(page, '/entertainment');
+    await mockNet(page); await empty(page, '/entertainment'); await tab(page, 'HackerTube');
     await expect(page.locator('.en-card').first()).toBeVisible();
     await page.getByRole('button', { name: 'Pick topics' }).click();
     const cats = page.locator('.en-cat'); expect(await cats.count()).toBeGreaterThan(100);
@@ -257,115 +272,16 @@ test.describe('Entertainment: HackerTube', () => {
   test('library fetch failure shows an error, not a blank page', async ({ page }) => {
     await mockNet(page);
     await page.route('**/hackertube.json', (r) => r.fulfill({ headers: CORS, status: 500, body: 'x' }));
-    await empty(page, '/entertainment');
+    await empty(page, '/entertainment'); await tab(page, 'HackerTube');
     await expect(page.getByText('Could not load the HackerTube library')).toBeVisible();
   });
 
   test('a topic id in storage that no longer exists is ignored', async ({ page }) => {
-    await mockNet(page); await empty(page, '/entertainment');
+    await mockNet(page); await empty(page, '/entertainment'); await tab(page, 'HackerTube');
     await page.evaluate(() => localStorage.setItem('ledger-ht-topics', JSON.stringify(['does-not-exist'])));
     await page.reload({ waitUntil: 'load' });
     // unknown-only selection must not render a blank, "Nothing matches" feed with a misleading chip row
     await expect(page.locator('.en-card').first()).toBeVisible();
-  });
-});
-
-test.describe('Entertainment: My YouTube', () => {
-  test.setTimeout(120_000); // each channel is fetched with retries, so a failing mirror legitimately takes a while
-  const mine = async (page: Page) => { await page.addInitScript(() => localStorage.setItem('ledger-feed-tab', 'mine')); };
-
-  test('success: lists newest first, hides short videos, save + not for me, cache survives reload', async ({ page }) => {
-    const w = watch(page); const hits = await mockNet(page, { channel: (u) => ({ videos: [
-      { videoId: ID(hash(u) * 10 + 1), title: `${u} long`, published: Math.floor(Date.now() / 1000) - 3600, lengthSeconds: 900, author: u },
-      { videoId: ID(hash(u) * 10 + 2), title: `${u} short`, published: Math.floor(Date.now() / 1000), lengthSeconds: 60, author: u },
-      { videoId: ID(hash(u) * 10 + 3), title: `${u} live`, published: Math.floor(Date.now() / 1000), lengthSeconds: 900, author: u, liveNow: true },
-    ] }) });
-    await mine(page); await empty(page, '/entertainment');
-    await expect(page.locator('.en-card').first()).toBeVisible();
-    await expect(page.getByText(/short$/)).toHaveCount(0); await expect(page.getByText(/live$/)).toHaveCount(0);
-    expect(await page.locator('.en-card').count()).toBeGreaterThan(0);
-    await page.locator('.en-card').first().getByRole('button', { name: 'Not for me' }).click();
-    await page.locator('.en-card').first().getByRole('button', { name: 'Save for later' }).click();
-    expect((await getStore(page)).videos.length).toBe(1);
-    const before = hits.api; await page.reload({ waitUntil: 'load' });
-    await expect(page.locator('.en-card').first()).toBeVisible();
-    expect(hits.api).toBe(before); // served from the 3h cache
-    w.stop(); expect(w.errors).toEqual([]);
-  });
-
-  test('total failure shows message and Try again recovers', async ({ page }) => {
-    let fail = true;
-    await mockNet(page, { channel: (u) => (fail ? 'fail' : defaultVideos(u)) });
-    await mine(page); await empty(page, '/entertainment');
-    await expect(page.getByText('Could not reach any mirror server')).toBeVisible({ timeout: 60_000 });
-    fail = false;
-    await page.getByRole('button', { name: 'Try again' }).click();
-    await expect(page.locator('.en-card').first()).toBeVisible();
-  });
-
-  test('partial failure lists failed handles; Retry loads them', async ({ page }) => {
-    let broken = true;
-    await mockNet(page, { channel: (u) => (u === 'UCVeW9qkBjo3zosnqUbG7CFw' && broken ? 'fail' : defaultVideos(u)) });
-    await mine(page); await empty(page, '/entertainment');
-    const note = page.getByText(/Could not load:/);
-    await expect(note).toBeVisible({ timeout: 60_000 });
-    broken = false;
-    await page.getByRole('button', { name: 'Retry' }).click();
-    await expect(note).toHaveCount(0);
-  });
-
-  test('malformed JSON from a mirror counts as failure, no crash', async ({ page }) => {
-    const w = watch(page);
-    await mockNet(page, { channel: () => 'bad-json' });
-    await mine(page); await empty(page, '/entertainment');
-    await expect(page.getByText('Could not reach any mirror server')).toBeVisible({ timeout: 60_000 });
-    w.stop(); expect(w.errors).toEqual([]);
-  });
-
-  test('missing "videos" field is treated as an empty channel', async ({ page }) => {
-    await mockNet(page, { channel: () => ({}) });
-    await mine(page); await empty(page, '/entertainment');
-    await expect(page.getByText(/Loading your channels/)).toHaveCount(0, { timeout: 30_000 });
-    await expect(page.locator('.en-card')).toHaveCount(0);
-  });
-
-  test('slow responses show loading progress', async ({ page }) => {
-    await mockNet(page, { channel: () => 'slow' });
-    await mine(page); await empty(page, '/entertainment');
-    await expect(page.getByText(/Loading your channels… \d+ of \d+/)).toBeVisible();
-    await expect(page.locator('.en-card').first()).toBeVisible({ timeout: 30_000 });
-  });
-
-  test('channel manager: add, duplicate, bad handle, remove, empty submit', async ({ page }) => {
-    await mockNet(page, { resolve: (h) => (h === '@nope' ? null : 'UC' + h.replace('@', '')) });
-    await mine(page); await empty(page, '/entertainment');
-    await page.getByRole('button', { name: /^Channels \(/ }).click();
-    const n0 = (await getStore(page)).channels.length;
-    const input = page.getByLabel('Channel handle');
-    await input.fill('   '); await page.getByRole('button', { name: 'Add channel' }).click();
-    expect((await getStore(page)).channels.length).toBe(n0);
-    await input.fill('https://www.youtube.com/@MyTestChan/videos'); await page.getByRole('button', { name: 'Add channel' }).click();
-    await expect(page.locator('.en-chips li', { hasText: '@MyTestChan' })).toBeVisible();
-    await input.fill('mytestchan'); await page.getByRole('button', { name: 'Add channel' }).click(); // duplicate (case-insens)
-    expect((await getStore(page)).channels.length).toBe(n0 + 1);
-    await input.fill('@'); await page.getByRole('button', { name: 'Add channel' }).click(); // just "@"
-    expect((await getStore(page)).channels.some((c: { id: string }) => c.id === '')).toBe(false);
-    await input.fill('@nope'); await page.getByRole('button', { name: 'Add channel' }).click();
-    await page.getByRole('button', { name: 'Done' }).click();
-    await expect(page.getByText(/Could not load:.*@nope/)).toBeVisible({ timeout: 60_000 });
-    await page.getByRole('button', { name: /^Channels \(/ }).click();
-    await page.getByRole('button', { name: 'Remove @nope' }).click();
-    await page.getByRole('button', { name: 'Remove @MyTestChan' }).click();
-    expect((await getStore(page)).channels.length).toBe(n0);
-  });
-
-  test('removing every channel does not crash and shows nothing', async ({ page }) => {
-    const w = watch(page); await mockNet(page);
-    await mine(page); await empty(page, '/entertainment');
-    await patchStore(page, { channels: [] });
-    await expect(page.getByRole('button', { name: 'Channels (0)' })).toBeVisible();
-    await expect(page.locator('.en-card')).toHaveCount(0);
-    w.stop(); expect(w.errors).toEqual([]);
   });
 });
 

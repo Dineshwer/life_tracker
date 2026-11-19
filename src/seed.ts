@@ -1,3 +1,4 @@
+import { CHANNEL_PICKS } from './entertainment/catalog/channels.picks';
 import type { Channel, Habit, TimeBlock, Settings, Reward } from './types';
 import { addDays, today } from './lib/dates';
 
@@ -31,18 +32,12 @@ export function seed() {
   ];
   const settings: Settings = { theme: 'dark', skin: 'canopy', wakeTime: '07:00', name: 'Dinesh' };
   return {
-    habits, habitLogs: [], tasks: [], blocks, workouts: [], body: [], journal: [], rewards, xp: [], wake: [], books: [], conversations: [], rejections: [], videos: [], channels: DEFAULT_CHANNELS, oneLogs: [], kv: [],
+    habits, habitLogs: [], tasks: [], blocks, workouts: [], body: [], journal: [], rewards, xp: [], wake: [], books: [], conversations: [], rejections: [], videos: [], channels: DEFAULT_CHANNELS, courses: [], oneLogs: [], kv: [],
     settings, settledThrough: addDays(today(), -1),
   };
 }
 
-/** Starter channels for the Entertainment feed: long-form, informative, no noise. Edit them in the app. */
-const CID: Record<string, string> = {"LiveOverflow": "UClcE-kVhqyiHCcjYwcpfj9w", "_JohnHammond": "UCVeW9qkBjo3zosnqUbG7CFw", "ippsec": "UCa6eh7gCkpPo5XXUDfygQQA", "DavidBombal": "UCP7WmQ_U4GB3K51Od9QvM0w", "OALabs": "UC--DwaiMV-jtO-6EvmKOnqg", "13Cubed": "UCy8ntxFEudOCRZYT1f7ya9Q", "HubermanLab": "UC2D2CMWXMOVWx7giW1n3LIg", "AcademyofIdeas": "UCiRiQGCHGjDLT9FQXFW0I3A", "YaleCourses": "UC4EY_qnSeAP1xGsh61eOoJA", "Stanford": "UC-EnprmCZ3OXyAoG7vjVNCA", "TheSchoolOfLife": "UCfySbXm7Ae8N12TfJL6dnug", "BigThink": "UCvQECJukTDE2i6aCoMnS-Vg", "CharismaOnCommand": "UCU_W0oE_ock8bWKjALiGs8Q", "VanessaVanEdwards": "UCfzic9OwPjSaAgW3SYKLwCw", "YCombinator": "UCcefcZRL2oaA_uBNeo5UOWg", "StanfordGSB": "UCGwuxdEeCf0TIA2RbPOj-8g", "AlexHormozi": "UCUyDOdBWhC1MCxEjC46d-zw", "Acquired": "UCQWYPqj5rNz0leLLBjHK2OA", "3blue1brown": "UCYO_jab_esuFRV4b17AJtAw", "veritasium": "UCHnyfMqiRRG1u-2MsSQLbXA", "Kurzgesagt": "UCsXVk37bltHxD1rDPwtNM8Q", "Numberphile": "UCoxcjq-8xIDTYp3uz647V5A", "Computerphile": "UC9-y-6csu5WGm29I7JiwpnA", "LowLevelTV": "UC6biysICWOJ-C3P4Tyeggzg"};
-const mk = (handle: string, topic: Channel['topic']): Channel => ({ id: handle.replace(/^@/, '').toLowerCase(), handle, topic, ...(CID[handle.replace(/^@/, '')] ? { cid: CID[handle.replace(/^@/, '')] } : {}) });
-export const DEFAULT_CHANNELS: Channel[] = [
-  mk('@LiveOverflow', 'sec'), mk('@_JohnHammond', 'sec'), mk('@ippsec', 'sec'), mk('@DavidBombal', 'sec'), mk('@OALabs', 'sec'), mk('@13Cubed', 'sec'),
-  mk('@HubermanLab', 'psy'), mk('@AcademyofIdeas', 'psy'), mk('@YaleCourses', 'psy'), mk('@Stanford', 'psy'), mk('@TheSchoolOfLife', 'psy'), mk('@BigThink', 'psy'),
-  mk('@CharismaOnCommand', 'per'), mk('@VanessaVanEdwards', 'per'),
-  mk('@YCombinator', 'biz'), mk('@StanfordGSB', 'biz'), mk('@AlexHormozi', 'biz'), mk('@Acquired', 'biz'),
-  mk('@3blue1brown', 'sci'), mk('@veritasium', 'sci'), mk('@Kurzgesagt', 'sci'), mk('@Numberphile', 'sci'), mk('@Computerphile', 'sci'), mk('@LowLevelTV', 'sci'),
-];
+/** Starter channels for the Entertainment feed: the owner's picks from the catalog (Mine). Edit them in the app. */
+export const DEFAULT_CHANNELS: Channel[] = CHANNEL_PICKS.map((c) => ({ id: c.handle.replace(/^@/, '').toLowerCase(), handle: c.handle, ...(c.cid ? { cid: c.cid } : {}), topic: c.topic, ...(c.sub ? { sub: c.sub } : {}) }));
+/** The first default set. Used once to swap untouched old defaults for the v2 set (channels the user added themselves are kept). */
+export const OLD_DEFAULT_CHANNEL_IDS = ['liveoverflow','_johnhammond','ippsec','davidbombal','oalabs','13cubed','hubermanlab','academyofideas','yalecourses','stanford','theschooloflife','bigthink','charismaoncommand','vanessavanedwards','ycombinator','stanfordgsb','alexhormozi','acquired','3blue1brown','veritasium','kurzgesagt','numberphile','computerphile','lowleveltv'];

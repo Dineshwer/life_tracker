@@ -148,7 +148,7 @@ describe('validation / rejection', () => {
   };
   it('unknown collection', () => rej(item('nope', 'x'), /collection/));
   it('every contract collection is accepted', async () => {
-    const cols = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'books', 'conversations', 'rejections', 'videos', 'channels', 'oneLogs', 'kv', 'wake', 'meta'];
+    const cols = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'books', 'conversations', 'rejections', 'videos', 'channels', 'oneLogs', 'kv', 'wake', 'meta', 'courses'];
     const res = await asUser(db, A).push(cols.map((c) => item(c, 'i')));
     expect(res.every((r) => r.status === 'ok')).toBe(true);
   });
@@ -193,6 +193,31 @@ describe('validation / rejection', () => {
     await expect(a.exec(`insert into records (user_id,collection,id,data) values ('${A}','kv','x','[]')`)).rejects.toThrow(/records_data_object/);
     await expect(a.exec(`insert into records (user_id,collection,id,data) values ('${A}','kv','','{}')`)).rejects.toThrow(/records_id_len_ok/);
     await expect(a.exec(`insert into records (user_id,collection,id,data,deleted) values ('${A}','kv','t','{"a":"${'x'.repeat(2000)}"}',true)`)).rejects.toThrow(/records_tombstone_small/);
+  });
+});
+
+describe('0006 courses collection', () => {
+  it('accepts courses via push_records and the CHECK constraint, still rejects unknown', async () => {
+    expect((await asUser(db, A).push([item('courses', 'c1', { title: 'x' })]))[0].status).toBe('ok');
+    expect((await asUser(db, A).push([item('coursez', 'c1')]))[0].status).toBe('rejected');
+    await asAdmin(db).exec(`insert into records (user_id,collection,id,data) values ('${A}','courses','c2','{}')`);
+  });
+  it('upgrades in place from the 0002-0005 schema keeping rows; re-run is idempotent; restore handles courses', async () => {
+    const d = await createDb({ upTo: '0001' });
+    const u = await createUser(d);
+    for (const f of MIGRATION_FILES.filter((x) => /^000[2-5]/.test(x))) await d.exec(migrationSql(f));
+    await asUser(d, u).push([item('kv', 'k1', { a: 1 })]);
+    await expect(asUser(d, u).push([item('courses', 'c', {})]).then((r) => r[0].status)).resolves.toBe('rejected');
+    await d.exec(migrationSql('0006_courses_collection.sql'));
+    await d.exec(migrationSql('0006_courses_collection.sql'));
+    await applyAllSql(d);
+    expect((await d.query<any>('select id, version from records')).rows).toEqual([{ id: 'k1', version: 1 }]);
+    const s = asUser(d, u);
+    expect((await s.push([item('courses', 'c', { t: 1 })]))[0].status).toBe('ok');
+    await s.rpc('take_backup');
+    await s.push([item('courses', 'c', { t: 2 }, 1)]);
+    await s.rpc('restore_backup', { p_date: new Date().toISOString().slice(0, 10) });
+    expect((await s.query<any>(`select data from records where id='c'`))[0].data).toEqual({ t: 1 });
   });
 });
 

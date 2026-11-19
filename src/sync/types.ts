@@ -60,7 +60,7 @@ export interface Remote {
 /** Allowed collections (the DB enforces the same list). `meta` holds { id: 'settings' }. */
 export const COLLECTIONS = [
   'habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'books', 'conversations',
-  'rejections', 'videos', 'channels', 'oneLogs', 'kv', 'wake', 'meta',
+  'rejections', 'videos', 'channels', 'oneLogs', 'kv', 'wake', 'meta', 'courses',
 ] as const;
 export type Collection = (typeof COLLECTIONS)[number];
 

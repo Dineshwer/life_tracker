@@ -28,13 +28,14 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/hackertube\.json/, /^\/avatar\//, /^\/demos\//],
+        navigateFallbackDenylist: [/^\/hackertube\.json/, /^\/courses\.json/, /^\/avatar\//, /^\/demos\//],
         cleanupOutdatedCaches: true,
         // glb models are NOT precached (keeps the install light); they are cached on first use instead
         globIgnores: ['**/avatar/**', '**/*.glb'],
         runtimeCaching: [
           { urlPattern: ({ url }) => url.pathname.startsWith('/avatar/'), handler: 'CacheFirst', options: { cacheName: 'avatar-models', expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 365 }, cacheableResponse: { statuses: [0, 200] }, rangeRequests: true } },
           { urlPattern: ({ url }) => url.pathname === '/hackertube.json', handler: 'NetworkFirst', options: { cacheName: 'hackertube-data', networkTimeoutSeconds: 4, expiration: { maxEntries: 4 } } },
+          { urlPattern: ({ url }) => url.pathname === '/courses.json', handler: 'NetworkFirst', options: { cacheName: 'courses-data', networkTimeoutSeconds: 3, expiration: { maxEntries: 4 } } },
         ],
       },
     }),

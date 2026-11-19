@@ -1,3 +1,4 @@
+import type { TopicId, FinSub } from './entertainment/contract';
 export type Stat = 'body' | 'mind' | 'skill' | 'discipline';
 export type ISODate = string; // YYYY-MM-DD, local time
 
@@ -90,7 +91,18 @@ export interface Rejection { id: string; date: ISODate; createdAt: string; /** w
 export interface Video { id: string; ytId: string; title: string; tag: 'learn' | 'fun'; addedAt: string; watchedAt?: string }
 
 /** A YouTube channel followed in the Entertainment feed. */
-export interface Channel { id: string; handle: string; /** YouTube channel id, if known (saves a lookup) */ cid?: string; topic: 'sec' | 'psy' | 'per' | 'biz' | 'sci' | 'code' }
+export type LegacyTopic = 'sec' | 'per' | 'code';
+export type EntList = 'mine' | 'suggested' | 'hidden';
+export type EntOrigin = 'pick' | 'suggest' | 'custom';
+/** A channel row. `list` missing means 'mine' (rows from before the redesign). Suggested channels are real rows with list 'suggested'. */
+export interface Channel { id: string; handle: string; /** YouTube channel id, if known (saves a lookup) */ cid?: string; topic: TopicId | LegacyTopic; sub?: FinSub; name?: string; about?: string; list?: EntList; origin?: EntOrigin }
+
+/** A course (YouTube playlist or website course) in the Entertainment page. id = playlist id, or the slug for kind 'link'. `videos` = [ytId, title, durationSeconds][] (max 500), `videosAt` = ms epoch of that list. */
+export type CourseVideo = [string, string, number];
+export interface Course {
+  id: string; kind: 'playlist' | 'link'; title: string; by?: string; topic: TopicId; sub?: FinSub; list: EntList; origin: EntOrigin;
+  url?: string; count?: number; about?: string; videos?: CourseVideo[]; videosAt?: number;
+}
 
 /** One entry for the daily "one exercise" minimum (the 1-10 method). Workout-session sets are counted separately, straight from `workouts`. */
 export type OneId = 'pullups' | 'dips' | 'pushups' | 'rows' | 'pikes' | 'squats' | 'splits' | 'rdls';

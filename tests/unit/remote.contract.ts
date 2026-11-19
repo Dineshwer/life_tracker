@@ -89,7 +89,7 @@ export function describeRemoteContract(name: string, makeWorld: () => Promise<Re
       });
       it('every allowed collection is accepted', async () => {
         const { r } = mk();
-        const cols = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'books', 'conversations', 'rejections', 'videos', 'channels', 'oneLogs', 'kv', 'wake', 'meta'];
+        const cols = ['habits', 'habitLogs', 'tasks', 'blocks', 'workouts', 'body', 'journal', 'rewards', 'xp', 'books', 'conversations', 'rejections', 'videos', 'channels', 'oneLogs', 'kv', 'wake', 'meta', 'courses'];
         const res = await r.push(cols.map(c => item('x1', { a: 1 }, 0, { collection: c })), 'd');
         expect(res.map(x => x.status)).toEqual(cols.map(() => 'ok'));
       });

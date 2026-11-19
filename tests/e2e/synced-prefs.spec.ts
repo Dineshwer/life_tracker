@@ -45,6 +45,7 @@ test('ticking a mobility drill and picking feed topics write to the synced store
   expect(JSON.parse(k[mob[0]]).length).toBeGreaterThan(0);
 
   await visit(page, '/entertainment', 'canopy', 'dark');
+  await page.getByRole('tab', { name: 'HackerTube', exact: true }).click();
   await page.getByRole('button', { name: /pick topics/i }).click();
   await page.locator('.en-cat').first().click();
   await page.waitForTimeout(300);

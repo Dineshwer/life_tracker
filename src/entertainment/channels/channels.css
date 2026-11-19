@@ -1,0 +1,72 @@
+/* Entertainment > Channels. Theme tokens only, so every skin and mode works. */
+.ch { min-width: 0; max-width: 100%; } /* scrollable chip rows must never widen the page */
+.ch-gap { height: 12px; }
+.ch-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.ch-label { margin: 18px 0 8px; font-size: var(--label-size); font-weight: var(--label-weight); letter-spacing: var(--label-tracking); text-transform: var(--label-transform); color: var(--muted); }
+.ch-note, .ch-empty { color: var(--muted); font-size: .88rem; margin: 0 0 12px; display: grid; gap: 8px; justify-items: start; }
+.ch-empty { margin: 16px 0 24px; }
+.ch-down { padding: 14px; border: 1px solid var(--line-strong); border-radius: var(--r-card); background: var(--card); color: var(--text); }
+.ch-down strong { font-weight: 600; }
+.ch-down span { color: var(--muted); }
+.ch-failed { margin: 0; padding-left: 18px; }
+.ch-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ch-end { text-align: center; color: var(--muted); font-size: .86rem; margin: 14px 0 0; }
+.ch-link { background: none; border: 0; padding: 12px 8px; font: inherit; color: var(--text); font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; min-height: 44px; }
+.ch .btn { min-height: 44px; }
+.ch .btn-text { padding: 8px 10px; }
+.ch-ok { color: var(--muted); font-size: .86rem; margin: 8px 0 0; }
+.ch-err { color: var(--danger); font-size: .86rem; margin: 0 0 12px; }
+.ch-saved { color: var(--muted); font-size: .86rem; padding: 0 10px; min-height: 44px; display: inline-flex; align-items: center; }
+
+/* video row */
+.ch-vid { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 4px 12px; padding: 10px; border: var(--card-bw) solid var(--card-border); border-radius: var(--r-card); background: var(--card); box-shadow: var(--shadow); align-items: start; }
+.ch-vthumb { position: relative; }
+.ch .en-thumb { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; padding: 0; overflow: hidden; border-radius: calc(var(--r-card) * .5); background: color-mix(in srgb, var(--text) 10%, transparent); cursor: pointer; }
+.ch .en-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ch .en-play { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; background: rgba(0,0,0,.22); font-size: 1rem; }
+.ch .en-thumb:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ch-dur { position: absolute; right: 5px; bottom: 5px; padding: 1px 6px; border-radius: 4px; background: rgba(0,0,0,.78); color: #fff; font-size: .68rem; pointer-events: none; }
+.ch-vbody { display: grid; gap: 4px; min-width: 0; align-content: start; }
+.ch-vtitle { font-size: .92rem; line-height: 1.3; font-weight: 600; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.ch-vmeta { color: var(--muted); font-size: .76rem; overflow-wrap: anywhere; }
+.ch-vact { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 4px; }
+
+/* channel strip */
+.ch-strip { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 6px; margin-bottom: 8px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.ch-strip::-webkit-scrollbar { display: none; }
+.ch-strip button { flex: none; min-height: 44px; padding: 8px 15px; border-radius: var(--r-pill); border: 1px solid var(--line-strong); background: transparent; color: var(--muted); font: inherit; font-size: .84rem; cursor: pointer; white-space: nowrap; }
+.ch-strip button.on { background: var(--btn-bg); color: var(--btn-ink); border-color: var(--btn-border); font-weight: 600; }
+.ch-strip button:focus-visible, .ch-back:focus-visible, .ch-link:focus-visible, .ch-pl:focus-visible, .ch-cardhead:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* channel page */
+.ch-page { min-width: 0; }
+.ch-back { background: none; border: 0; color: var(--muted); font: inherit; font-size: .88rem; padding: 0 8px 0 0; min-height: 44px; cursor: pointer; }
+.ch-head { display: flex; gap: 12px; align-items: center; min-width: 0; }
+.ch-headtxt { display: grid; gap: 2px; min-width: 0; flex: 1; text-align: left; }
+.ch-name { margin: 0; font-family: var(--font-display); font-weight: var(--display-weight); font-size: 1.15rem; line-height: 1.2; overflow-wrap: anywhere; }
+.ch-sub { color: var(--muted); font-size: .8rem; overflow-wrap: anywhere; }
+.ch-sub a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.ch-sub a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; }
+.ch-about { margin: 8px 0 0; color: var(--muted); font-size: .86rem; line-height: 1.4; }
+.ch-headact { margin-top: 12px; }
+.ch-avatar { flex: none; display: grid; place-items: center; border-radius: 50%; background: color-mix(in srgb, var(--accent) 18%, transparent); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); font-weight: 700; font-family: var(--font-display); }
+.ch-pls li { list-style: none; }
+.ch-pl { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; text-align: left; padding: 12px 14px; min-height: 56px; border: var(--card-bw) solid var(--card-border); border-radius: var(--r-card); background: var(--card); color: var(--text); font: inherit; cursor: pointer; }
+.ch-pltitle { font-weight: 600; font-size: .92rem; overflow-wrap: anywhere; }
+.ch-plmeta { grid-column: 1; color: var(--muted); font-size: .76rem; }
+.ch-chev { grid-column: 2; grid-row: 1 / span 2; color: var(--muted); font-size: 1.3rem; }
+
+/* suggested card */
+.ch-card { padding: 12px 14px; display: grid; gap: 4px; }
+.ch-cardhead { display: flex; gap: 12px; align-items: center; width: 100%; padding: 2px 0; min-height: 48px; background: none; border: 0; color: var(--text); font: inherit; cursor: pointer; text-align: left; }
+.ch-cardhead .ch-name { font-size: 1rem; }
+.ch-cardhead .ch-headtxt { display: grid; }
+.ch-prev { flex: none; color: var(--muted); font-size: .8rem; }
+.ch-card .ch-about { margin: 0 0 6px; }
+
+/* add form */
+.ch-addwrap { margin-top: 22px; }
+.ch-add { margin-top: 22px; padding: 14px; }
+.ch-add .field { margin-bottom: 12px; }
+.ch-add .field input, .ch-add .field select { min-height: 44px; }
+@media (max-width: 380px) { .ch-vid { grid-template-columns: 108px minmax(0, 1fr); } }
